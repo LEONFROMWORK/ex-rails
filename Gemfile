@@ -24,8 +24,8 @@ gem "roo-xls", "~> 1.2"                      # Legacy XLS format support
 gem "rubyXL", "~> 3.4"                       # Excel manipulation and VBA analysis
 gem "creek", "~> 2.6"                        # Memory-efficient Excel streaming
 
-# High-Performance Excel Processing
-gem "fast_excel", "~> 0.4", require: false  # 15.45x faster Excel processing
+# High-Performance Excel Processing (일부 임시 비활성화)
+# gem "fast_excel", "~> 0.4", require: false  # 15.45x faster Excel processing - 네이티브 확장
 gem "xlsxtream", "~> 3.1"                    # 36.7x memory efficient Excel generation
 gem "memoist", "~> 0.16"                     # Memoization for performance optimization
 
@@ -36,9 +36,9 @@ gem "faraday-retry", "~> 2.2"
 gem "multi_json", "~> 1.15"
 gem "oj", "~> 3.16"
 
-# Vector Database and RAG
-gem "pgvector", "~> 0.3", require: false  # Optional - JSON fallback available
-gem "neighbor", "~> 0.4", require: false  # Optional - depends on pgvector
+# Vector Database and RAG (임시 비활성화 - 배포 후 활성화)
+# gem "pgvector", "~> 0.3"  # PostgreSQL vector extension
+# gem "neighbor", "~> 0.4"  # Vector similarity search
 gem "ruby-openai", "~> 7.1"
 gem "tiktoken_ruby", "~> 0.0.8"
 
@@ -79,10 +79,10 @@ gem "mini_magick", "~> 5.0"                  # 이미지 처리 (멀티모달 AI
 gem "marcel", "~> 1.0"                       # MIME type detection
 # gem "shrine", "~> 3.6"                     # 사용하지 않음 - 자체 S3Service 구현
 
-# Monitoring & Performance
-gem "sentry-ruby", "~> 5.22"
-gem "sentry-rails", "~> 5.22"
-gem "scout_apm", "~> 5.4"
+# Monitoring & Performance (임시 비활성화)
+# gem "sentry-ruby", "~> 5.22"
+# gem "sentry-rails", "~> 5.22"
+# gem "scout_apm", "~> 5.4"
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem "tzinfo-data", platforms: %i[ windows jruby ]

@@ -1,9 +1,7 @@
 class EnablePgvectorExtension < ActiveRecord::Migration[8.0]
   def change
-    # Railway PostgreSQL에서 pgvector 확장 활성화
-    enable_extension "vector"
-  rescue ActiveRecord::StatementInvalid => e
-    # pgvector가 설치되지 않은 경우 JSON 방식으로 폴백
-    Rails.logger.warn "pgvector 확장 활성화 실패, JSON 임베딩 사용: #{e.message}"
+    # pgvector gem 임시 비활성화로 인해 주석 처리
+    # enable_extension "vector"
+    Rails.logger.info "pgvector 확장 비활성화 - JSON 임베딩 사용"
   end
 end
