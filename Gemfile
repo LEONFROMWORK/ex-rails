@@ -37,8 +37,8 @@ gem "multi_json", "~> 1.15"
 gem "oj", "~> 3.16"
 
 # Vector Database and RAG
-gem "pgvector", "~> 0.3"
-gem "neighbor", "~> 0.4"
+gem "pgvector", "~> 0.3", require: false  # Optional - JSON fallback available
+gem "neighbor", "~> 0.4", require: false  # Optional - depends on pgvector
 gem "ruby-openai", "~> 7.1"
 gem "tiktoken_ruby", "~> 0.0.8"
 

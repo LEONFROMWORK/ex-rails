@@ -17,8 +17,14 @@ WORKDIR /rails
 
 # Install base packages
 RUN apt-get update -qq && \
-    apt-get install --no-install-recommends -y curl libjemalloc2 postgresql-client imagemagick && \
-    rm -rf /var/lib/apt/lists /var/cache/apt/archives
+    apt-get install --no-install-recommends -y \
+    curl \
+    libjemalloc2 \
+    postgresql-client \
+    imagemagick \
+    nodejs \
+    npm \
+    && rm -rf /var/lib/apt/lists /var/cache/apt/archives
 
 # Set production environment
 ENV RAILS_ENV="production" \
@@ -31,15 +37,35 @@ FROM base AS build
 
 # Install packages needed to build gems
 RUN apt-get update -qq && \
-    apt-get install --no-install-recommends -y build-essential git libpq-dev libyaml-dev pkg-config && \
-    rm -rf /var/lib/apt/lists /var/cache/apt/archives
+    apt-get install --no-install-recommends -y \
+    build-essential \
+    git \
+    libpq-dev \
+    libyaml-dev \
+    pkg-config \
+    libssl-dev \
+    libffi-dev \
+    libxml2-dev \
+    libxslt1-dev \
+    zlib1g-dev \
+    liblzma-dev \
+    libgmp-dev \
+    libreadline-dev \
+    && rm -rf /var/lib/apt/lists /var/cache/apt/archives
 
 # Install specific Bundler version to match Gemfile.lock
 RUN gem install bundler:2.6.9
 
+# Install npm dependencies
+COPY package.json package-lock.json ./
+RUN npm ci --omit=dev
+
 # Install application gems
 COPY Gemfile Gemfile.lock ./
-RUN bundle install && \
+RUN bundle config --global no-cache true && \
+    bundle config --global without 'development test' && \
+    bundle install --deployment --verbose --retry 3 --jobs 4 || \
+    (echo "Fallback: Installing without deployment flag" && bundle install --verbose --retry 3 --jobs 4) && \
     rm -rf ~/.bundle/ "${BUNDLE_PATH}"/ruby/*/cache "${BUNDLE_PATH}"/ruby/*/bundler/gems/*/.git
 
 # Copy application code
