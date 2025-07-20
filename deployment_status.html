@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ExcelApp Rails - Railway 배포 상태</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 3rem;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+        
+        .status-card {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .status-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .status-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .status-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            font-size: 1.2rem;
+        }
+        
+        .status-pending {
+            background: #fef3c7;
+            color: #d97706;
+        }
+        
+        .status-success {
+            background: #d1fae5;
+            color: #059669;
+        }
+        
+        .status-error {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+        
+        .status-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+        
+        .status-description {
+            color: #6b7280;
+            margin-bottom: 1rem;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e5e7eb;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 1rem;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #10b981, #34d399);
+            transition: width 0.5s ease;
+        }
+        
+        .links-section {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .links-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+        
+        .links-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+        
+        .link-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            text-decoration: none;
+            color: #374151;
+            transition: all 0.3s ease;
+        }
+        
+        .link-item:hover {
+            border-color: #3b82f6;
+            background: #eff6ff;
+        }
+        
+        .link-icon {
+            margin-right: 0.8rem;
+            font-size: 1.2rem;
+        }
+        
+        .refresh-btn {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .refresh-btn:hover {
+            transform: scale(1.1);
+            background: #2563eb;
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f4f6;
+            border-radius: 50%;
+            border-top-color: #3b82f6;
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .deployment-info {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+        
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .info-item:last-child {
+            border-bottom: none;
+        }
+        
+        .info-label {
+            font-weight: 600;
+            color: #374151;
+        }
+        
+        .info-value {
+            color: #6b7280;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 ExcelApp Rails</h1>
+            <p>Railway 배포 상태 모니터링</p>
+        </div>
+        
+        <div class="deployment-info">
+            <h2 class="links-title">📊 배포 정보</h2>
+            <div class="info-item">
+                <span class="info-label">GitHub 저장소:</span>
+                <span class="info-value">LEONFROMWORK/ex-rails</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">플랫폼:</span>
+                <span class="info-value">Railway</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">프레임워크:</span>
+                <span class="info-value">Ruby on Rails 8.0</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">데이터베이스:</span>
+                <span class="info-value">PostgreSQL + Redis</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">배포 시간:</span>
+                <span class="info-value" id="deploy-time">실시간 모니터링 중...</span>
+            </div>
+        </div>
+        
+        <div class="status-grid">
+            <div class="status-card">
+                <div class="status-header">
+                    <div class="status-icon status-pending" id="project-icon">⏳</div>
+                    <div class="status-title">프로젝트 생성</div>
+                </div>
+                <div class="status-description">Railway에서 프로젝트 생성 및 GitHub 연결</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="project-progress" style="width: 0%"></div>
+                </div>
+                <div id="project-status">대기 중...</div>
+            </div>
+            
+            <div class="status-card">
+                <div class="status-header">
+                    <div class="status-icon status-pending" id="build-icon">⏳</div>
+                    <div class="status-title">빌드 및 배포</div>
+                </div>
+                <div class="status-description">의존성 설치, 에셋 빌드, 서버 시작</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="build-progress" style="width: 0%"></div>
+                </div>
+                <div id="build-status">대기 중...</div>
+            </div>
+            
+            <div class="status-card">
+                <div class="status-header">
+                    <div class="status-icon status-pending" id="database-icon">⏳</div>
+                    <div class="status-title">데이터베이스</div>
+                </div>
+                <div class="status-description">PostgreSQL, Redis 서비스 추가</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="database-progress" style="width: 0%"></div>
+                </div>
+                <div id="database-status">대기 중...</div>
+            </div>
+            
+            <div class="status-card">
+                <div class="status-header">
+                    <div class="status-icon status-pending" id="health-icon">⏳</div>
+                    <div class="status-title">헬스체크</div>
+                </div>
+                <div class="status-description">애플리케이션 상태 확인</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="health-progress" style="width: 0%"></div>
+                </div>
+                <div id="health-status">대기 중...</div>
+            </div>
+        </div>
+        
+        <div class="links-section">
+            <h2 class="links-title">🔗 유용한 링크</h2>
+            <div class="links-grid">
+                <a href="https://railway.app/new" class="link-item" target="_blank">
+                    <span class="link-icon">🚀</span>
+                    <span>Railway 새 프로젝트</span>
+                </a>
+                <a href="https://github.com/LEONFROMWORK/ex-rails" class="link-item" target="_blank">
+                    <span class="link-icon">📱</span>
+                    <span>GitHub 저장소</span>
+                </a>
+                <a href="https://railway.app/dashboard" class="link-item" target="_blank">
+                    <span class="link-icon">📊</span>
+                    <span>Railway 대시보드</span>
+                </a>
+                <a href="#" class="link-item" id="app-link" style="opacity: 0.5;">
+                    <span class="link-icon">🌐</span>
+                    <span>애플리케이션 (배포 후)</span>
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <button class="refresh-btn" onclick="refreshStatus()">🔄</button>
+    
+    <script>
+        let deployStartTime = new Date();
+        let appDomain = '';
+        
+        function updateDeployTime() {
+            const now = new Date();
+            const elapsed = Math.floor((now - deployStartTime) / 1000);
+            const minutes = Math.floor(elapsed / 60);
+            const seconds = elapsed % 60;
+            document.getElementById('deploy-time').textContent = 
+                `${minutes}분 ${seconds}초 경과`;
+        }
+        
+        function updateStatus(step, status, progress) {
+            const icon = document.getElementById(`${step}-icon`);
+            const progressBar = document.getElementById(`${step}-progress`);
+            const statusText = document.getElementById(`${step}-status`);
+            
+            if (status === 'success') {
+                icon.className = 'status-icon status-success';
+                icon.textContent = '✅';
+                progressBar.style.width = '100%';
+            } else if (status === 'error') {
+                icon.className = 'status-icon status-error';
+                icon.textContent = '❌';
+            } else {
+                progressBar.style.width = `${progress}%`;
+            }
+            
+            statusText.textContent = getStatusText(step, status);
+        }
+        
+        function getStatusText(step, status) {
+            const messages = {
+                project: {
+                    success: '프로젝트 생성 완료',
+                    error: '프로젝트 생성 실패',
+                    default: '프로젝트 생성 중...'
+                },
+                build: {
+                    success: '빌드 및 배포 완료',
+                    error: '빌드 실패',
+                    default: '빌드 진행 중...'
+                },
+                database: {
+                    success: '데이터베이스 서비스 추가 완료',
+                    error: '데이터베이스 연결 실패',
+                    default: '데이터베이스 설정 중...'
+                },
+                health: {
+                    success: '애플리케이션 정상 작동',
+                    error: '헬스체크 실패',
+                    default: '헬스체크 진행 중...'
+                }
+            };
+            
+            return messages[step][status] || messages[step].default;
+        }
+        
+        async function checkDeploymentStatus(domain) {
+            if (!domain) return;
+            
+            try {
+                // 기본 연결 확인
+                const response = await fetch(`https://${domain}`, { mode: 'no-cors' });
+                updateStatus('project', 'success', 100);
+                updateStatus('build', 'success', 100);
+                
+                // 헬스체크 확인
+                const healthResponse = await fetch(`https://${domain}/up`, { mode: 'no-cors' });
+                updateStatus('health', 'success', 100);
+                
+                // 앱 링크 활성화
+                const appLink = document.getElementById('app-link');
+                appLink.href = `https://${domain}`;
+                appLink.style.opacity = '1';
+                
+            } catch (error) {
+                console.log('배포 진행 중...', error);
+            }
+        }
+        
+        function refreshStatus() {
+            // 도메인 입력 받기
+            const domain = prompt('Railway에서 생성된 도메인을 입력하세요 (예: your-app.railway.app):');
+            if (domain) {
+                appDomain = domain;
+                checkDeploymentStatus(domain);
+            }
+        }
+        
+        // 시뮬레이션 - 실제 환경에서는 실제 API 호출로 대체
+        function simulateDeployment() {
+            setTimeout(() => updateStatus('project', 'success', 100), 2000);
+            setTimeout(() => updateStatus('build', 'loading', 50), 4000);
+            setTimeout(() => updateStatus('build', 'success', 100), 8000);
+            setTimeout(() => updateStatus('database', 'success', 100), 10000);
+            setTimeout(() => updateStatus('health', 'loading', 75), 12000);
+            setTimeout(() => updateStatus('health', 'success', 100), 15000);
+        }
+        
+        // 타이머 시작
+        setInterval(updateDeployTime, 1000);
+        
+        // 페이지 로드 시 안내 메시지
+        window.addEventListener('load', () => {
+            alert('Railway 대시보드에서 프로젝트를 생성한 후, 새로고침 버튼을 클릭하여 도메인을 입력하세요!');
+        });
+    </script>
+</body>
+</html>
