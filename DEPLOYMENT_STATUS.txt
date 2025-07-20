@@ -1,0 +1,10 @@
+Railway Git Push 자동 배포 테스트
+
+배포 시간: 2025-01-20
+상태: Git Push 방식 설정 중
+프로젝트: 엑셀 Rails (23715624-2291-4a72-9689-cd8eeedb31d1)
+
+다음 단계:
+1. Railway 대시보드에서 GitHub 저장소 연결
+2. 자동 배포 활성화
+3. Git push로 배포 테스트
