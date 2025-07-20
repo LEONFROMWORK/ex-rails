@@ -71,7 +71,7 @@ gem "vite_rails", "~> 3.0"                   # Vite integration for Vue.js
 gem "kaminari", "~> 1.2"
 
 # Payment processing
-gem "stripe", "~> 12.6"                        # Stripe for international payments
+gem "stripe", "~> 15.3"                        # Stripe for international payments
 
 # File Storage & External Services
 gem "aws-sdk-s3", "~> 1.169"                 # S3 파일 저장 (optional, 환경변수로 제어)
