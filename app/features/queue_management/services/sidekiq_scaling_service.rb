@@ -671,7 +671,7 @@ module QueueManagement
       end
 
       # 메모이제이션으로 성능 최적화
-      memoize :assess_redis_health, :calculate_current_costs
+      # memoize :assess_redis_health, :calculate_current_costs
     end
   end
 end

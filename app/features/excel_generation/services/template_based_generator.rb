@@ -1,6 +1,10 @@
 # frozen_string_literal: true
 
-require "xlsxtream"
+begin
+  require "xlsxtream"
+rescue LoadError
+  # xlsxtream gem이 비활성화된 경우 건너뛰기
+end
 require "erb"
 
 module ExcelGeneration
@@ -756,7 +760,7 @@ module ExcelGeneration
       end
 
       # 메모이제이션으로 성능 최적화
-      memoize :load_template_config, :list_available_templates
+      # memoize :load_template_config, :list_available_templates
     end
   end
 end

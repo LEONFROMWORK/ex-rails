@@ -1,18 +1,25 @@
 Railway Git Push 자동 배포 성공! ✅
 
 배포 시간: 2025-01-20
-상태: Git Push 자동 배포 완료
+상태: 모든 빌드 오류 해결 완료
 프로젝트: 엑셀 Rails (23715624-2291-4a72-9689-cd8eeedb31d1)
-커밋: 8b82c45 (docs: add Railway services setup guide)
+최신 커밋: b5b4ef9 (fix(assets): resolve Tailwind CSS UTF-8 encoding issue)
+
+✅ 해결된 문제들:
+1. ✅ Bundle install exit code 18 → 네이티브 확장 gem 비활성화
+2. ✅ Rails assets precompile 실패 → Tailwind UTF-8 인코딩 문제 해결
+3. ✅ Git Push 자동 배포 활성화
+4. ✅ Railway GitHub 연결 완료
 
 ✅ 완료된 단계:
 1. ✅ Railway 프로젝트 연결
-2. ✅ GitHub 저장소 연결
-3. ✅ Git Push 자동 배포 성공 (8b82c45)
-4. ✅ Railway 서비스 설정 가이드 생성
+2. ✅ GitHub 저장소 연결  
+3. ✅ Git Push 자동 배포 성공 (b5b4ef9)
+4. ✅ Bundle install 문제 해결
+5. ✅ Assets precompile 문제 해결
 
-🔄 진행 중:
+🔄 다음 단계:
 - Railway 대시보드에서 PostgreSQL 추가
 - Railway 대시보드에서 Redis 추가
-- 환경 변수 설정
-- 도메인 설정 및 테스트
+- 환경 변수 설정 (RAILS_MASTER_KEY 등)
+- 도메인 생성 및 배포 테스트

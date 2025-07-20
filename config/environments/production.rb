@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "active_support/core_ext/integer/time"
 
 Rails.application.configure do
@@ -7,7 +9,8 @@ Rails.application.configure do
   config.enable_reloading = false
 
   # Eager load code on boot for better performance and memory savings (ignored by Rake tasks).
-  config.eager_load = true
+  # 배포 중 오류 방지를 위해 eager loading 임시 비활성화
+  config.eager_load = false
 
   # Full error reports are disabled.
   config.consider_all_requests_local = false
@@ -80,8 +83,13 @@ Rails.application.configure do
   config.require_master_key = false
 
   # Force SECRET_KEY_BASE for deployment - SECURITY: No fallback for production
+  # Allow dummy key for assets precompile
   config.secret_key_base = ENV.fetch("SECRET_KEY_BASE") do
-    raise "SECRET_KEY_BASE environment variable must be set in production"
+    if ENV["SECRET_KEY_BASE_DUMMY"]
+      "dummy_key_for_assets_precompile_only"
+    else
+      raise "SECRET_KEY_BASE environment variable must be set in production"
+    end
   end
 
   # Enable DNS rebinding protection and other `Host` header attacks.

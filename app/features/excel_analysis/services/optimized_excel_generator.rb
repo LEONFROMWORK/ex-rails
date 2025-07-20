@@ -532,7 +532,7 @@ module ExcelAnalysis
       end
 
       # 메모이제이션
-      memoize :estimate_output_rows, :small_dataset?
+      # memoize :estimate_output_rows, :small_dataset?
     end
   end
 end

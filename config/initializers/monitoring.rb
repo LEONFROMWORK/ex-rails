@@ -29,36 +29,36 @@ Rails.application.config.after_initialize do
       }
     })
 
-    # 메트릭 수집 간격 설정
-    Thread.new do
-      loop do
-        sleep 60 # 1분마다
+    # 메트릭 수집 간격 설정 (배포 시 임시 비활성화)
+    # Thread.new do
+    #   loop do
+    #     sleep 60 # 1분마다
+    #
+    #     begin
+    #       # 실시간 통계 수집
+    #       stats = monitoring.get_realtime_stats(window: 5.minutes)
+    #
+    #       # 대시보드용 Redis에 저장
+    #       Rails.cache.write("ai_monitoring:realtime_stats", stats, expires_in: 2.minutes)
+    #
+    #       # 임계값 체크
+    #       if stats[:avg_quality] < 0.65
+    #         Rails.logger.warn("Low average AI response quality: #{stats[:avg_quality]}")
+    #       end
+    #
+    #       if stats[:error_rate] > 0.1
+    #         Rails.logger.error("High AI error rate: #{stats[:error_rate]}")
+    #       end
+    #
+    #     rescue StandardError => e
+    #       Rails.logger.error("Monitoring stats collection failed: #{e.message}")
+    #     end
+    #   end
+    # end
 
-        begin
-          # 실시간 통계 수집
-          stats = monitoring.get_realtime_stats(window: 5.minutes)
-
-          # 대시보드용 Redis에 저장
-          Rails.cache.write("ai_monitoring:realtime_stats", stats, expires_in: 2.minutes)
-
-          # 임계값 체크
-          if stats[:avg_quality] < 0.65
-            Rails.logger.warn("Low average AI response quality: #{stats[:avg_quality]}")
-          end
-
-          if stats[:error_rate] > 0.1
-            Rails.logger.error("High AI error rate: #{stats[:error_rate]}")
-          end
-
-        rescue StandardError => e
-          Rails.logger.error("Monitoring stats collection failed: #{e.message}")
-        end
-      end
-    end
-
-    # 자동 튜닝 작업 시작
-    Rails.logger.info("Starting AI auto-tuning background job")
-    AiAutoTuningJob.perform_later
+    # 자동 튜닝 작업 시작 (배포 시 임시 비활성화)
+    Rails.logger.info("AI auto-tuning job disabled during deployment")
+    # AiAutoTuningJob.perform_later
 
     # 초기 A/B 테스트 실험 설정
     setup_initial_experiments

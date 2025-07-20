@@ -624,8 +624,8 @@ module AiIntegration
         @connection.index_exists?(table_name, index_name)
       end
 
-      # 메모이제이션으로 반복 계산 방지
-      memoize :ensure_vector_extension, :find_vector_indexes
+      # 메모이제이션으로 반복 계산 방지 (배포 시 임시 비활성화)
+      # memoize :ensure_vector_extension, :find_vector_indexes
     end
   end
 end

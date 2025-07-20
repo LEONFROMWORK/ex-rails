@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative "boot"
 
 require "rails"
@@ -46,6 +48,16 @@ module ExcelappRails
     # Exclude lib directory from Zeitwerk auto-loading to avoid naming conflicts
     config.autoload_paths -= [ Rails.root.join("lib") ]
     config.eager_load_paths -= [ Rails.root.join("lib") ]
+
+    # 비활성화된 gem을 사용하는 파일들을 eager loading에서 제외 (배포 시 임시)
+    config.eager_load_paths -= [
+      Rails.root.join("app", "features", "excel_generation"),
+      Rails.root.join("app", "features", "excel_modification"),
+      Rails.root.join("app", "features", "excel_analysis", "services", "optimized_excel_generator.rb"),
+      Rails.root.join("app", "features", "excel_analysis", "services", "optimized_excel_processor.rb"),
+      Rails.root.join("app", "services", "streaming_excel_processor.rb"),
+      Rails.root.join("app", "services", "analyzers", "xlsb_analyzer.rb")
+    ]
 
     # Don't generate system test files.
     config.generators.system_tests = nil

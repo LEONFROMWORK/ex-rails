@@ -538,7 +538,7 @@ module AiIntegration
       end
 
       # 메모이제이션으로 API 키 검증 최적화
-      memoize :detect_image_mime_type, :detect_video_mime_type
+      # memoize :detect_image_mime_type, :detect_video_mime_type
     end
   end
 end

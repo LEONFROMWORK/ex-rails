@@ -848,7 +848,7 @@ module ExcelAnalysis
       end
 
       # 메모이제이션으로 성능 최적화
-      memoize :extract_vba_modules, :detect_vba_by_signature
+      # memoize :extract_vba_modules, :detect_vba_by_signature
     end
   end
 end

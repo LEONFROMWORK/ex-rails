@@ -544,7 +544,7 @@ module ExcelAnalysis
       end
 
       # 메모이제이션으로 반복 계산 방지
-      memoize :fast_excel_available?, :count_total_rows, :estimate_column_count
+      # memoize :fast_excel_available?, :count_total_rows, :estimate_column_count
     end
   end
 end
