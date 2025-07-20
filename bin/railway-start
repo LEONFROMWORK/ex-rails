@@ -1,0 +1,22 @@
+#!/bin/bash
+# Railway용 애플리케이션 시작 스크립트
+
+echo "🚀 Railway에서 애플리케이션 시작 중..."
+
+# 데이터베이스 마이그레이션 시도 (실패해도 계속 진행)
+if [ -n "$DATABASE_URL" ]; then
+  echo "📊 데이터베이스 마이그레이션 실행 중..."
+  bundle exec rails db:migrate
+  if [ $? -eq 0 ]; then
+    echo "✅ 마이그레이션 완료"
+  else
+    echo "⚠️  마이그레이션 실패 - 애플리케이션은 계속 시작합니다"
+  fi
+else
+  echo "⚠️  DATABASE_URL이 설정되지 않음 - 마이그레이션 건너뛰기"
+  echo "🔧 Railway 대시보드에서 PostgreSQL 서비스를 추가하세요"
+fi
+
+# 애플리케이션 시작
+echo "🎯 Rails 서버 시작..."
+exec bundle exec rails server -b 0.0.0.0 -p ${PORT:-3000}
