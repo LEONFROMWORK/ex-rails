@@ -33,7 +33,7 @@ gem "memoist", "~> 0.16"                     # Memoization for performance optim
 gem "httparty", "~> 0.22"
 gem "faraday", "~> 2.12"
 gem "faraday-retry", "~> 2.2"
-gem "multi_json", "~> 1.15"
+gem "multi_json", "~> 1.17"
 # gem "oj", "~> 3.16"                          # 네이티브 확장 - 임시 비활성화
 
 # Vector Database and RAG (임시 비활성화 - 배포 후 활성화)
