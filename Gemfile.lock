@@ -131,9 +131,6 @@ GEM
       bigdecimal
       rexml
     crass (1.0.6)
-    creek (2.6.3)
-      nokogiri (>= 1.10.0)
-      rubyzip (>= 1.0.0)
     css_parser (1.21.1)
       addressable
     csv (3.3.5)
@@ -173,8 +170,6 @@ GEM
       net-http (>= 0.5.0)
     faraday-retry (2.3.2)
       faraday (~> 2.0)
-    fast_excel (0.5.0)
-      ffi (> 1.9, < 2)
     ffi (1.17.2-aarch64-linux-gnu)
     ffi (1.17.2-aarch64-linux-musl)
     ffi (1.17.2-arm-linux-gnu)
@@ -191,7 +186,6 @@ GEM
       activesupport (>= 6.1)
     hashdiff (1.2.0)
     hashie (5.0.0)
-    hiredis (0.6.3)
     htmlbeautifier (1.4.3)
     htmlentities (4.3.4)
     httparty (0.23.1)
@@ -277,8 +271,6 @@ GEM
       bigdecimal (~> 3.1)
     multipart-post (2.4.1)
     mutex_m (0.3.0)
-    neighbor (0.6.0)
-      activerecord (>= 7.1)
     net-http (0.6.0)
       uri
     net-imap (0.5.9)
@@ -320,9 +312,6 @@ GEM
       rack (>= 1.2, < 4)
       snaky_hash (~> 2.0, >= 2.0.3)
       version_gem (>= 1.1.8, < 3)
-    oj (3.16.11)
-      bigdecimal (>= 3.0)
-      ostruct (>= 0.2)
     omniauth (2.1.3)
       hashie (>= 3.4.6)
       rack (>= 2.2.3)
@@ -344,7 +333,6 @@ GEM
       ast (~> 2.4.1)
       racc
     pg (1.5.9)
-    pgvector (0.3.2)
     pp (0.6.2)
       prettyprint
     prettyprint (0.2.0)
@@ -438,10 +426,6 @@ GEM
     roo (2.10.1)
       nokogiri (~> 1)
       rubyzip (>= 1.3.0, < 3.0.0)
-    roo-xls (1.2.0)
-      nokogiri
-      roo (>= 2.0.0, < 3)
-      spreadsheet (> 0.9.0)
     rouge (4.5.2)
     rspec (3.13.1)
       rspec-core (~> 3.13.0)
@@ -497,7 +481,6 @@ GEM
       rubocop (>= 1.72)
       rubocop-performance (>= 1.24)
       rubocop-rails (>= 2.30)
-    ruby-ole (1.2.13.1)
     ruby-openai (7.4.0)
       event_stream_parser (>= 0.3.0, < 2.0.0)
       faraday (>= 1)
@@ -507,8 +490,6 @@ GEM
       nokogiri (>= 1.10.8)
       rubyzip (>= 1.3.0)
     rubyzip (2.4.1)
-    scout_apm (5.6.4)
-      parser
     securerandom (0.4.1)
     selenium-webdriver (4.34.0)
       base64 (~> 0.2)
@@ -516,12 +497,6 @@ GEM
       rexml (~> 3.2, >= 3.2.5)
       rubyzip (>= 1.2.2, < 3.0)
       websocket (~> 1.0)
-    sentry-rails (5.26.0)
-      railties (>= 5.0)
-      sentry-ruby (~> 5.26.0)
-    sentry-ruby (5.26.0)
-      bigdecimal
-      concurrent-ruby (~> 1.0, >= 1.0.2)
     shadcn-ui (0.0.15)
       tailwind_merge (~> 0.12)
     shoulda-matchers (6.5.0)
@@ -556,10 +531,6 @@ GEM
       fugit (~> 1.11.0)
       railties (>= 7.1)
       thor (~> 1.3.1)
-    spreadsheet (1.3.4)
-      bigdecimal
-      logger
-      ruby-ole
     spring (4.3.0)
     sshkit (1.24.0)
       base64
@@ -592,12 +563,6 @@ GEM
     thruster (0.1.14-arm64-darwin)
     thruster (0.1.14-x86_64-darwin)
     thruster (0.1.14-x86_64-linux)
-    tiktoken_ruby (0.0.11.1-aarch64-linux)
-    tiktoken_ruby (0.0.11.1-arm-linux)
-    tiktoken_ruby (0.0.11.1-arm64-darwin)
-    tiktoken_ruby (0.0.11.1-x86_64-darwin)
-    tiktoken_ruby (0.0.11.1-x86_64-linux)
-    tiktoken_ruby (0.0.11.1-x86_64-linux-musl)
     timeout (0.4.3)
     turbo-rails (2.0.16)
       actionpack (>= 7.1.0)
@@ -640,13 +605,10 @@ GEM
       base64
       websocket-extensions (>= 0.1.0)
     websocket-extensions (0.1.5)
-    xlsxtream (3.1.0)
-      zip_kit (>= 6.2, < 7)
     xpath (3.2.0)
       nokogiri (~> 1.8)
     yard (0.9.37)
     zeitwerk (2.7.3)
-    zip_kit (6.3.3)
 
 PLATFORMS
   aarch64-linux
@@ -668,16 +630,13 @@ DEPENDENCIES
   brakeman
   bullet (~> 8.0)
   capybara (~> 3.40)
-  creek (~> 2.6)
   database_cleaner-active_record (~> 2.2)
   debug
   factory_bot_rails (~> 6.4)
   faker (~> 3.5)
   faraday (~> 2.12)
   faraday-retry (~> 2.2)
-  fast_excel (~> 0.4)
   foreman
-  hiredis (~> 0.6)
   httparty (~> 0.22)
   importmap-rails
   jwt (~> 2.9)
@@ -690,14 +649,11 @@ DEPENDENCIES
   memory_profiler
   mini_magick (~> 5.0)
   multi_json (~> 1.15)
-  neighbor (~> 0.4)
-  oj (~> 3.16)
   omniauth (~> 2.1)
   omniauth-google-oauth2 (~> 1.1)
   omniauth-oauth2 (~> 1.8)
   omniauth-rails_csrf_protection (~> 1.0)
   pg (~> 1.1)
-  pgvector (~> 0.3)
   propshaft
   pry-byebug
   pry-rails
@@ -709,16 +665,12 @@ DEPENDENCIES
   redis (~> 5.3)
   redis-client (>= 0.22)
   roo (~> 2.10)
-  roo-xls (~> 1.2)
   rspec-benchmark (~> 0.6)
   rspec-rails (~> 7.1)
   rubocop-rails-omakase
   ruby-openai (~> 7.1)
   rubyXL (~> 3.4)
-  scout_apm (~> 5.4)
   selenium-webdriver (~> 4.27)
-  sentry-rails (~> 5.22)
-  sentry-ruby (~> 5.22)
   shadcn-ui (~> 0.0.13)
   shoulda-matchers (~> 6.4)
   simplecov
@@ -731,7 +683,6 @@ DEPENDENCIES
   stripe (~> 12.6)
   tailwindcss-rails
   thruster
-  tiktoken_ruby (~> 0.0.8)
   turbo-rails
   tzinfo-data
   vcr (~> 6.3)
@@ -739,10 +690,9 @@ DEPENDENCIES
   vite_rails (~> 3.0)
   web-console
   webmock (~> 3.24)
-  xlsxtream (~> 3.1)
 
 RUBY VERSION
-   ruby 3.3.5p100
+   ruby 3.4.4p34
 
 BUNDLED WITH
    2.6.9
