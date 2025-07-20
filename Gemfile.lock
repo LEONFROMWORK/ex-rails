@@ -372,8 +372,9 @@ GEM
     rack (3.1.16)
     rack-attack (6.7.0)
       rack (>= 1.0, < 4)
-    rack-cors (2.0.2)
-      rack (>= 2.0.0)
+    rack-cors (3.0.0)
+      logger
+      rack (>= 3.0.14)
     rack-mini-profiler (3.3.1)
       rack (>= 1.2.0)
     rack-protection (4.1.1)
@@ -703,7 +704,7 @@ DEPENDENCIES
   pry-rails
   puma (~> 6.0)
   rack-attack (~> 6.7)
-  rack-cors (~> 2.0)
+  rack-cors (~> 3.0)
   rack-mini-profiler (~> 3.3)
   rails (~> 8.0.2)
   redis (~> 5.3)

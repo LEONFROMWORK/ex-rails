@@ -44,7 +44,7 @@ gem "tiktoken_ruby", "~> 0.0.8"
 gem "bcrypt", "~> 3.1"
 gem "jwt", "~> 2.9"
 gem "rack-attack", "~> 6.7"
-gem "rack-cors", "~> 2.0"
+gem "rack-cors", "~> 3.0"
 
 # OAuth
 gem "omniauth", "~> 2.1"
