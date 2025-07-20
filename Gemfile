@@ -39,7 +39,7 @@ gem "multi_json", "~> 1.15"
 # Vector Database and RAG (임시 비활성화 - 배포 후 활성화)
 # gem "pgvector", "~> 0.3"  # PostgreSQL vector extension
 # gem "neighbor", "~> 0.4"  # Vector similarity search
-gem "ruby-openai", "~> 7.1"
+gem "ruby-openai", "~> 8.1"
 # gem "tiktoken_ruby", "~> 0.0.8"             # 네이티브 확장 - 임시 비활성화
 
 # Authentication & Security

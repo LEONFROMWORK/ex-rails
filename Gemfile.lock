@@ -204,7 +204,7 @@ GEM
       rdoc (>= 4.0.0)
       reline (>= 0.4.2)
     jmespath (1.6.2)
-    json (2.12.2)
+    json (2.13.0)
     jwt (2.10.2)
       base64
     kamal (2.7.0)
@@ -481,7 +481,7 @@ GEM
       rubocop (>= 1.72)
       rubocop-performance (>= 1.24)
       rubocop-rails (>= 2.30)
-    ruby-openai (7.4.0)
+    ruby-openai (8.1.0)
       event_stream_parser (>= 0.3.0, < 2.0.0)
       faraday (>= 1)
       faraday-multipart (>= 1)
@@ -668,7 +668,7 @@ DEPENDENCIES
   rspec-benchmark (~> 0.6)
   rspec-rails (~> 7.1)
   rubocop-rails-omakase
-  ruby-openai (~> 7.1)
+  ruby-openai (~> 8.1)
   rubyXL (~> 3.4)
   selenium-webdriver (~> 4.27)
   shadcn-ui (~> 0.0.13)
