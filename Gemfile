@@ -55,7 +55,7 @@ gem "omniauth-oauth2", "~> 1.8"
 gem "omniauth-rails_csrf_protection", "~> 1.0"
 
 # Redis
-gem "redis", "~> 5.3"
+gem "redis", "~> 5.4"
 # gem "hiredis", "~> 0.6"                      # 네이티브 확장 - 임시 비활성화
 gem "redis-client", ">= 0.22"
 
