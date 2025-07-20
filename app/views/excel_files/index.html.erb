@@ -1,108 +1,172 @@
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+<div>
   <div class="sm:flex sm:items-center">
     <div class="sm:flex-auto">
-      <h1 class="text-3xl font-bold text-gray-900">My Excel Files</h1>
-      <p class="mt-2 text-sm text-gray-700">
-        Upload and analyze your Excel files for errors and optimization opportunities.
+      <h1 class="text-3xl font-bold text-foreground">내 엑셀 파일</h1>
+      <p class="mt-2 text-sm text-muted-foreground">
+        엑셀 파일을 업로드하고 오류 및 최적화 기회를 분석하세요.
       </p>
     </div>
     <div class="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
-      <%= link_to "Upload New File", new_excel_file_path, 
-          class: "inline-flex items-center justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:w-auto" %>
+      <%= link_to "새 파일 업로드", new_excel_file_path, 
+          class: "inline-flex items-center justify-center rounded-md border border-transparent bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-sm hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 sm:w-auto" %>
     </div>
   </div>
 
   <% if @excel_files.any? %>
-    <div class="mt-8 flex flex-col">
-      <div class="-my-2 -mx-4 overflow-x-auto sm:-mx-6 lg:-mx-8">
-        <div class="inline-block min-w-full py-2 align-middle md:px-6 lg:px-8">
-          <div class="overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg">
-            <table class="min-w-full divide-y divide-gray-300">
-              <thead class="bg-gray-50">
+    <!-- Desktop Table View -->
+    <div class="mt-8 hidden lg:block">
+      <%= render Ui::CardComponent.new(class: "overflow-hidden") do %>
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-border">
+            <thead class="bg-muted">
+              <tr>
+                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-foreground">파일명</th>
+                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-foreground">크기</th>
+                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-foreground">상태</th>
+                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-foreground">발견된 오류</th>
+                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-foreground">업로드 일시</th>
+                <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-6">
+                  <span class="sr-only">작업</span>
+                </th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-border bg-card">
+              <% @excel_files.each do |file| %>
                 <tr>
-                  <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">File Name</th>
-                  <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Size</th>
-                  <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Status</th>
-                  <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Errors Found</th>
-                  <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Uploaded</th>
-                  <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-6">
-                    <span class="sr-only">Actions</span>
-                  </th>
+                  <td class="whitespace-nowrap px-3 py-4 text-sm text-foreground">
+                    <div class="flex items-center">
+                      <svg class="h-5 w-5 text-success mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                      <%= file.original_name %>
+                    </div>
+                  </td>
+                  <td class="whitespace-nowrap px-3 py-4 text-sm text-muted-foreground">
+                    <%= file.human_file_size %>
+                  </td>
+                  <td class="whitespace-nowrap px-3 py-4 text-sm">
+                    <% case file.status %>
+                    <% when 'uploaded' %>
+                      <span class="inline-flex rounded-full bg-muted px-2 text-xs font-semibold leading-5 text-foreground">
+                        업로드됨
+                      </span>
+                    <% when 'processing' %>
+                      <span class="inline-flex rounded-full bg-warning/10 px-2 text-xs font-semibold leading-5 text-warning">
+                        처리 중
+                      </span>
+                    <% when 'completed' %>
+                      <span class="inline-flex rounded-full bg-success/10 px-2 text-xs font-semibold leading-5 text-success">
+                        완료
+                      </span>
+                    <% when 'failed' %>
+                      <span class="inline-flex rounded-full bg-destructive/10 px-2 text-xs font-semibold leading-5 text-destructive">
+                        실패
+                      </span>
+                    <% end %>
+                  </td>
+                  <td class="whitespace-nowrap px-3 py-4 text-sm text-muted-foreground">
+                    <% if file.latest_analysis %>
+                      <span class="text-destructive font-medium"><%= file.total_errors %></span>개 / 
+                      <span class="text-success font-medium"><%= file.total_fixed %>개 수정됨</span>
+                    <% else %>
+                      <span class="text-muted-foreground">—</span>
+                    <% end %>
+                  </td>
+                  <td class="whitespace-nowrap px-3 py-4 text-sm text-muted-foreground">
+                    <%= file.created_at.strftime("%b %d, %Y") %>
+                  </td>
+                  <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
+                    <%= link_to "보기", file, class: "text-primary hover:text-primary/80" %>
+                    <% if file.uploaded? || file.failed? %>
+                      <%= link_to "분석", analyze_excel_file_path(file), method: :post,
+                          class: "ml-3 text-primary hover:text-primary/80",
+                          data: { confirm: "파일 분석에 크레딧이 사용됩니다. 계속하시겠습니까?" } %>
+                    <% end %>
+                  </td>
                 </tr>
-              </thead>
-              <tbody class="divide-y divide-gray-200 bg-white">
-                <% @excel_files.each do |file| %>
-                  <tr>
-                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-900">
-                      <div class="flex items-center">
-                        <svg class="h-5 w-5 text-green-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                        </svg>
-                        <%= file.original_name %>
-                      </div>
-                    </td>
-                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                      <%= file.human_file_size %>
-                    </td>
-                    <td class="whitespace-nowrap px-3 py-4 text-sm">
-                      <% case file.status %>
-                      <% when 'uploaded' %>
-                        <span class="inline-flex rounded-full bg-gray-100 px-2 text-xs font-semibold leading-5 text-gray-800">
-                          Uploaded
-                        </span>
-                      <% when 'processing' %>
-                        <span class="inline-flex rounded-full bg-yellow-100 px-2 text-xs font-semibold leading-5 text-yellow-800">
-                          Processing
-                        </span>
-                      <% when 'completed' %>
-                        <span class="inline-flex rounded-full bg-green-100 px-2 text-xs font-semibold leading-5 text-green-800">
-                          Completed
-                        </span>
-                      <% when 'failed' %>
-                        <span class="inline-flex rounded-full bg-red-100 px-2 text-xs font-semibold leading-5 text-red-800">
-                          Failed
-                        </span>
-                      <% end %>
-                    </td>
-                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                      <% if file.latest_analysis %>
-                        <span class="text-red-600 font-medium"><%= file.total_errors %></span> / 
-                        <span class="text-green-600 font-medium"><%= file.total_fixed %> fixed</span>
-                      <% else %>
-                        <span class="text-gray-400">—</span>
-                      <% end %>
-                    </td>
-                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                      <%= file.created_at.strftime("%b %d, %Y") %>
-                    </td>
-                    <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
-                      <%= link_to "View", file, class: "text-blue-600 hover:text-blue-900" %>
-                      <% if file.uploaded? || file.failed? %>
-                        <%= link_to "Analyze", analyze_excel_file_path(file), method: :post,
-                            class: "ml-3 text-blue-600 hover:text-blue-900",
-                            data: { confirm: "This will use tokens to analyze the file. Continue?" } %>
-                      <% end %>
-                    </td>
-                  </tr>
-                <% end %>
-              </tbody>
-            </table>
-          </div>
+              <% end %>
+            </tbody>
+          </table>
         </div>
-      </div>
+      <% end %>
+    </div>
+    
+    <!-- Mobile Card View -->
+    <div class="mt-8 lg:hidden space-y-4">
+      <% @excel_files.each do |file| %>
+        <%= render Ui::CardComponent.new(class: "p-4") do %>
+          <div class="flex items-start justify-between">
+            <div class="flex-1 min-w-0">
+              <!-- File Info -->
+              <div class="flex items-center">
+                <svg class="h-5 w-5 text-success mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                <h3 class="text-sm font-medium text-foreground truncate"><%= file.original_name %></h3>
+              </div>
+              
+              <!-- Status & Size -->
+              <div class="mt-2 flex items-center space-x-4 text-xs">
+                <span class="text-muted-foreground"><%= file.human_file_size %></span>
+                <% case file.status %>
+                <% when 'uploaded' %>
+                  <span class="inline-flex rounded-full bg-muted px-2 text-xs font-semibold leading-5 text-foreground">
+                    업로드됨
+                  </span>
+                <% when 'processing' %>
+                  <span class="inline-flex rounded-full bg-warning/10 px-2 text-xs font-semibold leading-5 text-warning">
+                    처리 중
+                  </span>
+                <% when 'completed' %>
+                  <span class="inline-flex rounded-full bg-success/10 px-2 text-xs font-semibold leading-5 text-success">
+                    완료
+                  </span>
+                <% when 'failed' %>
+                  <span class="inline-flex rounded-full bg-destructive/10 px-2 text-xs font-semibold leading-5 text-destructive">
+                    실패
+                  </span>
+                <% end %>
+              </div>
+              
+              <!-- Error Info -->
+              <% if file.latest_analysis %>
+                <div class="mt-2 text-xs">
+                  <span class="text-destructive font-medium"><%= file.total_errors %></span>개 오류 / 
+                  <span class="text-success font-medium"><%= file.total_fixed %>개 수정됨</span>
+                </div>
+              <% end %>
+              
+              <!-- Date -->
+              <div class="mt-2 text-xs text-muted-foreground">
+                <%= file.created_at.strftime("%Y년 %m월 %d일") %>
+              </div>
+            </div>
+            
+            <!-- Actions -->
+            <div class="flex flex-col space-y-2 ml-4">
+              <%= link_to "보기", file, class: "text-sm text-primary hover:text-primary/80" %>
+              <% if file.uploaded? || file.failed? %>
+                <%= link_to "분석", analyze_excel_file_path(file), method: :post,
+                    class: "text-sm text-primary hover:text-primary/80",
+                    data: { confirm: "파일 분석에 크레딧이 사용됩니다. 계속하시겠습니까?" } %>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+      <% end %>
     </div>
   <% else %>
     <div class="mt-8 text-center">
       <%= render Ui::CardComponent.new(class: "max-w-lg mx-auto") do %>
         <div class="text-center py-12">
-          <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg class="mx-auto h-12 w-12 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
           </svg>
-          <h3 class="mt-2 text-sm font-medium text-gray-900">No files uploaded</h3>
-          <p class="mt-1 text-sm text-gray-500">Get started by uploading your first Excel file.</p>
+          <h3 class="mt-2 text-sm font-medium text-foreground">업로드된 파일이 없습니다</h3>
+          <p class="mt-1 text-sm text-muted-foreground">첫 번째 엑셀 파일을 업로드하여 시작하세요.</p>
           <div class="mt-6">
-            <%= link_to "Upload File", new_excel_file_path, 
-                class: "inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" %>
+            <%= link_to "파일 업로드", new_excel_file_path, 
+                class: "inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-primary-foreground bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-ring" %>
           </div>
         </div>
       <% end %>

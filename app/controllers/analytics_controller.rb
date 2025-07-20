@@ -17,7 +17,7 @@ class AnalyticsController < ApplicationController
       {
         total_files: safe_count { current_user.excel_files.count },
         total_analyses: safe_count { current_user.analyses.count },
-        total_tokens_used: safe_sum { current_user.analyses.sum(:tokens_used) } || 0,
+        total_credits_used: safe_sum { current_user.analyses.sum(:credits_used) } || 0,
         files_this_week: safe_count { current_user.excel_files.where(created_at: 1.week.ago..Time.current).count },
         analyses_this_week: safe_count { current_user.analyses.where(created_at: 1.week.ago..Time.current).count },
         files_by_status: safe_group { current_user.excel_files.group(:status).count },
@@ -35,15 +35,15 @@ class AnalyticsController < ApplicationController
     begin
       # Return empty hash if analyses association doesn't exist
       return {} unless current_user.respond_to?(:analyses)
-      
+
       # Group analyses by month using standard Rails methods
       analyses = current_user.analyses
                             .where(created_at: 6.months.ago..Time.current)
                             .pluck(:created_at)
-      
+
       # Group by year-month and count
       monthly_counts = analyses.group_by { |date| date.beginning_of_month }.transform_values(&:count)
-      
+
       # Fill in missing months with 0
       6.downto(0).each_with_object({}) do |months_ago, result|
         month = months_ago.months.ago.beginning_of_month
@@ -87,7 +87,7 @@ class AnalyticsController < ApplicationController
     {
       total_files: 0,
       total_analyses: 0,
-      total_tokens_used: 0,
+      total_credits_used: 0,
       files_this_week: 0,
       analyses_this_week: 0,
       files_by_status: {},

@@ -7,10 +7,10 @@ module Infrastructure
       RETRY_DELAY = 1.0
 
       def initialize
-        @provider_name = self.class.name.demodulize.underscore.gsub('_provider', '')
+        @provider_name = self.class.name.demodulize.underscore.gsub("_provider", "")
         @config = ProviderConfig.get_provider_config(@provider_name)
         @rate_limiter = RateLimiter.new(@provider_name)
-        
+
         validate_configuration
       end
 
@@ -23,8 +23,8 @@ module Infrastructure
       end
 
       def health_check
-        return { status: 'unavailable', reason: 'No API key configured' } unless available?
-        
+        return { status: "unavailable", reason: "No API key configured" } unless available?
+
         begin
           # Simple health check request
           test_response = generate_response(
@@ -32,23 +32,23 @@ module Infrastructure
             max_tokens: 10,
             temperature: 0.1
           )
-          
+
           if test_response.success?
             {
-              status: 'healthy',
+              status: "healthy",
               provider: @provider_name,
               rate_limit_status: @rate_limiter.get_current_usage
             }
           else
             {
-              status: 'unhealthy',
+              status: "unhealthy",
               provider: @provider_name,
               error: test_response.error.message
             }
           end
         rescue StandardError => e
           {
-            status: 'unhealthy',
+            status: "unhealthy",
             provider: @provider_name,
             error: e.message
           }
@@ -74,8 +74,8 @@ module Infrastructure
         end
       end
 
-      def record_api_usage(tokens_used)
-        @rate_limiter.record_request(tokens_used)
+      def record_api_usage(credits_used)
+        @rate_limiter.record_request(credits_used)
       end
 
       def with_retries(max_retries: MAX_RETRIES, &block)
@@ -98,19 +98,19 @@ module Infrastructure
         return true if error.is_a?(Net::TimeoutError)
         return true if error.is_a?(Errno::ECONNRESET)
         return true if error.is_a?(SocketError)
-        
+
         # HTTP-specific retryable errors
         if error.respond_to?(:response) && error.response
           status = error.response.code.to_i
-          return true if [429, 500, 502, 503, 504].include?(status)
+          return true if [ 429, 500, 502, 503, 504 ].include?(status)
         end
-        
+
         false
       end
 
       def handle_api_error(error, provider_name)
         Rails.logger.error("#{provider_name} API error: #{error.message}")
-        
+
         Common::Result.failure(
           Common::Errors::AIProviderError.new(
             provider: provider_name,
@@ -124,7 +124,7 @@ module Infrastructure
         return false unless response.is_a?(Hash)
         return false unless response[:content].present?
         return false unless response[:usage].is_a?(Hash)
-        
+
         true
       end
     end

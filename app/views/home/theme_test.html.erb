@@ -1,0 +1,91 @@
+<div class="p-8">
+  <h1 class="text-2xl font-bold mb-6">Theme Toggle Test</h1>
+  
+  <div class="space-y-6">
+    <!-- Test 1: Basic theme toggle -->
+    <div class="border p-4 rounded">
+      <h2 class="font-semibold mb-4">Test 1: Theme Toggle Component</h2>
+      <%= render Ui::ThemeToggleComponent.new(size: :md, show_label: true) %>
+    </div>
+    
+    <!-- Test 2: Manual theme switch buttons -->
+    <div class="border p-4 rounded">
+      <h2 class="font-semibold mb-4">Test 2: Manual Theme Controls</h2>
+      <div class="space-x-2">
+        <button onclick="setTheme('light')" class="px-4 py-2 bg-gray-200 text-gray-800 rounded">Light</button>
+        <button onclick="setTheme('dark')" class="px-4 py-2 bg-gray-800 text-white rounded">Dark</button>
+        <button onclick="toggleTheme()" class="px-4 py-2 bg-blue-500 text-white rounded">Toggle</button>
+      </div>
+    </div>
+    
+    <!-- Test 3: Current theme display -->
+    <div class="border p-4 rounded">
+      <h2 class="font-semibold mb-4">Test 3: Theme Status</h2>
+      <p>Current theme: <span id="current-theme" class="font-mono"></span></p>
+      <p>Dark mode active: <span id="dark-mode-status" class="font-mono"></span></p>
+      <p>LocalStorage theme: <span id="storage-theme" class="font-mono"></span></p>
+    </div>
+    
+    <!-- Test 4: Stimulus controller status -->
+    <div class="border p-4 rounded">
+      <h2 class="font-semibold mb-4">Test 4: Stimulus Status</h2>
+      <p>Stimulus loaded: <span id="stimulus-status" class="font-mono"></span></p>
+      <p>Theme controller registered: <span id="theme-controller-status" class="font-mono"></span></p>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Helper functions for manual testing
+  function setTheme(theme) {
+    const html = document.documentElement;
+    if (theme === 'dark') {
+      html.classList.add('dark');
+    } else {
+      html.classList.remove('dark');
+    }
+    localStorage.setItem('theme', theme);
+    updateStatus();
+  }
+  
+  function toggleTheme() {
+    const isDark = document.documentElement.classList.contains('dark');
+    setTheme(isDark ? 'light' : 'dark');
+  }
+  
+  function updateStatus() {
+    document.getElementById('current-theme').textContent = 
+      document.documentElement.classList.contains('dark') ? 'dark' : 'light';
+    
+    document.getElementById('dark-mode-status').textContent = 
+      document.documentElement.classList.contains('dark');
+    
+    document.getElementById('storage-theme').textContent = 
+      localStorage.getItem('theme') || 'not set';
+  }
+  
+  // Check Stimulus status
+  document.addEventListener('DOMContentLoaded', () => {
+    updateStatus();
+    
+    // Check if Stimulus is loaded
+    const stimulusLoaded = typeof window.Stimulus !== 'undefined';
+    document.getElementById('stimulus-status').textContent = stimulusLoaded;
+    
+    // Check if theme controller is registered
+    if (stimulusLoaded && window.Stimulus) {
+      const hasThemeController = window.Stimulus.router.modulesByIdentifier.has('theme');
+      document.getElementById('theme-controller-status').textContent = hasThemeController;
+      
+      // Debug info
+      console.log('Stimulus:', window.Stimulus);
+      console.log('Controllers:', Array.from(window.Stimulus.router.modulesByIdentifier.keys()));
+    }
+  });
+  
+  // Listen for theme changes
+  document.addEventListener('theme:changed', (event) => {
+    console.log('Theme changed:', event.detail);
+    updateStatus();
+  });
+</script>

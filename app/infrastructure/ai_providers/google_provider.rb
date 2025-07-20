@@ -6,13 +6,13 @@ module Infrastructure
       API_URL = "https://generativelanguage.googleapis.com/v1/models"
 
       def initialize
-        @api_key = ENV['GOOGLE_API_KEY']
+        @api_key = ENV["GOOGLE_API_KEY"]
         raise "Google API key not configured" unless @api_key.present?
       end
 
       def generate_response(prompt:, max_tokens: 1000, temperature: 0.7, model: nil)
-        model ||= 'gemini-pro'
-        
+        model ||= "gemini-pro"
+
         with_retries do
           response = make_request(
             model: model,
@@ -24,31 +24,31 @@ module Infrastructure
           if response.success?
             parse_response(response)
           else
-            error_message = response.parsed_response.dig('error', 'message') || 'Unknown error'
-            handle_api_error(StandardError.new(error_message), 'Google')
+            error_message = response.parsed_response.dig("error", "message") || "Unknown error"
+            handle_api_error(StandardError.new(error_message), "Google")
           end
         end
       rescue StandardError => e
-        handle_api_error(e, 'Google')
+        handle_api_error(e, "Google")
       end
 
       private
 
       def make_request(params)
         model = params[:model]
-        
+
         HTTParty.post(
           "#{API_URL}/#{model}:generateContent?key=#{@api_key}",
           headers: {
-            'Content-Type' => 'application/json',
-            'User-Agent' => 'ExcelApp-Rails/1.0'
+            "Content-Type" => "application/json",
+            "User-Agent" => "ExcelApp-Rails/1.0"
           },
           body: {
-            contents: [{
-              parts: [{
+            contents: [ {
+              parts: [ {
                 text: params[:prompt]
-              }]
-            }],
+              } ]
+            } ],
             generationConfig: {
               temperature: params[:temperature],
               maxOutputTokens: params[:max_tokens]
@@ -61,13 +61,13 @@ module Infrastructure
 
       def parse_response(response)
         data = response.parsed_response
-        
-        content = data.dig('candidates', 0, 'content', 'parts', 0, 'text')
-        
+
+        content = data.dig("candidates", 0, "content", "parts", 0, "text")
+
         # Google doesn't provide token counts in the same way
         # This is an approximation
-        estimated_tokens = (content&.split(' ')&.length || 0) * 1.3
-        
+        estimated_tokens = (content&.split(" ")&.length || 0) * 1.3
+
         result = {
           content: content,
           usage: {
@@ -75,8 +75,8 @@ module Infrastructure
             completion_tokens: estimated_tokens.to_i / 2,
             total_tokens: estimated_tokens.to_i
           },
-          model: 'gemini-pro',
-          finish_reason: data.dig('candidates', 0, 'finishReason')
+          model: "gemini-pro",
+          finish_reason: data.dig("candidates", 0, "finishReason")
         }
 
         if validate_response(result)

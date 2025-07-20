@@ -1,0 +1,28 @@
+<div class="grid w-full max-w-sm items-center gap-1.5">
+  <% if label %>
+    <label for="<%= name %>" class="<%= label_classes %>">
+      <%= label %>
+      <% if required %>
+        <span class="text-destructive">*</span>
+      <% end %>
+    </label>
+  <% end %>
+  
+  <select <%= tag.attributes(select_attributes) %>>
+    <% if prompt %>
+      <option value=""><%= prompt %></option>
+    <% end %>
+    
+    <% options.each do |option| %>
+      <% if option.is_a?(Array) %>
+        <option value="<%= option[1] %>" <%= 'selected' if selected == option[1] %>><%= option[0] %></option>
+      <% else %>
+        <option value="<%= option %>" <%= 'selected' if selected == option %>><%= option %></option>
+      <% end %>
+    <% end %>
+  </select>
+  
+  <% if error %>
+    <p class="text-sm text-destructive mt-1"><%= error %></p>
+  <% end %>
+</div>

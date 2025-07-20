@@ -6,10 +6,10 @@ module ExcelUpload
       MAX_FILE_SIZE = 50.megabytes
       ALLOWED_EXTENSIONS = %w[.xlsx .xls .csv .xlsm].freeze
       ALLOWED_MIME_TYPES = [
-        'application/vnd.ms-excel',
-        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-        'text/csv',
-        'application/vnd.ms-excel.sheet.macroEnabled.12'
+        "application/vnd.ms-excel",
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        "text/csv",
+        "application/vnd.ms-excel.sheet.macroEnabled.12"
       ].freeze
 
       attr_reader :file
@@ -35,7 +35,7 @@ module ExcelUpload
 
       def valid_extension?
         return false unless file.original_filename.present?
-        
+
         extension = File.extname(file.original_filename).downcase
         ALLOWED_EXTENSIONS.include?(extension)
       end
@@ -50,16 +50,16 @@ module ExcelUpload
           file.rewind
           header = file.read(8)
           file.rewind
-          
+
           # Check for Excel file signatures
           case File.extname(file.original_filename).downcase
-          when '.xlsx', '.xlsm'
+          when ".xlsx", ".xlsm"
             # XLSX files start with PK (ZIP format)
             header&.start_with?("PK")
-          when '.xls'
+          when ".xls"
             # XLS files have specific header
-            header&.bytes&.first(4) == [0xD0, 0xCF, 0x11, 0xE0]
-          when '.csv'
+            header&.bytes&.first(4) == [ 0xD0, 0xCF, 0x11, 0xE0 ]
+          when ".csv"
             # CSV files should be readable as text
             true
           else

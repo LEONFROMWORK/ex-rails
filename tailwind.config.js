@@ -1,69 +1,51 @@
 /** @type {import('tailwindcss').Config} */
+const shadcnConfig = require('./config/shadcn.tailwind.js');
+
 module.exports = {
+  ...shadcnConfig,
   content: [
     './app/views/**/*.html.erb',
-    './app/helpers/**/*.rb',
+    './app/helpers/**/*.rb', 
     './app/assets/stylesheets/**/*.css',
     './app/javascript/**/*.js',
+    './app/javascript/**/*.vue',
+    './app/javascript/**/*.ts',
     './app/components/**/*.{rb,erb}',
+    './app/views/**/*.{erb,haml,html,slim}',
   ],
   theme: {
-    extend: {
-      colors: {
-        border: "hsl(var(--border))",
-        input: "hsl(var(--input))",
-        ring: "hsl(var(--ring))",
-        background: "hsl(var(--background))",
-        foreground: "hsl(var(--foreground))",
-        primary: {
-          DEFAULT: "hsl(var(--primary))",
-          foreground: "hsl(var(--primary-foreground))",
-        },
-        secondary: {
-          DEFAULT: "hsl(var(--secondary))",
-          foreground: "hsl(var(--secondary-foreground))",
-        },
-        destructive: {
-          DEFAULT: "hsl(var(--destructive))",
-          foreground: "hsl(var(--destructive-foreground))",
-        },
-        muted: {
-          DEFAULT: "hsl(var(--muted))",
-          foreground: "hsl(var(--muted-foreground))",
-        },
-        accent: {
-          DEFAULT: "hsl(var(--accent))",
-          foreground: "hsl(var(--accent-foreground))",
-        },
-        popover: {
-          DEFAULT: "hsl(var(--popover))",
-          foreground: "hsl(var(--popover-foreground))",
-        },
-        card: {
-          DEFAULT: "hsl(var(--card))",
-          foreground: "hsl(var(--card-foreground))",
-        },
-      },
-      borderRadius: {
-        lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)",
-      },
-      keyframes: {
-        "accordion-down": {
-          from: { height: "0" },
-          to: { height: "var(--radix-accordion-content-height)" },
-        },
-        "accordion-up": {
-          from: { height: "var(--radix-accordion-content-height)" },
-          to: { height: "0" },
-        },
-      },
-      animation: {
-        "accordion-down": "accordion-down 0.2s ease-out",
-        "accordion-up": "accordion-up 0.2s ease-out",
-      },
+    ...shadcnConfig.theme,
+    // 폰트 로딩 최적화
+    fontFamily: {
+      sans: ['Pretendard', '-apple-system', 'BlinkMacSystemFont', 'system-ui', 'Roboto', 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'sans-serif'],
+      mono: ['JetBrains Mono', 'Fira Code', 'Monaco', 'Consolas', 'monospace'],
     },
+    // 성능 최적화를 위한 애니메이션 제한
+    transitionDuration: {
+      DEFAULT: '150ms',
+      75: '75ms',
+      100: '100ms',
+      150: '150ms',
+      200: '200ms',
+      300: '300ms',
+      500: '500ms',
+    }
   },
-  plugins: [],
+  corePlugins: {
+    // 사용하지 않는 플러그인 비활성화
+    float: false,
+    clear: false,
+    skew: false,
+    sepia: false,
+    saturate: false,
+    hueRotate: false,
+    brightness: false,
+    contrast: false,
+    grayscale: false,
+    invert: false,
+  },
+  // 개발 환경에서 unused CSS 제거 활성화
+  experimental: {
+    optimizeUniversalDefaults: true,
+  }
 }

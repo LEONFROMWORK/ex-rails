@@ -1,1 +1,45 @@
-# See https://www.robotstxt.org/robotstxt.html for documentation on how to use the robots.txt file
+# Robots.txt for ExcelApp Rails
+# See https://www.robotstxt.org/ for documentation on how to use this file
+
+# Allow all crawlers for public pages
+User-agent: *
+Allow: /
+Allow: /signup
+Allow: /login
+Allow: /help/
+Allow: /pricing
+Allow: /features
+Allow: /faq
+
+# Disallow sensitive areas
+Disallow: /dashboard/
+Disallow: /admin/
+Disallow: /excel_files/
+Disallow: /analyses/
+Disallow: /payments/
+Disallow: /api/
+Disallow: /users/
+Disallow: /rails/
+Disallow: /*.json$
+Disallow: /*.xml$
+Disallow: /*?*
+
+# Rate limiting for aggressive crawlers
+Crawl-delay: 1
+
+# Sitemap location
+Sitemap: https://excelapp-rails.com/sitemap.xml
+
+# Special rules for Google
+User-agent: Googlebot
+Crawl-delay: 0
+Allow: /
+
+# Special rules for Bing
+User-agent: Bingbot
+Crawl-delay: 1
+Allow: /
+
+# Block specific bots if needed
+# User-agent: BadBot
+# Disallow: /

@@ -1,0 +1,17 @@
+<% content_for :head do %>
+  <title>Vue.js + shadcn/ui Demo | ExcelApp</title>
+<% end %>
+
+<div class="min-h-screen">
+  <!-- Vue App Mount Point -->
+  <div id="vue-app"></div>
+  
+  <!-- Alternative: Component-based mounting -->
+  <div class="mt-8">
+    <h2 class="text-2xl font-bold mb-4 px-6">Individual Vue Components</h2>
+    
+    <!-- Excel Uploader as standalone component -->
+    <div data-vue-component="ExcelUploader" 
+         data-vue-props='{"endpoint": "/api/excel/upload"}'></div>
+  </div>
+</div>

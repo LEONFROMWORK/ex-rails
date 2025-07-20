@@ -1,0 +1,148 @@
+#!/bin/bash
+# Pre-push hook for ExcelApp-Rails
+# Runs comprehensive tests before allowing push
+
+set -e
+
+echo "🚀 Running pre-push checks..."
+
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
+NC='\033[0m' # No Color
+
+# Function to print colored output
+print_status() {
+    echo -e "${GREEN}✅ $1${NC}"
+}
+
+print_warning() {
+    echo -e "${YELLOW}⚠️  $1${NC}"
+}
+
+print_error() {
+    echo -e "${RED}❌ $1${NC}"
+}
+
+# Get current branch
+current_branch=$(git rev-parse --abbrev-ref HEAD)
+remote="$1"
+url="$2"
+
+echo "📋 Branch: $current_branch"
+echo "📋 Remote: $remote"
+
+# Prevent pushing to main/master without proper review
+if [[ "$current_branch" == "main" ]] || [[ "$current_branch" == "master" ]]; then
+    print_warning "You are about to push to $current_branch branch."
+    echo "Are you sure you want to continue? (y/N)"
+    read -r response
+    if [[ ! "$response" =~ ^[Yy]$ ]]; then
+        print_error "Push aborted by user."
+        exit 1
+    fi
+fi
+
+# Check if bundle is available
+if command -v bundle &> /dev/null; then
+    # Install/update dependencies
+    echo "📦 Checking Ruby dependencies..."
+    if ! bundle check > /dev/null 2>&1; then
+        echo "Installing missing gems..."
+        bundle install
+    fi
+    print_status "Ruby dependencies OK"
+
+    # Run full RuboCop check
+    echo "🔍 Running full RuboCop check..."
+    if ! bundle exec rubocop; then
+        print_error "RuboCop failed. Please fix all issues before pushing."
+        exit 1
+    fi
+    print_status "RuboCop checks passed"
+
+    # Run security check
+    echo "🔒 Running comprehensive security checks..."
+    if command -v brakeman &> /dev/null; then
+        if ! bundle exec brakeman --no-pager; then
+            print_error "Security vulnerabilities detected. Please fix before pushing."
+            exit 1
+        fi
+        print_status "Security checks passed"
+    fi
+
+    # Run database checks
+    echo "🗄️  Checking database integrity..."
+    if [ -f "config/database.yml" ]; then
+        # Check for pending migrations
+        if RAILS_ENV=test bundle exec rails db:migrate:status | grep "down" > /dev/null 2>&1; then
+            print_warning "Pending migrations detected. Running migrations..."
+            RAILS_ENV=test bundle exec rails db:migrate
+        fi
+        print_status "Database checks passed"
+    fi
+
+    # Run test suite
+    echo "🧪 Running test suite..."
+    if [ -d "spec" ]; then
+        # RSpec tests
+        if ! RAILS_ENV=test bundle exec rspec; then
+            print_error "Tests failed. Please fix failing tests before pushing."
+            exit 1
+        fi
+        print_status "RSpec tests passed"
+    elif [ -d "test" ]; then
+        # Minitest
+        if ! RAILS_ENV=test bundle exec rails test; then
+            print_error "Tests failed. Please fix failing tests before pushing."
+            exit 1
+        fi
+        print_status "Minitest tests passed"
+    else
+        print_warning "No test directory found. Consider adding tests!"
+    fi
+else
+    print_warning "Bundle not available. Skipping Ruby checks."
+fi
+
+# Check JavaScript/Node.js if available
+if [ -f "package.json" ] && command -v npm &> /dev/null; then
+    echo "📦 Checking Node.js dependencies..."
+    npm ci --silent > /dev/null 2>&1 || npm install --silent > /dev/null 2>&1
+    print_status "Node.js dependencies OK"
+
+    # Run JavaScript tests if available
+    if npm run test:js > /dev/null 2>&1; then
+        echo "🧪 Running JavaScript tests..."
+        if ! npm run test:js; then
+            print_error "JavaScript tests failed."
+            exit 1
+        fi
+        print_status "JavaScript tests passed"
+    fi
+fi
+
+# Check for uncommitted changes
+if ! git diff-index --quiet HEAD --; then
+    print_error "You have uncommitted changes. Please commit or stash them before pushing."
+    exit 1
+fi
+
+# Check for untracked files that might be important
+untracked_files=$(git ls-files --others --exclude-standard)
+if [ ! -z "$untracked_files" ]; then
+    print_warning "Untracked files found:"
+    echo "$untracked_files"
+    echo ""
+    echo "Consider adding them to .gitignore if they shouldn't be tracked."
+fi
+
+# Performance check - warn about large commits
+commit_count=$(git rev-list --count HEAD ^origin/$current_branch 2>/dev/null || echo "unknown")
+if [[ "$commit_count" =~ ^[0-9]+$ ]] && [ "$commit_count" -gt 10 ]; then
+    print_warning "You're about to push $commit_count commits. Consider squashing some commits."
+fi
+
+print_status "All pre-push checks passed! 🎉"
+echo ""

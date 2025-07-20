@@ -36,26 +36,45 @@ module ExcelappRails
     #
     # config.time_zone = "Central Time (US & Canada)"
     # config.eager_load_paths << Rails.root.join("extras")
-    
+
+    # i18n configuration
+    config.i18n.available_locales = [ :ko, :en ]
+    config.i18n.default_locale = :ko
+    config.i18n.fallbacks = [ :en ]
+    config.i18n.load_path += Dir[Rails.root.join("config", "locales", "**", "*.{rb,yml}")]
+
     # Exclude lib directory from Zeitwerk auto-loading to avoid naming conflicts
-    config.autoload_paths -= [Rails.root.join('lib')]
-    config.eager_load_paths -= [Rails.root.join('lib')]
+    config.autoload_paths -= [ Rails.root.join("lib") ]
+    config.eager_load_paths -= [ Rails.root.join("lib") ]
 
     # Don't generate system test files.
     config.generators.system_tests = nil
-    
+
     # Add app/features to autoload paths for vertical slice architecture
-    config.autoload_paths << Rails.root.join('app', 'features')
-    config.eager_load_paths << Rails.root.join('app', 'features')
-    
+    config.autoload_paths << Rails.root.join("app", "features")
+    config.eager_load_paths << Rails.root.join("app", "features")
+
+    # Add app/domains to autoload paths for domain-driven architecture
+    config.autoload_paths << Rails.root.join("app", "domains")
+    config.eager_load_paths << Rails.root.join("app", "domains")
+
     # Active Job configuration
     config.active_job.queue_adapter = :solid_queue
     config.active_job.queue_name_prefix = "excelapp_#{Rails.env}"
-    
+
     # Set default queue priorities
     config.active_job.default_queue_name = "default"
-    
+
     # Time zone
     config.time_zone = "Asia/Seoul"
+
+    # Middleware configuration
+    config.middleware.use Rack::Attack
+
+    # Feature flags
+    config.features = {
+      payment_enabled: ENV.fetch("PAYMENT_ENABLED", "false") == "true",
+      subscription_required: ENV.fetch("SUBSCRIPTION_REQUIRED", "false") == "true"
+    }
   end
 end

@@ -1,0 +1,31 @@
+<div data-controller="alert-dialog" class="relative">
+  <%= content %>
+  
+  <div class="<%= overlay_classes %> hidden" 
+       data-alert-dialog-target="overlay"
+       data-action="click->alert-dialog#close"></div>
+  
+  <div class="<%= dialog_classes %> hidden"
+       data-alert-dialog-target="dialog">
+    <div class="flex flex-col space-y-1.5 text-center sm:text-left">
+      <h2 class="text-lg font-semibold leading-none tracking-tight"><%= title %></h2>
+      <p class="text-sm text-muted-foreground"><%= description %></p>
+    </div>
+    
+    <div class="flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2">
+      <%= render Ui::ButtonComponent.new(
+        variant: :outline,
+        data: { action: "click->alert-dialog#close" }
+      ) do %>
+        <%= cancel_text %>
+      <% end %>
+      
+      <%= render Ui::ButtonComponent.new(
+        variant: confirm_button_variant,
+        data: { action: "click->alert-dialog#confirm" }
+      ) do %>
+        <%= confirm_text %>
+      <% end %>
+    </div>
+  </div>
+</div>

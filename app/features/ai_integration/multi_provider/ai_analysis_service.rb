@@ -5,26 +5,26 @@ module AiIntegration
     class AiAnalysisService
       attr_reader :provider_manager
 
-      def initialize(primary_provider: 'openrouter')
+      def initialize(primary_provider: "openrouter")
         @provider_manager = ProviderManager.new(primary_provider: primary_provider)
         @rag_orchestrator = RagSystem::RagOrchestrator.new
         @llm_judge = QualityAssurance::LlmJudgeService.new
         @escalation_service = QualityAssurance::EscalationService.new
       end
 
-      def analyze_errors(errors:, file_metadata:, tier: 'tier1', user: nil, images: nil)
+      def analyze_errors(errors:, file_metadata:, tier: "tier1", user: nil, images: nil)
         validate_tier_access(tier, user) if user
-        
+
         # Build RAG-enhanced prompt
         rag_prompt_data = build_rag_enhanced_prompt(errors, file_metadata, tier, images)
-        
+
         # Set max_tokens based on tier
         max_tokens = case tier
-                     when 'tier3' then 3000
-                     when 'tier2' then 2000
-                     else 1000
-                     end
-        
+        when "tier3" then 3000
+        when "tier2" then 2000
+        else 1000
+        end
+
         response = @provider_manager.generate_response(
           prompt: rag_prompt_data[:user_prompt],
           max_tokens: max_tokens,
@@ -60,8 +60,8 @@ module AiIntegration
       def analyze_with_intelligent_tier_system(errors:, file_metadata:, user:, images: nil)
         tier_manager = ThreeTierManager.new(user: user)
         tier_manager.analyze_excel_with_intelligence(
-          errors: errors, 
-          file_metadata: file_metadata, 
+          errors: errors,
+          file_metadata: file_metadata,
           images: images
         )
       end
@@ -85,9 +85,9 @@ module AiIntegration
       end
 
       # Quality-assured analysis with automatic escalation
-      def analyze_errors_with_quality_assurance(errors:, file_metadata:, tier: 'tier1', user: nil, images: nil)
+      def analyze_errors_with_quality_assurance(errors:, file_metadata:, tier: "tier1", user: nil, images: nil)
         Rails.logger.info("Starting quality-assured analysis with tier: #{tier}")
-        
+
         # Initial analysis
         result = analyze_errors(
           errors: errors,
@@ -96,12 +96,12 @@ module AiIntegration
           user: user,
           images: images
         )
-        
+
         return result if result.failure?
-        
+
         # Build question for escalation analysis
         question = build_question_from_errors(errors)
-        
+
         # Check if escalation is needed
         escalation_decision = @escalation_service.should_escalate?(
           current_tier: tier,
@@ -109,11 +109,11 @@ module AiIntegration
           question: question,
           context: { file_metadata: file_metadata }
         )
-        
+
         # If escalation is recommended and possible
         if escalation_decision[:should_escalate] && can_escalate_tier?(escalation_decision[:recommended_tier], user)
           Rails.logger.info("Escalating from #{tier} to #{escalation_decision[:recommended_tier]}")
-          
+
           escalated_result = analyze_errors(
             errors: errors,
             file_metadata: file_metadata,
@@ -121,7 +121,7 @@ module AiIntegration
             user: user,
             images: images
           )
-          
+
           if escalated_result.success?
             # Record successful escalation
             @escalation_service.record_escalation_result(
@@ -131,7 +131,7 @@ module AiIntegration
               success: true,
               quality_score: escalation_decision[:quality_score]
             )
-            
+
             # Merge results
             merged_result = merge_escalated_results(result.value, escalated_result.value, tier, escalation_decision)
             return Common::Result.success(merged_result)
@@ -145,12 +145,12 @@ module AiIntegration
             )
           end
         end
-        
+
         # Add quality assessment to original result
         result.value[:quality_assessment] = escalation_decision[:quality_assessment] if escalation_decision[:quality_assessment]
         result.value[:escalation_considered] = true
         result.value[:escalation_reasons] = escalation_decision[:reasons] if escalation_decision[:reasons]
-        
+
         result
       end
 
@@ -167,22 +167,22 @@ module AiIntegration
         # Build query for RAG search
         error_descriptions = errors.map { |e| e[:description] || e[:message] }.join(" ")
         query = "Excel errors: #{error_descriptions}"
-        
+
         # Add file context
         context = build_file_context(file_metadata)
-        
+
         # Get RAG enhancement
         @rag_orchestrator.build_rag_prompt(query, context: context, images: images, tier: tier)
       end
 
       def build_file_context(file_metadata)
         context_parts = []
-        
+
         context_parts << "File: #{file_metadata[:filename]}" if file_metadata[:filename]
         context_parts << "Sheets: #{file_metadata[:sheet_count]}" if file_metadata[:sheet_count]
         context_parts << "Formulas: #{file_metadata[:formula_count]}" if file_metadata[:formula_count]
         context_parts << "Size: #{file_metadata[:file_size]} bytes" if file_metadata[:file_size]
-        
+
         context_parts.join(", ")
       end
 
@@ -193,12 +193,12 @@ module AiIntegration
 
       def can_escalate_tier?(recommended_tier, user)
         return false unless user
-        
+
         case recommended_tier
-        when 'tier3'
-          user.enterprise? && user.tokens >= 100
-        when 'tier2'
-          (user.pro? || user.enterprise?) && user.tokens >= 50
+        when "tier3"
+          user.enterprise? && user.credits >= 100
+        when "tier2"
+          (user.pro? || user.enterprise?) && user.credits >= 50
         else
           true
         end
@@ -212,16 +212,16 @@ module AiIntegration
           overall_confidence: escalated_result[:overall_confidence],
           summary: escalated_result[:summary],
           estimated_time_saved: escalated_result[:estimated_time_saved],
-          
+
           # Escalation metadata
           escalated_from: original_tier,
           escalated_to: escalation_decision[:recommended_tier],
           escalation_reasons: escalation_decision[:reasons],
-          
+
           # Quality comparison
           original_quality: escalation_decision[:quality_score],
           escalated_quality: escalation_decision[:quality_assessment]&.dig(:overall_score),
-          
+
           # Combined metadata
           **escalated_result.except(:analysis, :corrections, :overall_confidence, :summary, :estimated_time_saved),
           escalation_performed: true,
@@ -231,28 +231,28 @@ module AiIntegration
 
       def validate_tier_access(tier, user)
         case tier
-        when 'tier3'
-          unless user.tokens >= 100 && user.enterprise?
+        when "tier3"
+          unless user.credits >= 100 && user.enterprise?
             raise Common::Errors::InsufficientCreditsError.new(
-              message: "Tier 3 AI analysis requires ENTERPRISE subscription and 100+ tokens",
-              required_tokens: 100,
-              current_tokens: user.tokens
+              message: "Tier 3 AI analysis requires ENTERPRISE subscription and 100+ credits",
+              required_credits: 100,
+              current_credits: user.credits
             )
           end
-        when 'tier2'
-          unless user.tokens >= 50 && (user.pro? || user.enterprise?)
+        when "tier2"
+          unless user.credits >= 50 && (user.pro? || user.enterprise?)
             raise Common::Errors::InsufficientCreditsError.new(
-              message: "Tier 2 AI analysis requires PRO subscription and 50+ tokens",
-              required_tokens: 50,
-              current_tokens: user.tokens
+              message: "Tier 2 AI analysis requires PRO subscription and 50+ credits",
+              required_credits: 50,
+              current_credits: user.credits
             )
           end
-        when 'tier1'
-          unless user.tokens >= 5
+        when "tier1"
+          unless user.credits >= 5
             raise Common::Errors::InsufficientCreditsError.new(
-              message: "AI analysis requires at least 5 tokens",
-              required_tokens: 5,
-              current_tokens: user.tokens
+              message: "AI analysis requires at least 5 credits",
+              required_credits: 5,
+              current_credits: user.credits
             )
           end
         end
@@ -260,16 +260,16 @@ module AiIntegration
 
       def build_analysis_prompt(errors, file_metadata, tier)
         system_prompt = case tier
-                        when 'tier3'
+        when "tier3"
                           "You are a world-class Excel expert with deep expertise in advanced analytics, VBA, Power Query, and enterprise-level Excel optimization."
-                        when 'tier2'
+        when "tier2"
                           "You are a senior Excel expert with advanced analytical capabilities."
-                        else
+        else
                           "You are an Excel expert analyzing errors in a spreadsheet."
-                        end
+        end
 
         analysis_depth = case tier
-                         when 'tier3'
+        when "tier3"
                            <<~DEPTH
                              Provide:
                              1. Comprehensive technical analysis with Excel internals and architecture insights
@@ -281,7 +281,7 @@ module AiIntegration
                              7. Enterprise-level recommendations for scalability and maintainability
                              8. Advanced features utilization (Power Query, Power Pivot, VBA alternatives)
                            DEPTH
-                         when 'tier2'
+        when "tier2"
                            <<~DEPTH
                              Provide:
                              1. Deep technical analysis of each error including Excel internals
@@ -291,34 +291,34 @@ module AiIntegration
                              5. Preventive recommendations for similar issues
                              6. Code quality improvements for complex formulas
                            DEPTH
-                         else
+        else
                            <<~DEPTH
                              Provide:
                              1. Clear analysis of each error
                              2. Direct corrections that should be applied
                              3. Basic explanation of the fixes
                            DEPTH
-                         end
+        end
 
         <<~PROMPT
           #{system_prompt}
-          
+
           File metadata:
           ```json
           #{file_metadata.to_json}
           ```
-          
+
           Detected errors:
           ```json
           #{errors.to_json}
           ```
-          
+
           #{analysis_depth}
-          
+
           Respond in valid JSON format only:
           {
             "analysis": {
-              "error_1": { 
+              "error_1": {#{' '}
                 "explanation": "Clear explanation of the error",
                 "impact": "High/Medium/Low - business impact",
                 "root_cause": "Technical root cause",
@@ -343,22 +343,22 @@ module AiIntegration
 
       def parse_ai_response(response)
         content = response[:content]
-        
+
         # Clean up response content if needed
         content = extract_json_from_response(content)
-        
+
         parsed = JSON.parse(content)
-        
+
         # Validate required fields
         validate_ai_response_structure(parsed)
-        
+
         Common::Result.success({
-          analysis: parsed['analysis'] || {},
-          corrections: parsed['corrections'] || [],
-          overall_confidence: parsed['overall_confidence']&.to_f || 0.0,
-          summary: parsed['summary'] || 'No summary provided',
-          estimated_time_saved: parsed['estimated_time_saved'] || 'Unknown',
-          tokens_used: response[:usage][:total_tokens],
+          analysis: parsed["analysis"] || {},
+          corrections: parsed["corrections"] || [],
+          overall_confidence: parsed["overall_confidence"]&.to_f || 0.0,
+          summary: parsed["summary"] || "No summary provided",
+          estimated_time_saved: parsed["estimated_time_saved"] || "Unknown",
+          credits_used: response[:usage][:total_tokens],
           raw_response: response
         })
       rescue JSON::ParserError => e
@@ -372,12 +372,12 @@ module AiIntegration
 
       def extract_json_from_response(content)
         # Remove markdown code blocks if present
-        content = content.gsub(/```json\n?/, '').gsub(/```\n?/, '')
-        
+        content = content.gsub(/```json\n?/, "").gsub(/```\n?/, "")
+
         # Find JSON object start and end
-        json_start = content.index('{')
-        json_end = content.rindex('}')
-        
+        json_start = content.index("{")
+        json_end = content.rindex("}")
+
         if json_start && json_end && json_end > json_start
           content[json_start..json_end]
         else
@@ -389,8 +389,8 @@ module AiIntegration
         unless parsed.is_a?(Hash)
           raise StandardError, "Response must be a JSON object"
         end
-        
-        unless parsed.key?('analysis') || parsed.key?('corrections')
+
+        unless parsed.key?("analysis") || parsed.key?("corrections")
           raise StandardError, "Response must contain 'analysis' or 'corrections'"
         end
       end

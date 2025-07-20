@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_07_18_000001) do
+ActiveRecord::Schema[8.0].define(version: 2025_07_20_142450) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -41,6 +41,37 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_18_000001) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "ai_usage_records", force: :cascade do |t|
+    t.bigint "user_id"
+    t.string "model_id", null: false
+    t.integer "provider", default: 0, null: false
+    t.decimal "cost", precision: 10, scale: 6, default: "0.0", null: false
+    t.integer "input_credits", default: 0, null: false
+    t.integer "output_credits", default: 0, null: false
+    t.integer "request_type", default: 0, null: false
+    t.text "request_prompt"
+    t.text "response_content"
+    t.json "metadata"
+    t.decimal "latency_ms", precision: 10, scale: 2
+    t.string "request_id"
+    t.string "session_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["created_at"], name: "index_ai_usage_records_on_created_at"
+    t.index ["model_id", "created_at"], name: "index_ai_usage_records_on_model_id_and_created_at"
+    t.index ["model_id", "provider"], name: "idx_usage_model_provider"
+    t.index ["model_id"], name: "index_ai_usage_records_on_model_id"
+    t.index ["provider", "created_at"], name: "idx_usage_provider_created"
+    t.index ["provider", "created_at"], name: "index_ai_usage_records_on_provider_and_created_at"
+    t.index ["provider"], name: "index_ai_usage_records_on_provider"
+    t.index ["request_id"], name: "index_ai_usage_records_on_request_id"
+    t.index ["request_type"], name: "index_ai_usage_records_on_request_type"
+    t.index ["session_id"], name: "index_ai_usage_records_on_session_id"
+    t.index ["user_id", "created_at"], name: "idx_usage_user_created"
+    t.index ["user_id", "created_at"], name: "index_ai_usage_records_on_user_id_and_created_at"
+    t.index ["user_id"], name: "index_ai_usage_records_on_user_id"
+  end
+
   create_table "analyses", force: :cascade do |t|
     t.bigint "excel_file_id", null: false
     t.bigint "user_id", null: false
@@ -49,7 +80,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_18_000001) do
     t.json "corrections"
     t.integer "ai_tier_used", default: 0, null: false
     t.decimal "confidence_score", precision: 3, scale: 2
-    t.integer "tokens_used", default: 0, null: false
+    t.integer "credits_used", default: 0, null: false
     t.decimal "cost", precision: 10, scale: 6
     t.integer "status", default: 0, null: false
     t.integer "error_count", default: 0
@@ -57,12 +88,41 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_18_000001) do
     t.text "analysis_summary"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.json "formula_analysis"
+    t.decimal "formula_complexity_score", precision: 5, scale: 2
+    t.integer "formula_count", default: 0
+    t.json "formula_functions"
+    t.json "formula_dependencies"
+    t.json "circular_references"
+    t.json "formula_errors"
+    t.json "formula_optimization_suggestions"
     t.index ["ai_tier_used"], name: "index_analyses_on_ai_tier_used"
     t.index ["confidence_score"], name: "index_analyses_on_confidence_score"
     t.index ["created_at"], name: "index_analyses_on_created_at"
+    t.index ["excel_file_id", "created_at"], name: "idx_analyses_file_created"
     t.index ["excel_file_id"], name: "index_analyses_on_excel_file_id"
+    t.index ["formula_complexity_score"], name: "index_analyses_on_formula_complexity_score"
+    t.index ["formula_count"], name: "index_analyses_on_formula_count"
     t.index ["status"], name: "index_analyses_on_status"
+    t.index ["user_id", "ai_tier_used"], name: "idx_analyses_user_tier"
+    t.index ["user_id", "created_at"], name: "idx_analyses_user_created"
     t.index ["user_id"], name: "index_analyses_on_user_id"
+  end
+
+  create_table "billing_keys", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "billing_key"
+    t.string "customer_key"
+    t.string "card_number"
+    t.string "card_type"
+    t.string "card_owner_type"
+    t.string "issuer_code"
+    t.string "acquirer_code"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["billing_key"], name: "index_billing_keys_on_billing_key", unique: true
+    t.index ["customer_key"], name: "index_billing_keys_on_customer_key", unique: true
+    t.index ["user_id"], name: "index_billing_keys_on_user_id"
   end
 
   create_table "chat_conversations", force: :cascade do |t|
@@ -78,6 +138,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_18_000001) do
     t.index ["created_at"], name: "index_chat_conversations_on_created_at"
     t.index ["excel_file_id"], name: "index_chat_conversations_on_excel_file_id"
     t.index ["status"], name: "index_chat_conversations_on_status"
+    t.index ["user_id", "created_at"], name: "idx_conversations_user_created"
+    t.index ["user_id", "updated_at"], name: "idx_conversations_user_updated"
     t.index ["user_id"], name: "index_chat_conversations_on_user_id"
   end
 
@@ -95,6 +157,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_18_000001) do
     t.string "provider"
     t.integer "user_rating"
     t.text "user_feedback"
+    t.index ["chat_conversation_id", "created_at"], name: "idx_messages_conversation_created"
     t.index ["chat_conversation_id"], name: "index_chat_messages_on_chat_conversation_id"
     t.index ["created_at"], name: "index_chat_messages_on_created_at"
     t.index ["role"], name: "index_chat_messages_on_role"
@@ -118,7 +181,35 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_18_000001) do
     t.index ["content_hash"], name: "index_excel_files_on_content_hash"
     t.index ["created_at"], name: "index_excel_files_on_created_at"
     t.index ["status"], name: "index_excel_files_on_status"
+    t.index ["user_id", "created_at"], name: "idx_excel_files_user_created"
+    t.index ["user_id", "created_at"], name: "idx_excel_files_user_created_active", where: "(status = ANY (ARRAY[0, 1, 2]))"
+    t.index ["user_id", "status"], name: "idx_excel_files_user_status"
     t.index ["user_id"], name: "index_excel_files_on_user_id"
+  end
+
+  create_table "knowledge_items", force: :cascade do |t|
+    t.text "question", null: false
+    t.text "answer", null: false
+    t.json "excel_functions", default: []
+    t.json "code_snippets", default: []
+    t.integer "difficulty", default: 1
+    t.decimal "quality_score", precision: 3, scale: 1, null: false
+    t.string "source", null: false
+    t.json "tags", default: []
+    t.json "embedding"
+    t.json "metadata", default: {}
+    t.integer "search_count", default: 0
+    t.integer "use_count", default: 0
+    t.integer "helpful_votes", default: 0
+    t.boolean "is_active", default: true
+    t.datetime "last_used"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["created_at"], name: "index_knowledge_items_on_created_at"
+    t.index ["difficulty"], name: "index_knowledge_items_on_difficulty"
+    t.index ["is_active"], name: "index_knowledge_items_on_is_active"
+    t.index ["quality_score"], name: "index_knowledge_items_on_quality_score"
+    t.index ["source"], name: "index_knowledge_items_on_source"
   end
 
   create_table "knowledge_threads", force: :cascade do |t|
@@ -162,26 +253,68 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_18_000001) do
     t.datetime "updated_at", null: false
     t.index ["order_id"], name: "index_payment_intents_on_order_id", unique: true
     t.index ["payment_type"], name: "index_payment_intents_on_payment_type"
+    t.index ["status", "created_at"], name: "idx_payment_intents_status_created"
     t.index ["status"], name: "index_payment_intents_on_status"
     t.index ["toss_payment_key"], name: "index_payment_intents_on_toss_payment_key"
+    t.index ["user_id", "status"], name: "idx_payment_intents_user_status"
     t.index ["user_id"], name: "index_payment_intents_on_user_id"
+  end
+
+  create_table "payment_methods", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "method_type"
+    t.boolean "is_default", default: false
+    t.string "card_number"
+    t.string "card_type"
+    t.bigint "billing_key_id"
+    t.jsonb "metadata", default: {}
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["billing_key_id"], name: "index_payment_methods_on_billing_key_id"
+    t.index ["method_type"], name: "index_payment_methods_on_method_type"
+    t.index ["user_id"], name: "index_payment_methods_on_user_id"
+  end
+
+  create_table "payment_webhooks", force: :cascade do |t|
+    t.string "event_type"
+    t.string "payment_key"
+    t.string "order_id"
+    t.string "status"
+    t.jsonb "payload", default: {}
+    t.datetime "processed_at"
+    t.text "error_message"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["event_type"], name: "index_payment_webhooks_on_event_type"
+    t.index ["order_id"], name: "index_payment_webhooks_on_order_id"
+    t.index ["payment_key"], name: "index_payment_webhooks_on_payment_key"
+    t.index ["status"], name: "index_payment_webhooks_on_status"
   end
 
   create_table "payments", force: :cascade do |t|
     t.bigint "user_id", null: false
-    t.bigint "payment_intent_id", null: false
-    t.integer "amount", null: false
+    t.string "transaction_id"
+    t.string "order_id"
     t.string "payment_method"
-    t.string "toss_transaction_id", null: false
-    t.string "status", default: "completed", null: false
-    t.json "toss_response_data"
-    t.datetime "processed_at", default: -> { "CURRENT_TIMESTAMP" }
+    t.integer "amount"
+    t.string "currency"
+    t.string "status"
+    t.datetime "approved_at"
+    t.datetime "canceled_at"
+    t.datetime "failed_at"
+    t.string "card_number"
+    t.string "card_type"
+    t.string "receipt_url"
+    t.string "checkout_url"
+    t.string "failure_code"
+    t.string "failure_message"
+    t.jsonb "metadata", default: {}
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["payment_intent_id"], name: "index_payments_on_payment_intent_id"
-    t.index ["processed_at"], name: "index_payments_on_processed_at"
+    t.index ["order_id"], name: "index_payments_on_order_id", unique: true
+    t.index ["payment_method"], name: "index_payments_on_payment_method"
     t.index ["status"], name: "index_payments_on_status"
-    t.index ["toss_transaction_id"], name: "index_payments_on_toss_transaction_id", unique: true
+    t.index ["transaction_id"], name: "index_payments_on_transaction_id", unique: true
     t.index ["user_id"], name: "index_payments_on_user_id"
   end
 
@@ -189,16 +322,17 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_18_000001) do
     t.text "content", null: false
     t.jsonb "metadata", default: {}, null: false
     t.text "embedding_text", null: false
-    t.integer "tokens", default: 0, null: false
+    t.integer "credits", default: 0, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index "to_tsvector('english'::regconfig, content)", name: "index_rag_documents_on_content_tsvector", using: :gin
     t.index ["created_at"], name: "index_rag_documents_on_created_at"
+    t.index ["credits", "created_at"], name: "idx_rag_docs_credits_created"
+    t.index ["credits"], name: "index_rag_documents_on_credits"
     t.index ["metadata"], name: "index_rag_documents_on_metadata", using: :gin
-    t.index ["tokens"], name: "index_rag_documents_on_tokens"
     t.check_constraint "char_length(content) <= 10000", name: "content_max_length"
     t.check_constraint "char_length(content) >= 10", name: "content_min_length"
-    t.check_constraint "tokens > 0", name: "tokens_positive"
+    t.check_constraint "credits > 0", name: "tokens_positive"
   end
 
   create_table "solid_cable_messages", force: :cascade do |t|
@@ -357,20 +491,24 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_18_000001) do
     t.json "metadata"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "tier"
     t.index ["ends_at"], name: "index_subscriptions_on_ends_at"
     t.index ["plan_type"], name: "index_subscriptions_on_plan_type"
+    t.index ["status", "ends_at"], name: "idx_subscriptions_status_end_date"
     t.index ["status"], name: "index_subscriptions_on_status"
+    t.index ["user_id", "ends_at"], name: "idx_subscriptions_user_active", where: "(status = 0)"
     t.index ["user_id", "status"], name: "index_subscriptions_on_user_id_and_status"
+    t.index ["user_id", "tier"], name: "idx_subscriptions_user_tier"
     t.index ["user_id"], name: "index_subscriptions_on_user_id"
   end
 
   create_table "users", force: :cascade do |t|
     t.string "email", null: false
-    t.string "password_digest", null: false
+    t.string "password_digest"
     t.string "name", null: false
     t.integer "role", default: 0, null: false
     t.integer "tier", default: 0, null: false
-    t.integer "tokens", default: 100, null: false
+    t.integer "credits", default: 100, null: false
     t.string "referral_code"
     t.string "referred_by"
     t.boolean "email_verified", default: false, null: false
@@ -382,25 +520,34 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_18_000001) do
     t.datetime "confirmation_sent_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "provider"
+    t.string "uid"
+    t.string "avatar_url"
     t.index ["confirmation_token"], name: "index_users_on_confirmation_token", unique: true
     t.index ["email"], name: "index_users_on_email", unique: true
+    t.index ["provider", "uid"], name: "index_users_on_provider_and_uid", unique: true
     t.index ["referral_code"], name: "index_users_on_referral_code", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
+    t.index ["role", "created_at"], name: "idx_users_role_created"
     t.index ["role"], name: "index_users_on_role"
+    t.index ["tier", "credits"], name: "idx_users_tier_credits"
     t.index ["tier"], name: "index_users_on_tier"
   end
 
   add_foreign_key "ai_feedbacks", "chat_messages"
   add_foreign_key "ai_feedbacks", "users"
+  add_foreign_key "ai_usage_records", "users"
   add_foreign_key "analyses", "excel_files"
   add_foreign_key "analyses", "users"
+  add_foreign_key "billing_keys", "users"
   add_foreign_key "chat_conversations", "excel_files"
   add_foreign_key "chat_conversations", "users"
   add_foreign_key "chat_messages", "chat_conversations"
   add_foreign_key "chat_messages", "users"
   add_foreign_key "excel_files", "users"
   add_foreign_key "payment_intents", "users"
-  add_foreign_key "payments", "payment_intents"
+  add_foreign_key "payment_methods", "billing_keys"
+  add_foreign_key "payment_methods", "users"
   add_foreign_key "payments", "users"
   add_foreign_key "solid_queue_blocked_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_claimed_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade

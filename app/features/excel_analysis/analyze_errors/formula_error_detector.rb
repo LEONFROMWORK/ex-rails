@@ -4,8 +4,8 @@ module ExcelAnalysis
   module AnalyzeErrors
     class FormulaErrorDetector
       EXCEL_ERRORS = [
-        '#DIV/0!', '#N/A', '#NAME?', '#NULL!', 
-        '#NUM!', '#REF!', '#VALUE!', '#SPILL!', '#CALC!'
+        "#DIV/0!", "#N/A", "#NAME?", "#NULL!",
+        "#NUM!", "#REF!", "#VALUE!", "#SPILL!", "#CALC!"
       ].freeze
 
       def initialize
@@ -18,7 +18,7 @@ module ExcelAnalysis
 
         begin
           @workbook = Roo::Spreadsheet.open(file_path)
-          
+
           @workbook.sheets.each do |sheet_name|
             @workbook.default_sheet = sheet_name
             sheet_errors = analyze_sheet(sheet_name)
@@ -53,7 +53,7 @@ module ExcelAnalysis
       def analyze_cell(sheet_name, row, col)
         errors = []
         cell_address = "#{sheet_name}!#{Roo::Base.number_to_letter(col)}#{row}"
-        
+
         begin
           cell_value = @workbook.cell(row, col)
           cell_formula = @workbook.formula(row, col) if @workbook.respond_to?(:formula)
@@ -78,80 +78,80 @@ module ExcelAnalysis
 
       def analyze_formula_syntax(cell_address, formula)
         errors = []
-        
+
         # Check for common formula issues
         errors.concat(check_division_by_zero_risk(cell_address, formula))
         errors.concat(check_circular_references(cell_address, formula))
         errors.concat(check_function_misspellings(cell_address, formula))
         errors.concat(check_range_issues(cell_address, formula))
-        
+
         errors
       end
 
       def check_division_by_zero_risk(cell_address, formula)
         errors = []
-        
+
         # Look for division operations that might cause #DIV/0!
         if formula.match?(%r{/[A-Z]+\d+}i) && !formula.match?(/IFERROR|IF\s*\(/i)
           errors << {
-            type: 'potential_formula_error',
-            severity: 'medium',
+            type: "potential_formula_error",
+            severity: "medium",
             cell: cell_address,
-            error_type: 'division_risk',
-            message: 'Potential division by zero risk',
+            error_type: "division_risk",
+            message: "Potential division by zero risk",
             formula: formula,
-            description: 'Formula contains division that could result in #DIV/0! error',
-            suggestion: 'Consider adding IFERROR or IF function to handle division by zero'
+            description: "Formula contains division that could result in #DIV/0! error",
+            suggestion: "Consider adding IFERROR or IF function to handle division by zero"
           }
         end
-        
+
         errors
       end
 
       def check_circular_references(cell_address, formula)
         errors = []
-        
+
         # Extract current cell reference
-        current_cell = cell_address.split('!').last
-        
+        current_cell = cell_address.split("!").last
+
         # Check if formula references itself
         if formula.include?(current_cell)
           errors << {
-            type: 'formula_error',
-            severity: 'high',
+            type: "formula_error",
+            severity: "high",
             cell: cell_address,
-            error_type: 'circular_reference',
-            message: 'Circular reference detected',
+            error_type: "circular_reference",
+            message: "Circular reference detected",
             formula: formula,
-            description: 'Formula references itself, creating a circular dependency',
-            suggestion: 'Remove self-reference or restructure the calculation'
+            description: "Formula references itself, creating a circular dependency",
+            suggestion: "Remove self-reference or restructure the calculation"
           }
         end
-        
+
         errors
       end
 
       def check_function_misspellings(cell_address, formula)
         errors = []
-        
+
         # Common misspellings
         misspellings = {
-          'SUMM' => 'SUM',
-          'AVERGE' => 'AVERAGE',
-          'COUTN' => 'COUNT',
-          'COUTNA' => 'COUNTA',
-          'VLOKUP' => 'VLOOKUP',
-          'HLOKUP' => 'HLOOKUP',
-          'CONCATENAT' => 'CONCATENATE'
+          "SUMM" => "SUM",
+          "AVERGE" => "AVERAGE",
+          "COUTN" => "COUNT",
+          "COUTNA" => "COUNTA",
+          "VLOKUP" => "VLOOKUP",
+          "HLOKUP" => "HLOOKUP",
+          "CONCATENAT" => "CONCATENATE"
         }
-        
+
         misspellings.each do |wrong, correct|
           if formula.include?(wrong)
             errors << {
-              type: 'formula_error',
-              severity: 'high',
+              type: "formula_error",
+              severity: "high",
               cell: cell_address,
-              error_type: 'function_misspelling',
+              error_type: "function_misspelling",
               message: "Misspelled function: #{wrong}",
               formula: formula,
               description: "Function '#{wrong}' is misspelled and will cause #NAME? error",
@@ -159,44 +159,44 @@ module ExcelAnalysis
             }
           end
         end
-        
+
         errors
       end
 
       def check_range_issues(cell_address, formula)
         errors = []
-        
+
         # Check for entire column references that might be inefficient
         if formula.match?(/[A-Z]+:[A-Z]+/i)
           errors << {
-            type: 'performance_warning',
-            severity: 'low',
+            type: "performance_warning",
+            severity: "low",
             cell: cell_address,
-            error_type: 'inefficient_range',
-            message: 'Entire column reference detected',
+            error_type: "inefficient_range",
+            message: "Entire column reference detected",
             formula: formula,
-            description: 'Using entire column references can impact performance',
-            suggestion: 'Consider using specific ranges like A1:A1000 instead of A:A'
+            description: "Using entire column references can impact performance",
+            suggestion: "Consider using specific ranges like A1:A1000 instead of A:A"
           }
         end
-        
+
         errors
       end
 
       def create_formula_error(cell_address, error_value, formula)
         severity = case error_value
-                   when '#DIV/0!', '#REF!', '#NAME?' then 'high'
-                   when '#N/A', '#VALUE!' then 'medium'
-                   else 'low'
-                   end
+        when "#DIV/0!", "#REF!", "#NAME?" then "high"
+        when "#N/A", "#VALUE!" then "medium"
+        else "low"
+        end
 
         {
-          type: 'formula_error',
+          type: "formula_error",
           severity: severity,
           cell: cell_address,
           error_type: error_value,
           message: get_error_message(error_value),
-          formula: formula || 'Unknown',
+          formula: formula || "Unknown",
           description: get_error_description(error_value),
           suggestion: get_error_suggestion(error_value)
         }
@@ -204,59 +204,59 @@ module ExcelAnalysis
 
       def create_file_error(message)
         {
-          type: 'file_error',
-          severity: 'high',
-          cell: 'N/A',
-          error_type: 'file_processing',
+          type: "file_error",
+          severity: "high",
+          cell: "N/A",
+          error_type: "file_processing",
           message: "File processing error: #{message}",
-          formula: 'N/A',
-          description: 'Unable to process Excel file',
-          suggestion: 'Check file format and ensure it is not corrupted'
+          formula: "N/A",
+          description: "Unable to process Excel file",
+          suggestion: "Check file format and ensure it is not corrupted"
         }
       end
 
       def get_error_message(error_value)
         case error_value
-        when '#DIV/0!' then 'Division by zero error'
-        when '#N/A' then 'Value not available'
-        when '#NAME?' then 'Unrecognized function or name'
-        when '#NULL!' then 'Null intersection error'
-        when '#NUM!' then 'Invalid numeric value'
-        when '#REF!' then 'Invalid cell reference'
-        when '#VALUE!' then 'Wrong data type'
-        when '#SPILL!' then 'Spill range error'
-        when '#CALC!' then 'Calculation error'
-        else 'Unknown Excel error'
+        when "#DIV/0!" then "Division by zero error"
+        when "#N/A" then "Value not available"
+        when "#NAME?" then "Unrecognized function or name"
+        when "#NULL!" then "Null intersection error"
+        when "#NUM!" then "Invalid numeric value"
+        when "#REF!" then "Invalid cell reference"
+        when "#VALUE!" then "Wrong data type"
+        when "#SPILL!" then "Spill range error"
+        when "#CALC!" then "Calculation error"
+        else "Unknown Excel error"
         end
       end
 
       def get_error_description(error_value)
         case error_value
-        when '#DIV/0!' then 'Formula attempts to divide by zero or empty cell'
-        when '#N/A' then 'Function cannot find referenced value'
-        when '#NAME?' then 'Function name is misspelled or not recognized'
-        when '#NULL!' then 'Formula refers to intersection of ranges that do not intersect'
-        when '#NUM!' then 'Formula contains invalid numeric values'
-        when '#REF!' then 'Formula contains reference to deleted or invalid cells'
-        when '#VALUE!' then 'Formula contains wrong data type for operation'
-        when '#SPILL!' then 'Dynamic array formula cannot spill into required cells'
-        when '#CALC!' then 'Error in calculation engine'
-        else 'Unrecognized Excel error'
+        when "#DIV/0!" then "Formula attempts to divide by zero or empty cell"
+        when "#N/A" then "Function cannot find referenced value"
+        when "#NAME?" then "Function name is misspelled or not recognized"
+        when "#NULL!" then "Formula refers to intersection of ranges that do not intersect"
+        when "#NUM!" then "Formula contains invalid numeric values"
+        when "#REF!" then "Formula contains reference to deleted or invalid cells"
+        when "#VALUE!" then "Formula contains wrong data type for operation"
+        when "#SPILL!" then "Dynamic array formula cannot spill into required cells"
+        when "#CALC!" then "Error in calculation engine"
+        else "Unrecognized Excel error"
         end
       end
 
       def get_error_suggestion(error_value)
         case error_value
-        when '#DIV/0!' then 'Use IF or IFERROR function to handle division by zero'
-        when '#N/A' then 'Check lookup values and ranges, consider using IFERROR'
-        when '#NAME?' then 'Check function spelling and defined names'
-        when '#NULL!' then 'Review range references and intersection logic'
-        when '#NUM!' then 'Verify numeric values and function arguments'
-        when '#REF!' then 'Update references to valid cells'
-        when '#VALUE!' then 'Check data types and format consistency'
-        when '#SPILL!' then 'Clear cells or resize spill range'
-        when '#CALC!' then 'Check for circular references or complex calculations'
-        else 'Review formula logic and syntax'
+        when "#DIV/0!" then "Use IF or IFERROR function to handle division by zero"
+        when "#N/A" then "Check lookup values and ranges, consider using IFERROR"
+        when "#NAME?" then "Check function spelling and defined names"
+        when "#NULL!" then "Review range references and intersection logic"
+        when "#NUM!" then "Verify numeric values and function arguments"
+        when "#REF!" then "Update references to valid cells"
+        when "#VALUE!" then "Check data types and format consistency"
+        when "#SPILL!" then "Clear cells or resize spill range"
+        when "#CALC!" then "Check for circular references or complex calculations"
+        else "Review formula logic and syntax"
         end
       end
     end

@@ -8,10 +8,32 @@ export default class extends Controller {
   static targets = ["switch", "handle", "lightIcon", "darkIcon", "lightLabel", "darkLabel"]
 
   connect() {
-    // Apply initial theme
-    const initialTheme = this.valueValue || this.getStoredTheme() || this.getSystemTheme()
-    this.applyTheme(initialTheme)
+    console.log('Theme controller connected!')
+    
+    // Check if theme is already applied from server
+    const htmlElement = document.documentElement
+    const currentTheme = htmlElement.classList.contains('dark') ? 'dark' : 'light'
+    
+    // Get stored theme or use current theme
+    const storedTheme = this.getStoredTheme()
+    const initialTheme = storedTheme || currentTheme
+    
+    console.log('Initial theme:', initialTheme, 'Current:', currentTheme, 'Stored:', storedTheme)
+    
+    // Only apply if different from current
+    if (initialTheme !== currentTheme) {
+      this.applyTheme(initialTheme)
+    } else {
+      // Just update the internal state
+      this.currentTheme = initialTheme
+    }
+    
+    // Always update UI and storage
     this.updateToggleUI(initialTheme)
+    if (!storedTheme && currentTheme) {
+      this.storeTheme(currentTheme)
+      this.updateCookie(currentTheme)
+    }
     
     // Listen for system theme changes
     this.mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
@@ -26,8 +48,10 @@ export default class extends Controller {
   }
 
   toggle() {
+    console.log('Toggle clicked!')
     const currentTheme = this.getCurrentTheme()
     const newTheme = currentTheme === 'dark' ? 'light' : 'dark'
+    console.log('Toggling from', currentTheme, 'to', newTheme)
     this.setTheme(newTheme)
   }
 
@@ -102,20 +126,23 @@ export default class extends Controller {
     if (this.hasHandleTarget) {
       if (isDark) {
         this.handleTarget.classList.remove('translate-x-0')
-        this.handleTarget.classList.add('translate-x-5')
+        // Adjust translate based on toggle size
+        const translateClass = this.getTranslateClass()
+        this.handleTarget.classList.add(translateClass)
       } else {
-        this.handleTarget.classList.remove('translate-x-5')
+        const translateClass = this.getTranslateClass()
+        this.handleTarget.classList.remove(translateClass)
         this.handleTarget.classList.add('translate-x-0')
       }
     }
 
     if (this.hasSwitchTarget) {
       if (isDark) {
-        this.switchTarget.classList.remove('bg-gray-200')
-        this.switchTarget.classList.add('bg-blue-600')
+        this.switchTarget.classList.remove('bg-muted')
+        this.switchTarget.classList.add('bg-primary')
       } else {
-        this.switchTarget.classList.remove('bg-blue-600')
-        this.switchTarget.classList.add('bg-gray-200')
+        this.switchTarget.classList.remove('bg-primary')
+        this.switchTarget.classList.add('bg-muted')
       }
       
       // Update aria-checked
@@ -163,5 +190,18 @@ export default class extends Controller {
   // Helper method to check if light mode is active
   get isLight() {
     return this.getCurrentTheme() === 'light'
+  }
+
+  // Get appropriate translate class based on toggle size
+  getTranslateClass() {
+    // Check parent element for size indicators
+    const parent = this.element
+    if (parent.querySelector('.h-5.w-9')) {
+      return 'translate-x-4' // small
+    } else if (parent.querySelector('.h-7.w-12')) {
+      return 'translate-x-5' // large
+    } else {
+      return 'translate-x-5' // medium (default)
+    }
   }
 }

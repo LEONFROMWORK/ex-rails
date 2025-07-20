@@ -4,15 +4,15 @@
   <!-- 헤더 섹션 -->
   <div class="sm:flex sm:items-center sm:justify-between mb-8">
     <div>
-      <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Reddit 데이터 관리</h1>
-      <p class="mt-2 text-sm text-gray-700 dark:text-gray-300">
+      <h1 class="text-3xl font-bold text-foreground">Reddit 데이터 관리</h1>
+      <p class="mt-2 text-sm text-muted-foreground">
         bigdata 시스템에서 수집된 Reddit r/excel 커뮤니티 Q&A 데이터를 관리합니다
       </p>
     </div>
     <div class="mt-4 sm:mt-0 sm:ml-16 sm:flex-none space-x-2">
       <%= button_to admin_knowledge_base_reddit_sync_data_path, 
             method: :post, 
-            class: "inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500",
+            class: "inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary",
             data: { confirm: "Reddit 데이터를 동기화하시겠습니까?" } do %>
         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
@@ -20,7 +20,7 @@
         데이터 동기화
       <% end %>
       <%= link_to "#", 
-            class: "inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500",
+            class: "inline-flex items-center px-4 py-2 border border-border text-sm font-medium rounded-md text-muted-foreground bg-card hover:bg-muted focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary",
             data: { toggle: "modal", target: "#bulkImportModal" } do %>
         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
@@ -33,18 +33,18 @@
   <!-- 통계 카드 섹션 -->
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
     <!-- 전체 스레드 수 -->
-    <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg">
+    <div class="bg-card  overflow-hidden shadow rounded-lg">
       <div class="p-5">
         <div class="flex items-center">
           <div class="flex-shrink-0">
-            <svg class="h-6 w-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="h-6 w-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
             </svg>
           </div>
           <div class="ml-5 w-0 flex-1">
             <dl>
-              <dt class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">총 Reddit 스레드</dt>
-              <dd class="text-lg font-medium text-gray-900 dark:text-white"><%= number_with_delimiter(@reddit_stats[:total_threads]) %></dd>
+              <dt class="text-sm font-medium text-muted-foreground  truncate">총 Reddit 스레드</dt>
+              <dd class="text-lg font-medium text-foreground "><%= number_with_delimiter(@reddit_stats[:total_threads]) %></dd>
             </dl>
           </div>
         </div>
@@ -52,20 +52,20 @@
     </div>
 
     <!-- OP 확인 스레드 -->
-    <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg">
+    <div class="bg-card  overflow-hidden shadow rounded-lg">
       <div class="p-5">
         <div class="flex items-center">
           <div class="flex-shrink-0">
-            <svg class="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="h-6 w-6 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
             </svg>
           </div>
           <div class="ml-5 w-0 flex-1">
             <dl>
-              <dt class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">OP 확인 스레드</dt>
-              <dd class="text-lg font-medium text-gray-900 dark:text-white">
+              <dt class="text-sm font-medium text-muted-foreground  truncate">OP 확인 스레드</dt>
+              <dd class="text-lg font-medium text-foreground ">
                 <%= number_with_delimiter(@reddit_stats[:op_confirmed_count]) %>
-                <span class="text-sm text-gray-500">
+                <span class="text-sm text-muted-foreground">
                   (<%= number_to_percentage((@reddit_stats[:op_confirmed_count].to_f / @reddit_stats[:total_threads]) * 100, precision: 1) %>)
                 </span>
               </dd>
@@ -76,18 +76,18 @@
     </div>
 
     <!-- 평균 품질 점수 -->
-    <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg">
+    <div class="bg-card  overflow-hidden shadow rounded-lg">
       <div class="p-5">
         <div class="flex items-center">
           <div class="flex-shrink-0">
-            <svg class="h-6 w-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="h-6 w-6 text-warning" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path>
             </svg>
           </div>
           <div class="ml-5 w-0 flex-1">
             <dl>
-              <dt class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">평균 품질 점수</dt>
-              <dd class="text-lg font-medium text-gray-900 dark:text-white">
+              <dt class="text-sm font-medium text-muted-foreground  truncate">평균 품질 점수</dt>
+              <dd class="text-lg font-medium text-foreground ">
                 <%= number_with_precision(@reddit_stats[:average_quality], precision: 1) %>/10
               </dd>
             </dl>
@@ -97,18 +97,18 @@
     </div>
 
     <!-- 마지막 동기화 -->
-    <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg">
+    <div class="bg-card  overflow-hidden shadow rounded-lg">
       <div class="p-5">
         <div class="flex items-center">
           <div class="flex-shrink-0">
-            <svg class="h-6 w-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="h-6 w-6 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
             </svg>
           </div>
           <div class="ml-5 w-0 flex-1">
             <dl>
-              <dt class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">마지막 동기화</dt>
-              <dd class="text-lg font-medium text-gray-900 dark:text-white">
+              <dt class="text-sm font-medium text-muted-foreground  truncate">마지막 동기화</dt>
+              <dd class="text-lg font-medium text-foreground ">
                 <%= time_ago_in_words(@reddit_stats[:last_sync]) %> 전
               </dd>
             </dl>
@@ -120,8 +120,8 @@
 
   <!-- 카테고리 분포 차트 -->
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-    <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
-      <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">카테고리별 분포</h3>
+    <div class="bg-card  shadow rounded-lg p-6">
+      <h3 class="text-lg font-medium text-foreground  mb-4">카테고리별 분포</h3>
       <div class="space-y-3">
         <% @reddit_stats[:categories].each do |category, count| %>
           <% category_name = {
@@ -135,21 +135,21 @@
           <% percentage = (count.to_f / @reddit_stats[:total_threads]) * 100 %>
           <div>
             <div class="flex justify-between text-sm">
-              <span class="text-gray-700 dark:text-gray-300"><%= category_name %></span>
-              <span class="text-gray-500 dark:text-gray-400">
+              <span class="text-muted-foreground "><%= category_name %></span>
+              <span class="text-muted-foreground ">
                 <%= number_with_delimiter(count) %> (<%= number_to_percentage(percentage, precision: 1) %>)
               </span>
             </div>
-            <div class="mt-1 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-              <div class="bg-blue-600 h-2 rounded-full" style="width: <%= percentage %>%"></div>
+            <div class="mt-1 bg-muted  rounded-full h-2">
+              <div class="bg-primary h-2 rounded-full" style="width: <%= percentage %>%"></div>
             </div>
           </div>
         <% end %>
       </div>
     </div>
 
-    <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
-      <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">품질 등급 분포</h3>
+    <div class="bg-card  shadow rounded-lg p-6">
+      <h3 class="text-lg font-medium text-foreground  mb-4">품질 등급 분포</h3>
       <div class="space-y-3">
         <% @reddit_stats[:quality_tiers].each do |tier, count| %>
           <% tier_name = {
@@ -160,19 +160,19 @@
              }[tier] || tier %>
           <% percentage = (count.to_f / @reddit_stats[:total_threads]) * 100 %>
           <% color_class = {
-               'excellent' => 'bg-green-600',
-               'good' => 'bg-blue-600', 
-               'fair' => 'bg-yellow-600',
+               'excellent' => 'bg-success',
+               'good' => 'bg-primary', 
+               'fair' => 'bg-warning',
                'poor' => 'bg-red-600'
-             }[tier] || 'bg-gray-600' %>
+             }[tier] || 'bg-muted-foreground' %>
           <div>
             <div class="flex justify-between text-sm">
-              <span class="text-gray-700 dark:text-gray-300"><%= tier_name %></span>
-              <span class="text-gray-500 dark:text-gray-400">
+              <span class="text-muted-foreground "><%= tier_name %></span>
+              <span class="text-muted-foreground ">
                 <%= number_with_delimiter(count) %> (<%= number_to_percentage(percentage, precision: 1) %>)
               </span>
             </div>
-            <div class="mt-1 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+            <div class="mt-1 bg-muted  rounded-full h-2">
               <div class="<%= color_class %> h-2 rounded-full" style="width: <%= percentage %>%"></div>
             </div>
           </div>
@@ -182,54 +182,54 @@
   </div>
 
   <!-- 최근 스레드 목록 -->
-  <div class="bg-white dark:bg-gray-800 shadow rounded-lg">
+  <div class="bg-card  shadow rounded-lg">
     <div class="px-4 py-5 sm:p-6">
-      <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">최근 Reddit 스레드</h3>
+      <h3 class="text-lg font-medium text-foreground  mb-4">최근 Reddit 스레드</h3>
       <div class="overflow-hidden">
-        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-          <thead class="bg-gray-50 dark:bg-gray-700">
+        <table class="min-w-full divide-y divide-border ">
+          <thead class="bg-muted ">
             <tr>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">제목</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">OP 확인</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">품질 점수</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">수집일</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">액션</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-muted-foreground  uppercase tracking-wider">제목</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-muted-foreground  uppercase tracking-wider">OP 확인</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-muted-foreground  uppercase tracking-wider">품질 점수</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-muted-foreground  uppercase tracking-wider">수집일</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-muted-foreground  uppercase tracking-wider">액션</th>
             </tr>
           </thead>
-          <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+          <tbody class="bg-card  divide-y divide-border ">
             <% @recent_threads.each do |thread| %>
               <tr>
                 <td class="px-6 py-4 whitespace-nowrap">
-                  <div class="text-sm font-medium text-gray-900 dark:text-white">
+                  <div class="text-sm font-medium text-foreground ">
                     <%= truncate(thread[:title], length: 50) %>
                   </div>
-                  <div class="text-sm text-gray-500 dark:text-gray-400">
+                  <div class="text-sm text-muted-foreground ">
                     ID: <%= thread[:id] %>
                   </div>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
                   <% if thread[:op_confirmed] %>
-                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-success/10 text-success">
                       확인됨
                     </span>
                   <% else %>
-                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-muted text-foreground">
                       미확인
                     </span>
                   <% end %>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
-                  <div class="text-sm text-gray-900 dark:text-white">
+                  <div class="text-sm text-foreground ">
                     <%= number_with_precision(thread[:quality_score], precision: 1) %>/10
                   </div>
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground ">
                   <%= time_ago_in_words(thread[:created_at]) %> 전
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                   <%= link_to "원본 보기", thread[:source_url], 
                         target: "_blank", 
-                        class: "text-blue-600 hover:text-blue-900" %>
+                        class: "text-primary hover:text-primary" %>
                 </td>
               </tr>
             <% end %>
@@ -250,13 +250,13 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
-          <p class="text-sm text-gray-600 mb-4">
+          <p class="text-sm text-muted-foreground mb-4">
             bigdata 시스템에서 생성된 JSONL 파일을 업로드하여 Reddit Q&A 데이터를 가져올 수 있습니다.
           </p>
           <div class="mb-3">
             <%= form.file_field :file, accept: ".jsonl,.json", class: "form-control", required: true %>
           </div>
-          <div class="text-xs text-gray-500">
+          <div class="text-xs text-muted-foreground">
             지원 형식: .jsonl, .json (최대 100MB)
           </div>
         </div>

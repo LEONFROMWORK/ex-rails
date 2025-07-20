@@ -1,25 +1,24 @@
 <div class="<%= container_classes %>" 
-     data-controller="theme"
-     data-theme-value="light">
+     data-controller="theme">
   
   <!-- Toggle Switch -->
   <button type="button" 
           data-action="click->theme#toggle"
           data-theme-target="switch"
-          class="<%= toggle_classes %> bg-gray-200"
+          class="<%= toggle_classes %> bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600"
           role="switch" 
           aria-checked="false"
           aria-labelledby="theme-toggle-label">
     
     <!-- Switch Handle -->
     <span data-theme-target="handle"
-          class="<%= switch_classes %> translate-x-0">
+          class="<%= switch_classes %> translate-x-0 dark:translate-x-5 dark:bg-background">
       
       <!-- Light Mode Icon (visible when light mode is active) -->
       <span data-theme-target="lightIcon"
             class="absolute inset-0 flex h-full w-full items-center justify-center transition-opacity duration-200 ease-in opacity-100 dark:opacity-0"
             aria-hidden="true">
-        <svg class="<%= icon_classes %> text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg class="<%= icon_classes %> text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
         </svg>
       </span>
@@ -28,7 +27,7 @@
       <span data-theme-target="darkIcon"
             class="absolute inset-0 flex h-full w-full items-center justify-center transition-opacity duration-200 ease-in opacity-0 dark:opacity-100"
             aria-hidden="true">
-        <svg class="<%= icon_classes %> text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg class="<%= icon_classes %> text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
         </svg>
       </span>
@@ -38,10 +37,10 @@
   <!-- Label (optional) -->
   <% if show_label %>
     <label id="theme-toggle-label" 
-           class="<%= label_classes %> font-medium text-gray-700 dark:text-gray-300 cursor-pointer select-none"
+           class="<%= label_classes %> font-medium text-foreground cursor-pointer select-none"
            data-action="click->theme#toggle">
-      <span data-theme-target="lightLabel" class="dark:hidden">Light Mode</span>
-      <span data-theme-target="darkLabel" class="hidden dark:inline">Dark Mode</span>
+      <span data-theme-target="lightLabel" class="dark:hidden"><%= t('theme.light') %></span>
+      <span data-theme-target="darkLabel" class="hidden dark:inline"><%= t('theme.dark') %></span>
     </label>
   <% end %>
 </div>

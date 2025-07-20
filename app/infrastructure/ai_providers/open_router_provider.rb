@@ -3,29 +3,29 @@
 module Infrastructure
   module AiProviders
     class OpenRouterProvider < BaseProvider
-      API_BASE_URL = 'https://openrouter.ai/api/v1'
-      
+      API_BASE_URL = "https://openrouter.ai/api/v1"
+
       # Model configurations for 3-tier system
       TIER_MODELS = {
-        'tier1' => {
-          model: 'mistralai/mistral-7b-instruct',
-          name: 'Mistral Small 3.1',
+        "tier1" => {
+          model: "mistralai/mistral-7b-instruct",
+          name: "Mistral Small 3.1",
           input_price: 0.00015,  # $0.15 per 1M tokens
           output_price: 0.00015,
           max_tokens: 4000,
           quality_threshold: 0.75
         },
-        'tier2' => {
-          model: 'meta-llama/llama-3.1-70b-instruct',
-          name: 'Llama 4 Maverick',
+        "tier2" => {
+          model: "meta-llama/llama-3.1-70b-instruct",
+          name: "Llama 4 Maverick",
           input_price: 0.00039,  # $0.39 per 1M tokens
           output_price: 0.00039,
           max_tokens: 8000,
           quality_threshold: 0.85
         },
-        'tier3' => {
-          model: 'openai/gpt-4o-mini',
-          name: 'GPT-4.1 Mini',
+        "tier3" => {
+          model: "openai/gpt-4o-mini",
+          name: "GPT-4.1 Mini",
           input_price: 0.00040,  # $0.40 per 1M tokens
           output_price: 0.00160,  # $1.60 per 1M tokens
           max_tokens: 16000,
@@ -38,14 +38,14 @@ module Infrastructure
         @http_client = HTTParty
       end
 
-      def generate_response(prompt:, max_tokens: 1000, temperature: 0.7, model: nil, tier: 'tier1', images: nil)
+      def generate_response(prompt:, max_tokens: 1000, temperature: 0.7, model: nil, tier: "tier1", images: nil)
         tier = tier.to_s
         model_config = TIER_MODELS[tier]
-        
+
         unless model_config
           return Common::Result.failure(
             Common::Errors::AIProviderError.new(
-              provider: 'openrouter',
+              provider: "openrouter",
               message: "Invalid tier: #{tier}. Valid tiers: #{TIER_MODELS.keys.join(', ')}"
             )
           )
@@ -53,7 +53,7 @@ module Infrastructure
 
         # Use tier-specific model if no model specified
         selected_model = model || model_config[:model]
-        
+
         # Estimate tokens for rate limiting
         estimated_tokens = estimate_tokens(prompt)
         check_rate_limits(estimated_tokens)
@@ -64,7 +64,7 @@ module Infrastructure
           make_api_request(
             prompt: prompt,
             model: selected_model,
-            max_tokens: [max_tokens, model_config[:max_tokens]].min,
+            max_tokens: [ max_tokens, model_config[:max_tokens] ].min,
             temperature: temperature,
             images: images,
             tier: tier
@@ -86,15 +86,15 @@ module Infrastructure
 
         input_cost = (input_tokens / 1_000_000.0) * model_config[:input_price]
         output_cost = (output_tokens / 1_000_000.0) * model_config[:output_price]
-        
+
         input_cost + output_cost
       end
 
       private
 
-      def make_api_request(prompt:, model:, max_tokens:, temperature:, images: nil, tier: 'tier1')
+      def make_api_request(prompt:, model:, max_tokens:, temperature:, images: nil, tier: "tier1")
         request_body = build_request_body(prompt, model, max_tokens, temperature, images)
-        
+
         response = @http_client.post(
           "#{API_BASE_URL}/chat/completions",
           headers: build_headers,
@@ -110,44 +110,44 @@ module Infrastructure
           handle_api_error_response(response)
         end
       rescue StandardError => e
-        handle_api_error(e, 'openrouter')
+        handle_api_error(e, "openrouter")
       end
 
       def build_request_body(prompt, model, max_tokens, temperature, images = nil)
         messages = []
-        
+
         if images&.any?
           # Handle multimodal request
-          content = [{ type: 'text', text: prompt }]
-          
+          content = [ { type: "text", text: prompt } ]
+
           images.each do |image|
-            if image.start_with?('data:image/')
+            if image.start_with?("data:image/")
               content << {
-                type: 'image_url',
+                type: "image_url",
                 image_url: { url: image }
               }
-            elsif image.start_with?('http')
+            elsif image.start_with?("http")
               content << {
-                type: 'image_url',
+                type: "image_url",
                 image_url: { url: image }
               }
             else
               # File path - convert to base64
               content << {
-                type: 'image_url',
+                type: "image_url",
                 image_url: { url: encode_image_file(image) }
               }
             end
           end
-          
+
           messages << {
-            role: 'user',
+            role: "user",
             content: content
           }
         else
           # Text-only request
           messages << {
-            role: 'user',
+            role: "user",
             content: prompt
           }
         end
@@ -166,58 +166,58 @@ module Infrastructure
 
       def encode_image_file(file_path)
         return nil unless File.exist?(file_path)
-        
+
         file_extension = File.extname(file_path).downcase
         mime_type = case file_extension
-                    when '.png' then 'image/png'
-                    when '.jpg', '.jpeg' then 'image/jpeg'
-                    when '.webp' then 'image/webp'
-                    when '.gif' then 'image/gif'
-                    else 'image/jpeg'
-                    end
-        
+        when ".png" then "image/png"
+        when ".jpg", ".jpeg" then "image/jpeg"
+        when ".webp" then "image/webp"
+        when ".gif" then "image/gif"
+        else "image/jpeg"
+        end
+
         encoded_image = Base64.strict_encode64(File.read(file_path))
         "data:#{mime_type};base64,#{encoded_image}"
       end
 
       def build_headers
         {
-          'Authorization' => "Bearer #{@config[:api_key]}",
-          'Content-Type' => 'application/json',
-          'HTTP-Referer' => 'https://excelapp.com',
-          'X-Title' => 'ExcelApp SaaS'
+          "Authorization" => "Bearer #{@config[:api_key]}",
+          "Content-Type" => "application/json",
+          "HTTP-Referer" => "https://excelapp.com",
+          "X-Title" => "ExcelApp SaaS"
         }
       end
 
       def parse_successful_response(response, tier)
-        choice = response.dig('choices', 0)
-        usage = response['usage']
-        
+        choice = response.dig("choices", 0)
+        usage = response["usage"]
+
         unless choice && usage
           return Common::Result.failure(
             Common::Errors::AIProviderError.new(
-              provider: 'openrouter',
-              message: 'Invalid response format from OpenRouter API'
+              provider: "openrouter",
+              message: "Invalid response format from OpenRouter API"
             )
           )
         end
 
         # Calculate cost
-        input_tokens = usage['prompt_tokens'] || 0
-        output_tokens = usage['completion_tokens'] || 0
+        input_tokens = usage["prompt_tokens"] || 0
+        output_tokens = usage["completion_tokens"] || 0
         cost = calculate_cost(input_tokens, output_tokens, tier)
 
         result = {
-          content: choice.dig('message', 'content'),
+          content: choice.dig("message", "content"),
           usage: {
             prompt_tokens: input_tokens,
             completion_tokens: output_tokens,
-            total_tokens: usage['total_tokens'] || (input_tokens + output_tokens)
+            total_tokens: usage["total_tokens"] || (input_tokens + output_tokens)
           },
-          model: response['model'],
+          model: response["model"],
           tier: tier,
           cost: cost,
-          provider: 'openrouter',
+          provider: "openrouter",
           model_config: TIER_MODELS[tier],
           raw_response: response
         }
@@ -225,8 +225,8 @@ module Infrastructure
         unless validate_response(result)
           return Common::Result.failure(
             Common::Errors::AIProviderError.new(
-              provider: 'openrouter',
-              message: 'Invalid response content'
+              provider: "openrouter",
+              message: "Invalid response content"
             )
           )
         end
@@ -235,13 +235,13 @@ module Infrastructure
       end
 
       def handle_api_error_response(response)
-        error_message = response.parsed_response&.dig('error', 'message') || 'Unknown API error'
-        
+        error_message = response.parsed_response&.dig("error", "message") || "Unknown API error"
+
         Rails.logger.error("OpenRouter API error (#{response.code}): #{error_message}")
-        
+
         Common::Result.failure(
           Common::Errors::AIProviderError.new(
-            provider: 'openrouter',
+            provider: "openrouter",
             message: "API error (#{response.code}): #{error_message}",
             details: {
               status_code: response.code,

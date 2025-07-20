@@ -6,11 +6,11 @@ class CreateChatMessages < ActiveRecord::Migration[8.0]
       t.text :content, null: false
       t.string :role, null: false, default: 'user'
       t.json :metadata
-      t.integer :tokens_used, default: 0
-      
+      t.integer :credits_used, default: 0
+
       t.timestamps
     end
-    
+
     add_index :chat_messages, :role
     add_index :chat_messages, :created_at
   end

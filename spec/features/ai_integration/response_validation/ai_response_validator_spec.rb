@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe Ai::ResponseValidation::AiResponseValidator do
+RSpec.describe AiIntegration::ResponseValidation::AiResponseValidator do
   describe '#validate' do
     context 'with valid chat response' do
       let(:valid_response) do

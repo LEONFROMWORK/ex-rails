@@ -2,9 +2,9 @@
 
 <div class="space-y-8">
   <!-- Header -->
-  <div class="border-b border-gray-200 dark:border-gray-700 pb-5">
-    <h3 class="text-2xl font-bold leading-6 text-gray-900 dark:text-white">Analytics Dashboard</h3>
-    <p class="mt-2 max-w-4xl text-sm text-gray-500 dark:text-gray-400">
+  <div class="border-b border-border pb-5">
+    <h3 class="text-2xl font-bold leading-6 text-foreground">Analytics Dashboard</h3>
+    <p class="mt-2 max-w-4xl text-sm text-muted-foreground">
       Track your Excel analysis usage, AI token consumption, and performance metrics.
     </p>
   </div>
@@ -12,99 +12,99 @@
   <!-- Overview Stats -->
   <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
     <!-- Total Files -->
-    <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg border border-gray-200 dark:border-gray-700">
+    <div class="bg-card overflow-hidden shadow rounded-lg border border-border">
       <div class="p-5">
         <div class="flex items-center">
           <div class="flex-shrink-0">
-            <svg class="h-6 w-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="h-6 w-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
             </svg>
           </div>
           <div class="ml-5 w-0 flex-1">
             <dl>
-              <dt class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">Total Files</dt>
-              <dd class="text-lg font-medium text-gray-900 dark:text-white"><%= @analytics_data[:total_files] || 0 %></dd>
+              <dt class="text-sm font-medium text-muted-foreground truncate">Total Files</dt>
+              <dd class="text-lg font-medium text-foreground"><%= @analytics_data[:total_files] || 0 %></dd>
             </dl>
           </div>
         </div>
       </div>
-      <div class="bg-gray-50 dark:bg-gray-700 px-5 py-3">
+      <div class="bg-muted px-5 py-3">
         <div class="text-sm">
-          <span class="font-medium text-green-600 dark:text-green-400">+<%= @analytics_data[:files_this_week] || 0 %></span>
-          <span class="text-gray-500 dark:text-gray-400">this week</span>
+          <span class="font-medium text-success">+<%= @analytics_data[:files_this_week] || 0 %></span>
+          <span class="text-muted-foreground">this week</span>
         </div>
       </div>
     </div>
 
     <!-- Total Analyses -->
-    <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg border border-gray-200 dark:border-gray-700">
+    <div class="bg-card overflow-hidden shadow rounded-lg border border-border">
       <div class="p-5">
         <div class="flex items-center">
           <div class="flex-shrink-0">
-            <svg class="h-6 w-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="h-6 w-6 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
             </svg>
           </div>
           <div class="ml-5 w-0 flex-1">
             <dl>
-              <dt class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">AI Analyses</dt>
-              <dd class="text-lg font-medium text-gray-900 dark:text-white"><%= @analytics_data[:total_analyses] || 0 %></dd>
+              <dt class="text-sm font-medium text-muted-foreground truncate">AI Analyses</dt>
+              <dd class="text-lg font-medium text-foreground"><%= @analytics_data[:total_analyses] || 0 %></dd>
             </dl>
           </div>
         </div>
       </div>
-      <div class="bg-gray-50 dark:bg-gray-700 px-5 py-3">
+      <div class="bg-muted px-5 py-3">
         <div class="text-sm">
-          <span class="font-medium text-green-600 dark:text-green-400">+<%= @analytics_data[:analyses_this_week] || 0 %></span>
-          <span class="text-gray-500 dark:text-gray-400">this week</span>
+          <span class="font-medium text-success">+<%= @analytics_data[:analyses_this_week] || 0 %></span>
+          <span class="text-muted-foreground">this week</span>
         </div>
       </div>
     </div>
 
     <!-- Tokens Used -->
-    <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg border border-gray-200 dark:border-gray-700">
+    <div class="bg-card overflow-hidden shadow rounded-lg border border-border">
       <div class="p-5">
         <div class="flex items-center">
           <div class="flex-shrink-0">
-            <svg class="h-6 w-6 text-yellow-600 dark:text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="h-6 w-6 text-warning" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"/>
             </svg>
           </div>
           <div class="ml-5 w-0 flex-1">
             <dl>
-              <dt class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">Tokens Used</dt>
-              <dd class="text-lg font-medium text-gray-900 dark:text-white"><%= number_with_delimiter(@analytics_data[:total_tokens_used] || 0) %></dd>
+              <dt class="text-sm font-medium text-muted-foreground truncate">Tokens Used</dt>
+              <dd class="text-lg font-medium text-foreground"><%= number_with_delimiter(@analytics_data[:total_credits_used] || 0) %></dd>
             </dl>
           </div>
         </div>
       </div>
-      <div class="bg-gray-50 dark:bg-gray-700 px-5 py-3">
+      <div class="bg-muted px-5 py-3">
         <div class="text-sm">
-          <span class="text-gray-500 dark:text-gray-400">Across all analyses</span>
+          <span class="text-muted-foreground">Across all analyses</span>
         </div>
       </div>
     </div>
 
     <!-- Current Tokens -->
-    <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg border border-gray-200 dark:border-gray-700">
+    <div class="bg-card overflow-hidden shadow rounded-lg border border-border">
       <div class="p-5">
         <div class="flex items-center">
           <div class="flex-shrink-0">
-            <svg class="h-6 w-6 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="h-6 w-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
             </svg>
           </div>
           <div class="ml-5 w-0 flex-1">
             <dl>
-              <dt class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">Available Tokens</dt>
-              <dd class="text-lg font-medium text-gray-900 dark:text-white"><%= current_user.tokens %></dd>
+              <dt class="text-sm font-medium text-muted-foreground truncate">Available Tokens</dt>
+              <dd class="text-lg font-medium text-foreground"><%= current_user.credits %></dd>
             </dl>
           </div>
         </div>
       </div>
-      <div class="bg-gray-50 dark:bg-gray-700 px-5 py-3">
+      <div class="bg-muted px-5 py-3">
         <div class="text-sm">
-          <a href="/settings" class="font-medium text-blue-600 dark:text-blue-400 hover:text-blue-500 dark:hover:text-blue-300">Purchase more →</a>
+          <a href="/settings" class="font-medium text-primary hover:text-primary/80">Purchase more →</a>
         </div>
       </div>
     </div>
@@ -114,21 +114,21 @@
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
     <div class="bg-white dark:bg-gray-800 shadow rounded-lg border border-gray-200 dark:border-gray-700">
       <div class="px-4 py-5 sm:p-6">
-        <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">File Status Distribution</h3>
+        <h3 class="text-lg font-medium text-foreground mb-4">File Status Distribution</h3>
         <div class="space-y-3">
           <% (@analytics_data[:files_by_status] || {}).each do |status, count| %>
             <div class="flex items-center justify-between">
               <div class="flex items-center">
                 <div class="w-3 h-3 rounded-full mr-3 <%= case status
-                  when 'uploaded' then 'bg-blue-500'
-                  when 'processing' then 'bg-yellow-500'
-                  when 'analyzed' then 'bg-green-500'
-                  when 'failed' then 'bg-red-500'
-                  else 'bg-gray-500'
+                  when 'uploaded' then 'bg-primary'
+                  when 'processing' then 'bg-warning'
+                  when 'analyzed' then 'bg-success'
+                  when 'failed' then 'bg-destructive'
+                  else 'bg-muted'
                 end %>"></div>
-                <span class="text-sm font-medium text-gray-900 dark:text-white capitalize"><%= status %></span>
+                <span class="text-sm font-medium text-foreground capitalize"><%= status %></span>
               </div>
-              <span class="text-sm text-gray-500 dark:text-gray-400"><%= count %> files</span>
+              <span class="text-sm text-muted-foreground"><%= count %> files</span>
             </div>
           <% end %>
         </div>
@@ -138,18 +138,18 @@
     <!-- AI Tier Usage -->
     <div class="bg-white dark:bg-gray-800 shadow rounded-lg border border-gray-200 dark:border-gray-700">
       <div class="px-4 py-5 sm:p-6">
-        <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">AI Tier Usage</h3>
+        <h3 class="text-lg font-medium text-foreground mb-4">AI Tier Usage</h3>
         <div class="space-y-3">
           <% (@analytics_data[:analyses_by_tier] || {}).each do |tier, count| %>
             <div class="flex items-center justify-between">
               <div class="flex items-center">
                 <div class="w-3 h-3 rounded-full mr-3 <%= case tier
-                  when 'rule_based' then 'bg-gray-500'
-                  when 'tier1' then 'bg-blue-500'
-                  when 'tier2' then 'bg-purple-500'
-                  else 'bg-gray-500'
+                  when 'rule_based' then 'bg-muted'
+                  when 'tier1' then 'bg-primary'
+                  when 'tier2' then 'bg-purple-600'
+                  else 'bg-muted'
                 end %>"></div>
-                <span class="text-sm font-medium text-gray-900 dark:text-white">
+                <span class="text-sm font-medium text-foreground">
                   <%= case tier
                     when 'rule_based' then 'Rule-based'
                     when 'tier1' then 'AI Tier 1 (Haiku)'
@@ -158,7 +158,7 @@
                   end %>
                 </span>
               </div>
-              <span class="text-sm text-gray-500 dark:text-gray-400"><%= count %> analyses</span>
+              <span class="text-sm text-muted-foreground"><%= count %> analyses</span>
             </div>
           <% end %>
         </div>
@@ -169,15 +169,15 @@
   <!-- Recent Files -->
   <div class="bg-white dark:bg-gray-800 shadow rounded-lg border border-gray-200 dark:border-gray-700">
     <div class="px-4 py-5 sm:p-6">
-      <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Recent Files</h3>
+      <h3 class="text-lg font-medium text-foreground mb-4">Recent Files</h3>
       <% if @analytics_data[:recent_files]&.any? %>
         <div class="overflow-hidden">
-          <ul class="divide-y divide-gray-200 dark:divide-gray-700">
+          <ul class="divide-y divide-border">
             <% @analytics_data[:recent_files].each do |file| %>
               <li class="py-4">
                 <div class="flex items-center space-x-4">
                   <div class="flex-shrink-0">
-                    <svg class="h-8 w-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="h-8 w-8 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                     </svg>
                   </div>
@@ -185,17 +185,17 @@
                     <p class="text-sm font-medium text-gray-900 dark:text-white truncate">
                       <%= file.original_name %>
                     </p>
-                    <p class="text-sm text-gray-500 dark:text-gray-400">
+                    <p class="text-sm text-muted-foreground">
                       <%= file.human_file_size %> • <%= time_ago_in_words(file.created_at) %> ago
                     </p>
                   </div>
                   <div class="flex-shrink-0">
                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium <%= case file.status
-                      when 'uploaded' then 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
-                      when 'processing' then 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
-                      when 'analyzed' then 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                      when 'failed' then 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
-                      else 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200'
+                      when 'uploaded' then 'bg-primary/10 text-primary'
+                      when 'processing' then 'bg-warning/10 text-warning'
+                      when 'analyzed' then 'bg-success/10 text-success'
+                      when 'failed' then 'bg-destructive/10 text-destructive'
+                      else 'bg-muted text-muted-foreground'
                     end %>">
                       <%= file.status.humanize %>
                     </span>
@@ -207,13 +207,13 @@
         </div>
       <% else %>
         <div class="text-center py-8">
-          <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg class="mx-auto h-12 w-12 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
           </svg>
-          <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white">No files yet</h3>
-          <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Get started by uploading your first Excel file.</p>
+          <h3 class="mt-2 text-sm font-medium text-foreground">No files yet</h3>
+          <p class="mt-1 text-sm text-muted-foreground">Get started by uploading your first Excel file.</p>
           <div class="mt-6">
-            <a href="/excel_files/new" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-600">
+            <a href="/excel_files/new" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-primary-foreground bg-primary hover:bg-primary/90">
               Upload File
             </a>
           </div>
@@ -225,21 +225,21 @@
   <!-- Quick Actions -->
   <div class="bg-white dark:bg-gray-800 shadow rounded-lg border border-gray-200 dark:border-gray-700">
     <div class="px-4 py-5 sm:p-6">
-      <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Quick Actions</h3>
+      <h3 class="text-lg font-medium text-foreground mb-4">Quick Actions</h3>
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <a href="/excel_files/new" class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-600">
+        <a href="/excel_files/new" class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-primary-foreground bg-primary hover:bg-primary/90">
           <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
           </svg>
           Upload New File
         </a>
-        <a href="/excel_files" class="inline-flex items-center justify-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700">
+        <a href="/excel_files" class="inline-flex items-center justify-center px-4 py-2 border border-border text-sm font-medium rounded-md text-foreground bg-card hover:bg-muted">
           <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
           </svg>
           View All Files
         </a>
-        <a href="/chat_conversations" class="inline-flex items-center justify-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700">
+        <a href="/chat_conversations" class="inline-flex items-center justify-center px-4 py-2 border border-border text-sm font-medium rounded-md text-foreground bg-card hover:bg-muted">
           <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
           </svg>

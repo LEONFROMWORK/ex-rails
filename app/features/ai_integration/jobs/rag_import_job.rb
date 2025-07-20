@@ -4,14 +4,14 @@ module AiIntegration
   module Jobs
     class RagImportJob < ApplicationJob
       queue_as :default
-      
+
       def perform(import_type, data_source, options = {})
         case import_type
-        when 'excel_knowledge'
+        when "excel_knowledge"
           import_excel_knowledge(data_source, options)
-        when 'community_qa'
+        when "community_qa"
           import_community_qa(data_source, options)
-        when 'batch_documents'
+        when "batch_documents"
           import_batch_documents(data_source, options)
         else
           raise ArgumentError, "Unknown import type: #{import_type}"
@@ -22,15 +22,15 @@ module AiIntegration
 
       def import_excel_knowledge(data_source, options)
         orchestrator = RagOrchestrator.new
-        
+
         case data_source
-        when 'oppadu'
+        when "oppadu"
           import_oppadu_data(orchestrator, options)
-        when 'stackoverflow'
+        when "stackoverflow"
           import_stackoverflow_data(orchestrator, options)
-        when 'reddit'
+        when "reddit"
           import_reddit_data(orchestrator, options)
-        when 'file'
+        when "file"
           import_file_data(orchestrator, options)
         else
           raise ArgumentError, "Unknown data source: #{data_source}"
@@ -40,55 +40,55 @@ module AiIntegration
       def import_oppadu_data(orchestrator, options)
       # Import from Oppadu data collection
       data_file = options[:file_path] || "/Users/kevin/bigdata/data/output/latest_oppadu_data.jsonl"
-      
+
       unless File.exist?(data_file)
         Rails.logger.error("Oppadu data file not found: #{data_file}")
         return
       end
-      
+
       documents = []
       line_count = 0
-      
+
       File.foreach(data_file) do |line|
         line_count += 1
         next if line.strip.empty?
-        
+
         begin
           data = JSON.parse(line)
-          
+
           # Extract Q&A content
-          if data['question'] && data['answer']
-            content = build_qa_content(data['question'], data['answer'])
+          if data["question"] && data["answer"]
+            content = build_qa_content(data["question"], data["answer"])
             metadata = {
-              source: 'oppadu',
-              language: 'ko',
-              url: data['url'],
-              difficulty: classify_difficulty(data['question']),
+              source: "oppadu",
+              language: "ko",
+              url: data["url"],
+              difficulty: classify_difficulty(data["question"]),
               functions: extract_excel_functions(content),
               imported_at: Time.current.iso8601
             }
-            
+
             documents << { content: content, metadata: metadata }
           end
-          
+
           # Batch import every 100 documents
           if documents.size >= 100
             orchestrator.batch_index_excel_knowledge(documents)
             documents.clear
             Rails.logger.info("Imported batch ending at line #{line_count}")
           end
-          
+
         rescue JSON::ParserError => e
           Rails.logger.warn("Invalid JSON at line #{line_count}: #{e.message}")
           next
         end
       end
-      
+
       # Import remaining documents
       if documents.any?
         orchestrator.batch_index_excel_knowledge(documents)
       end
-      
+
       Rails.logger.info("Completed Oppadu import: #{line_count} lines processed")
       end
 
@@ -105,21 +105,21 @@ module AiIntegration
 
       def import_file_data(orchestrator, options)
       file_path = options[:file_path]
-      format = options[:format] || 'jsonl'
-      
+      format = options[:format] || "jsonl"
+
       unless File.exist?(file_path)
         Rails.logger.error("Import file not found: #{file_path}")
         return
       end
-      
+
       case format
-        when 'jsonl'
+      when "jsonl"
           import_jsonl_file(orchestrator, file_path)
-        when 'csv'
+      when "csv"
           import_csv_file(orchestrator, file_path)
-        when 'json'
+      when "json"
           import_json_file(orchestrator, file_path)
-        else
+      else
           raise ArgumentError, "Unsupported format: #{format}"
       end
       end
@@ -127,62 +127,62 @@ module AiIntegration
       def import_jsonl_file(orchestrator, file_path)
       documents = []
       line_count = 0
-      
+
       File.foreach(file_path) do |line|
         line_count += 1
         next if line.strip.empty?
-        
+
         begin
           data = JSON.parse(line)
-          
-          if data['content'] || (data['question'] && data['answer'])
-            content = data['content'] || build_qa_content(data['question'], data['answer'])
-            metadata = data['metadata'] || {}
-            
+
+          if data["content"] || (data["question"] && data["answer"])
+            content = data["content"] || build_qa_content(data["question"], data["answer"])
+            metadata = data["metadata"] || {}
+
             documents << { content: content, metadata: metadata }
           end
-          
+
           # Batch import every 50 documents
           if documents.size >= 50
             orchestrator.batch_index_excel_knowledge(documents)
             documents.clear
             Rails.logger.info("Imported batch ending at line #{line_count}")
           end
-          
+
         rescue JSON::ParserError => e
           Rails.logger.warn("Invalid JSON at line #{line_count}: #{e.message}")
           next
         end
       end
-      
+
       # Import remaining documents
       if documents.any?
         orchestrator.batch_index_excel_knowledge(documents)
       end
-      
+
       Rails.logger.info("Completed JSONL import: #{line_count} lines processed")
       end
 
       def import_csv_file(orchestrator, file_path)
-      require 'csv'
-      
+      require "csv"
+
       documents = []
       row_count = 0
-      
+
       CSV.foreach(file_path, headers: true) do |row|
         row_count += 1
-        
-        if row['content'] || (row['question'] && row['answer'])
-          content = row['content'] || build_qa_content(row['question'], row['answer'])
+
+        if row["content"] || (row["question"] && row["answer"])
+          content = row["content"] || build_qa_content(row["question"], row["answer"])
           metadata = {
-            source: row['source'] || 'csv_import',
-            language: row['language'] || 'en',
-            difficulty: row['difficulty'] || 'medium'
+            source: row["source"] || "csv_import",
+            language: row["language"] || "en",
+            difficulty: row["difficulty"] || "medium"
           }
-          
+
           documents << { content: content, metadata: metadata }
         end
-        
+
         # Batch import every 50 documents
         if documents.size >= 50
           orchestrator.batch_index_excel_knowledge(documents)
@@ -190,42 +190,42 @@ module AiIntegration
           Rails.logger.info("Imported batch ending at row #{row_count}")
         end
       end
-      
+
       # Import remaining documents
       if documents.any?
         orchestrator.batch_index_excel_knowledge(documents)
       end
-      
+
       Rails.logger.info("Completed CSV import: #{row_count} rows processed")
       end
 
       def import_json_file(orchestrator, file_path)
       data = JSON.parse(File.read(file_path))
       documents = []
-      
+
       case data
-        when Array
+      when Array
         data.each do |item|
-          if item['content'] || (item['question'] && item['answer'])
-            content = item['content'] || build_qa_content(item['question'], item['answer'])
-            metadata = item['metadata'] || {}
-            
+          if item["content"] || (item["question"] && item["answer"])
+            content = item["content"] || build_qa_content(item["question"], item["answer"])
+            metadata = item["metadata"] || {}
+
             documents << { content: content, metadata: metadata }
           end
         end
-        when Hash
-        if data['documents']
-          data['documents'].each do |item|
-            if item['content'] || (item['question'] && item['answer'])
-              content = item['content'] || build_qa_content(item['question'], item['answer'])
-              metadata = item['metadata'] || {}
-              
+      when Hash
+        if data["documents"]
+          data["documents"].each do |item|
+            if item["content"] || (item["question"] && item["answer"])
+              content = item["content"] || build_qa_content(item["question"], item["answer"])
+              metadata = item["metadata"] || {}
+
               documents << { content: content, metadata: metadata }
             end
           end
         end
       end
-      
+
       if documents.any?
         orchestrator.batch_index_excel_knowledge(documents)
         Rails.logger.info("Completed JSON import: #{documents.size} documents processed")
@@ -244,27 +244,27 @@ module AiIntegration
 
       def build_qa_content(question, answer)
       content_parts = []
-      
+
       content_parts << "Q: #{question.strip}"
       content_parts << "A: #{answer.strip}" if answer.present?
-      
+
       content_parts.join("\n\n")
       end
 
       def classify_difficulty(question)
       complex_indicators = [
-        'vlookup', 'hlookup', 'index', 'match', 'sumifs', 'countifs',
-        'pivot', 'macro', 'vba', 'array', 'nested', 'complex'
+        "vlookup", "hlookup", "index", "match", "sumifs", "countifs",
+        "pivot", "macro", "vba", "array", "nested", "complex"
       ]
-      
+
       question_lower = question.downcase
-      
+
       if complex_indicators.any? { |indicator| question_lower.include?(indicator) }
-        'complex'
+        "complex"
       elsif question_lower.length > 200
-        'medium'
-        else
-        'simple'
+        "medium"
+      else
+        "simple"
       end
       end
 
@@ -275,16 +275,16 @@ module AiIntegration
         XLOOKUP FILTER SORT UNIQUE TEXTJOIN CONCATENATE LEFT RIGHT
         MID LEN DATE TODAY NOW YEAR MONTH DAY WEEKDAY
       ]
-      
+
       found_functions = []
       content_upper = content.upcase
-      
+
       excel_functions.each do |func|
         if content_upper.include?(func)
           found_functions << func
         end
       end
-      
+
       found_functions.uniq
       end
     end

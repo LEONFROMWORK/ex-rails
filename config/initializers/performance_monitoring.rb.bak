@@ -1,0 +1,377 @@
+# frozen_string_literal: true
+
+# 성능 모니터링 시스템 - 응답 시간, 메모리 사용량, 쿼리 성능 추적
+module PerformanceMonitoring
+  # 성능 임계값 설정
+  THRESHOLDS = {
+    slow_request: 1000,      # 1초 이상 요청
+    slow_query: 100,         # 100ms 이상 쿼리
+    memory_limit: 512,       # 512MB 메모리 제한
+    high_memory: 256,        # 256MB 이상 메모리 사용 경고
+    cpu_limit: 80.0,         # CPU 사용률 80% 이상 경고
+    error_rate_limit: 5.0    # 에러율 5% 이상 경고
+  }.freeze
+
+  # Request/Response 모니터링
+  ActiveSupport::Notifications.subscribe 'process_action.action_controller' do |name, started, finished, unique_id, data|
+    duration = (finished - started) * 1000 # milliseconds
+    
+    # 성능 메트릭 수집
+    metrics = {
+      controller: data[:controller],
+      action: data[:action],
+      path: data[:path],
+      method: data[:method],
+      status: data[:status],
+      duration_ms: duration.round(2),
+      db_runtime_ms: data[:db_runtime]&.round(2),
+      view_runtime_ms: data[:view_runtime]&.round(2),
+      allocations: data[:allocations],
+      timestamp: finished.iso8601,
+      request_id: unique_id
+    }
+
+    # 느린 요청 로깅
+    if duration > THRESHOLDS[:slow_request]
+      Rails.logger.warn(
+        "Slow request detected: #{metrics[:controller]}##{metrics[:action]} " \
+        "took #{duration.round(2)}ms (DB: #{data[:db_runtime]&.round(2)}ms, " \
+        "View: #{data[:view_runtime]&.round(2)}ms)"
+      )
+      
+      # 프로덕션에서는 외부 모니터링 서비스에 전송
+      if Rails.env.production?
+        send_slow_request_alert(metrics)
+      end
+    end
+
+    # 개발 환경에서 상세 로깅
+    if Rails.env.development?
+      log_request_performance(metrics)
+    end
+
+    # 메트릭 저장 (Redis 또는 메모리)
+    store_performance_metrics(metrics)
+  end
+
+  # SQL 쿼리 모니터링
+  ActiveSupport::Notifications.subscribe 'sql.active_record' do |name, started, finished, unique_id, data|
+    duration = (finished - started) * 1000 # milliseconds
+    
+    # 시스템 쿼리 제외
+    next if data[:name] == 'SCHEMA' || data[:sql].match?(/^(BEGIN|COMMIT|ROLLBACK|SAVEPOINT)/)
+    
+    query_metrics = {
+      sql: data[:sql],
+      name: data[:name],
+      duration_ms: duration.round(2),
+      timestamp: finished.iso8601,
+      request_id: unique_id
+    }
+
+    # 느린 쿼리 감지
+    if duration > THRESHOLDS[:slow_query]
+      Rails.logger.warn(
+        "Slow query detected (#{duration.round(2)}ms): #{data[:name]} - " \
+        "#{data[:sql].truncate(200)}"
+      )
+      
+      # N+1 쿼리 패턴 감지
+      if detect_n_plus_one_pattern(data[:sql])
+        Rails.logger.error("Potential N+1 query detected: #{data[:sql].truncate(100)}")
+      end
+      
+      if Rails.env.production?
+        send_slow_query_alert(query_metrics)
+      end
+    end
+
+    # 쿼리 메트릭 저장
+    store_query_metrics(query_metrics)
+  end
+
+  # 메모리 사용량 모니터링 (백그라운드 작업)
+  if defined?(Solid::Queue) && Rails.env.production?
+    ActiveSupport::Notifications.subscribe 'perform.active_job' do |name, started, finished, unique_id, data|
+      duration = (finished - started) * 1000
+      memory_after = current_memory_usage
+      
+      job_metrics = {
+        job_class: data[:job].class.name,
+        queue_name: data[:job].queue_name,
+        duration_ms: duration.round(2),
+        memory_mb: memory_after,
+        timestamp: finished.iso8601,
+        job_id: data[:job].job_id
+      }
+
+      # 메모리 사용량 경고
+      if memory_after > THRESHOLDS[:high_memory]
+        Rails.logger.warn(
+          "High memory usage in job #{data[:job].class.name}: #{memory_after}MB"
+        )
+        
+        if memory_after > THRESHOLDS[:memory_limit]
+          Rails.logger.error(
+            "Memory limit exceeded in job #{data[:job].class.name}: #{memory_after}MB"
+          )
+          send_memory_alert(job_metrics)
+        end
+      end
+
+      store_job_metrics(job_metrics)
+    end
+  end
+
+  # 에러 모니터링
+  ActiveSupport::Notifications.subscribe 'exception.action_controller' do |name, started, finished, unique_id, data|
+    error_metrics = {
+      exception_class: data[:exception].first,
+      message: data[:exception].last,
+      controller: data[:controller],
+      action: data[:action],
+      request_id: unique_id,
+      timestamp: finished.iso8601
+    }
+
+    Rails.logger.error(
+      "Exception in #{data[:controller]}##{data[:action]}: " \
+      "#{data[:exception].first} - #{data[:exception].last}"
+    )
+
+    store_error_metrics(error_metrics)
+    
+    if Rails.env.production?
+      send_error_alert(error_metrics)
+    end
+  end
+
+  class << self
+    # 현재 메모리 사용량 (MB)
+    def current_memory_usage
+      return 0 unless defined?(GC)
+      
+      # RSS 메모리 사용량
+      if RUBY_PLATFORM.include?('linux')
+        `ps -o rss= -p #{Process.pid}`.to_i / 1024.0
+      elsif RUBY_PLATFORM.include?('darwin') # macOS
+        `ps -o rss= -p #{Process.pid}`.to_i / 1024.0
+      else
+        # Ruby GC 통계 기반 추정
+        stat = GC.stat
+        (stat[:heap_allocated_pages] * stat[:heap_page_size] || 4096) / 1024.0 / 1024.0
+      end
+    rescue StandardError
+      0
+    end
+
+    # CPU 사용률 (Linux 전용)
+    def current_cpu_usage
+      return 0 unless File.exist?('/proc/stat') && File.exist?("/proc/#{Process.pid}/stat")
+      
+      # /proc/stat에서 전체 CPU 시간
+      cpu_times = File.read('/proc/stat').lines.first.split[1..4].map(&:to_i)
+      total_time = cpu_times.sum
+      
+      # 프로세스별 CPU 시간
+      process_times = File.read("/proc/#{Process.pid}/stat").split[13..14].map(&:to_i)
+      process_time = process_times.sum
+      
+      # 간단한 CPU 사용률 계산 (정확하지 않음)
+      (process_time.to_f / total_time * 100).round(2)
+    rescue StandardError
+      0
+    end
+
+    # 성능 통계 조회
+    def get_performance_stats(timeframe = '1h')
+      cache_key = "performance_stats:#{timeframe}"
+      
+      Rails.cache.fetch(cache_key, expires_in: 1.minute) do
+        calculate_performance_stats(timeframe)
+      end
+    end
+
+    # 실시간 시스템 상태
+    def system_status
+      {
+        memory_usage_mb: current_memory_usage,
+        cpu_usage_percent: current_cpu_usage,
+        active_connections: ActiveRecord::Base.connection_pool.connections.count,
+        queue_size: queue_size,
+        cache_hit_rate: cache_hit_rate,
+        timestamp: Time.current.iso8601
+      }
+    end
+
+    private
+
+    def send_slow_request_alert(metrics)
+      # 외부 모니터링 서비스 (Slack, PagerDuty 등)에 알림
+      # AlertService.send_performance_alert(
+      #   type: 'slow_request',
+      #   severity: 'warning',
+      #   data: metrics
+      # )
+    end
+
+    def send_slow_query_alert(metrics)
+      # 데이터베이스 성능 알림
+    end
+
+    def send_memory_alert(metrics)
+      # 메모리 사용량 경고 알림
+    end
+
+    def send_error_alert(metrics)
+      # 에러 발생 알림
+    end
+
+    def detect_n_plus_one_pattern(sql)
+      # 간단한 N+1 패턴 감지
+      sql.match?(/SELECT.*FROM.*WHERE.*IN \(/i) && 
+      Thread.current[:active_record_query_count] && 
+      Thread.current[:active_record_query_count] > 10
+    end
+
+    def log_request_performance(metrics)
+      return unless Rails.logger.debug?
+      
+      Rails.logger.debug(
+        "Performance: #{metrics[:controller]}##{metrics[:action]} " \
+        "#{metrics[:duration_ms]}ms " \
+        "(DB: #{metrics[:db_runtime_ms]}ms, View: #{metrics[:view_runtime_ms]}ms) " \
+        "[#{metrics[:allocations]} allocations]"
+      )
+    end
+
+    def store_performance_metrics(metrics)
+      # Redis 또는 메모리에 메트릭 저장
+      key = "metrics:requests:#{Time.current.to_i / 60}" # 분당 그룹화
+      
+      Rails.cache.write(key, get_current_metrics(key).push(metrics), expires_in: 1.hour)
+    end
+
+    def store_query_metrics(metrics)
+      key = "metrics:queries:#{Time.current.to_i / 60}"
+      
+      Rails.cache.write(key, get_current_metrics(key).push(metrics), expires_in: 1.hour)
+    end
+
+    def store_job_metrics(metrics)
+      key = "metrics:jobs:#{Time.current.to_i / 60}"
+      
+      Rails.cache.write(key, get_current_metrics(key).push(metrics), expires_in: 1.hour)
+    end
+
+    def store_error_metrics(metrics)
+      key = "metrics:errors:#{Time.current.to_i / 60}"
+      
+      Rails.cache.write(key, get_current_metrics(key).push(metrics), expires_in: 1.hour)
+    end
+
+    def get_current_metrics(key)
+      Rails.cache.read(key) || []
+    end
+
+    def calculate_performance_stats(timeframe)
+      # 시간 범위에 따른 성능 통계 계산
+      case timeframe
+      when '1h'
+        minutes = 60
+      when '24h'
+        minutes = 1440
+      when '7d'
+        minutes = 10080
+      else
+        minutes = 60
+      end
+
+      stats = {
+        requests: analyze_request_metrics(minutes),
+        queries: analyze_query_metrics(minutes),
+        jobs: analyze_job_metrics(minutes),
+        errors: analyze_error_metrics(minutes)
+      }
+
+      stats
+    end
+
+    def analyze_request_metrics(minutes)
+      keys = (0...minutes).map { |i| "metrics:requests:#{(Time.current.to_i / 60) - i}" }
+      all_metrics = keys.flat_map { |key| Rails.cache.read(key) || [] }
+      
+      return {} if all_metrics.empty?
+
+      {
+        total_requests: all_metrics.count,
+        avg_response_time: all_metrics.map { |m| m[:duration_ms] }.sum / all_metrics.count.to_f,
+        slow_requests: all_metrics.count { |m| m[:duration_ms] > THRESHOLDS[:slow_request] },
+        requests_per_minute: all_metrics.count / minutes.to_f
+      }
+    end
+
+    def analyze_query_metrics(minutes)
+      keys = (0...minutes).map { |i| "metrics:queries:#{(Time.current.to_i / 60) - i}" }
+      all_metrics = keys.flat_map { |key| Rails.cache.read(key) || [] }
+      
+      return {} if all_metrics.empty?
+
+      {
+        total_queries: all_metrics.count,
+        avg_query_time: all_metrics.map { |m| m[:duration_ms] }.sum / all_metrics.count.to_f,
+        slow_queries: all_metrics.count { |m| m[:duration_ms] > THRESHOLDS[:slow_query] }
+      }
+    end
+
+    def analyze_job_metrics(minutes)
+      keys = (0...minutes).map { |i| "metrics:jobs:#{(Time.current.to_i / 60) - i}" }
+      all_metrics = keys.flat_map { |key| Rails.cache.read(key) || [] }
+      
+      return {} if all_metrics.empty?
+
+      {
+        total_jobs: all_metrics.count,
+        avg_job_time: all_metrics.map { |m| m[:duration_ms] }.sum / all_metrics.count.to_f,
+        avg_memory_usage: all_metrics.map { |m| m[:memory_mb] }.sum / all_metrics.count.to_f
+      }
+    end
+
+    def analyze_error_metrics(minutes)
+      keys = (0...minutes).map { |i| "metrics:errors:#{(Time.current.to_i / 60) - i}" }
+      all_metrics = keys.flat_map { |key| Rails.cache.read(key) || [] }
+      
+      {
+        total_errors: all_metrics.count,
+        error_types: all_metrics.group_by { |m| m[:exception_class] }.transform_values(&:count)
+      }
+    end
+
+    def queue_size
+      return 0 unless defined?(Solid::Queue)
+      
+      begin
+        SolidQueue::Job.pending.count
+      rescue StandardError
+        0
+      end
+    end
+
+    def cache_hit_rate
+      # 캐시 히트율 계산 (Rails.cache 통계 기반)
+      return 0 unless Rails.cache.respond_to?(:stats)
+      
+      stats = Rails.cache.stats
+      return 0 unless stats && stats['hits'] && stats['misses']
+      
+      total = stats['hits'] + stats['misses']
+      return 0 if total == 0
+      
+      (stats['hits'].to_f / total * 100).round(2)
+    rescue StandardError
+      0
+    end
+  end
+end
+
+Rails.logger.info "Performance monitoring initialized"

@@ -1,0 +1,19 @@
+# Neon PostgreSQL Production Configuration
+production:
+  adapter: postgresql
+  encoding: unicode
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+  url: <%= ENV['DATABASE_URL'] %>
+  # 연결 풀링 최적화
+  prepared_statements: false
+  advisory_locks: false
+  # SSL 설정 (Neon은 SSL 필수)
+  sslmode: require
+  # 연결 타임아웃 설정
+  connect_timeout: 5
+  # 체크아웃 타임아웃 설정
+  checkout_timeout: 5
+  # 재연결 시도 설정
+  reconnect: true
+  # 마이그레이션 락 타임아웃
+  migration_lock_timeout: 10000

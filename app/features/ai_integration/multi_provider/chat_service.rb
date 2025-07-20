@@ -6,25 +6,25 @@ module AiIntegration
       attr_reader :provider
 
       PROVIDERS = {
-        'openai' => Infrastructure::AiProviders::OpenAiProvider,
-        'anthropic' => Infrastructure::AiProviders::AnthropicProvider,
-        'google' => Infrastructure::AiProviders::GoogleProvider
+        "openai" => Infrastructure::AiProviders::OpenAiProvider,
+        "anthropic" => Infrastructure::AiProviders::AnthropicProvider,
+        "google" => Infrastructure::AiProviders::GoogleProvider
       }.freeze
 
       SYSTEM_PROMPT = <<~PROMPT
-        You are an AI assistant specialized in Excel and spreadsheet management. 
+        You are an AI assistant specialized in Excel and spreadsheet management.#{' '}
         You can help users with:
         - Creating Excel formulas and functions
         - Analyzing spreadsheet errors
         - Generating Excel file templates
         - Optimizing spreadsheet performance
         - Data analysis and visualization recommendations
-        
-        When users ask you to create or generate Excel content, provide clear, 
+
+        When users ask you to create or generate Excel content, provide clear,#{' '}
         structured responses that can be easily implemented in Excel.
       PROMPT
 
-      def initialize(provider: 'openai')
+      def initialize(provider: "openai")
         @provider = provider
         @client = PROVIDERS[provider]&.new
         raise ArgumentError, "Unknown provider: #{provider}" unless @client
@@ -32,7 +32,7 @@ module AiIntegration
 
       def generate_response(message:, context: [], file_context: nil)
         messages = build_messages(message, context, file_context)
-        
+
         response = @client.generate_response(
           prompt: format_messages(messages),
           max_tokens: 1500,
@@ -59,29 +59,29 @@ module AiIntegration
 
       def build_messages(message, context, file_context)
         messages = []
-        
+
         # Add system prompt
-        messages << { role: 'system', content: SYSTEM_PROMPT }
-        
+        messages << { role: "system", content: SYSTEM_PROMPT }
+
         # Add file context if available
         if file_context
           messages << {
-            role: 'system',
+            role: "system",
             content: "User is working with an Excel file: #{file_context.to_json}"
           }
         end
-        
+
         # Add conversation context
         messages.concat(context) if context.present?
-        
+
         # Add current message
-        messages << { role: 'user', content: message }
-        
+        messages << { role: "user", content: message }
+
         messages
       end
 
       def format_messages(messages)
-        if provider == 'openai' || provider == 'anthropic'
+        if provider == "openai" || provider == "anthropic"
           # These providers support structured message format
           messages.to_json
         else
@@ -92,21 +92,21 @@ module AiIntegration
 
       def default_model
         case provider
-        when 'openai'
-          'gpt-3.5-turbo'
-        when 'anthropic'
-          'claude-3-haiku-20240307'
-        when 'google'
-          'gemini-pro'
+        when "openai"
+          "gpt-3.5-turbo"
+        when "anthropic"
+          "claude-3-haiku-20240307"
+        when "google"
+          "gemini-pro"
         else
-          'gpt-3.5-turbo'
+          "gpt-3.5-turbo"
         end
       end
 
       def parse_response(response)
         Common::Result.success({
           content: response[:content],
-          tokens_used: response[:usage][:total_tokens],
+          credits_used: response[:usage][:total_tokens],
           model: response[:model]
         })
       end

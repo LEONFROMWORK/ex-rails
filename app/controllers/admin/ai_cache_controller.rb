@@ -4,7 +4,7 @@ module Admin
   class AiCacheController < ApplicationController
     before_action :authenticate_user!
     before_action :ensure_admin_access
-    
+
     def index
       @cache_service = Ai::ResponseCache.new
       @stats = @cache_service.stats
@@ -14,7 +14,7 @@ module Admin
     def show
       @cache_service = Ai::ResponseCache.new
       @stats = @cache_service.stats
-      
+
       respond_to do |format|
         format.html { redirect_to admin_ai_cache_index_path }
         format.json { render json: @stats }
@@ -24,17 +24,17 @@ module Admin
     def clear_expired
       @cache_service = Ai::ResponseCache.new
       expired_count = @cache_service.clear_expired
-      
+
       flash[:notice] = "Cleared #{expired_count} expired cache entries"
       redirect_to admin_ai_cache_index_path
     end
 
     def clear_all
-      return unless params[:confirm] == 'yes'
-      
+      return unless params[:confirm] == "yes"
+
       @cache_service = Ai::ResponseCache.new
       deleted_count = @cache_service.clear_all
-      
+
       flash[:notice] = "Cleared all #{deleted_count} cache entries"
       redirect_to admin_ai_cache_index_path
     end

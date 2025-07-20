@@ -47,15 +47,15 @@ module AiTestHelpers
 
   def create_sample_excel_file(user, options = {})
     file_path = Rails.root.join('spec', 'fixtures', 'files', 'sample.xlsx')
-    
+
     # Ensure the fixtures directory exists
     FileUtils.mkdir_p(File.dirname(file_path))
-    
+
     # Create a simple Excel file if it doesn't exist
     unless File.exist?(file_path)
       create_test_excel_file(file_path)
     end
-    
+
     create(:excel_file, {
       user: user,
       original_name: 'sample.xlsx',
@@ -68,16 +68,16 @@ module AiTestHelpers
 
   def create_test_excel_file(path)
     require 'caxlsx'
-    
+
     package = Axlsx::Package.new
     workbook = package.workbook
-    
+
     worksheet = workbook.add_worksheet(name: 'Test Sheet')
-    worksheet.add_row ['Name', 'Value', 'Formula']
-    worksheet.add_row ['Test 1', 100, '=B2*2']
-    worksheet.add_row ['Test 2', 'invalid', '=B3/0'] # Division by zero error
-    worksheet.add_row ['Test 3', 300, '=#REF!'] # Reference error
-    
+    worksheet.add_row [ 'Name', 'Value', 'Formula' ]
+    worksheet.add_row [ 'Test 1', 100, '=B2*2' ]
+    worksheet.add_row [ 'Test 2', 'invalid', '=B3/0' ] # Division by zero error
+    worksheet.add_row [ 'Test 3', 300, '=#REF!' ] # Reference error
+
     package.serialize(path)
   end
 end

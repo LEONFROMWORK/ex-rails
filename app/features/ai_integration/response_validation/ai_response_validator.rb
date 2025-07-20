@@ -3,9 +3,9 @@
 module AiIntegration
   module ResponseValidation
     class AiResponseValidator
-      REQUIRED_FIELDS = %w[message confidence_score tokens_used provider].freeze
+      REQUIRED_FIELDS = %w[message confidence_score credits_used provider].freeze
       OPTIONAL_FIELDS = %w[structured_analysis suggestions improvements fixes].freeze
-      
+
       def initialize(response, expected_type: :chat)
         @response = response
         @expected_type = expected_type
@@ -40,7 +40,7 @@ module AiIntegration
       end
 
       def validate_confidence_score
-        confidence = get_field_value('confidence_score')
+        confidence = get_field_value("confidence_score")
         return unless confidence
 
         unless confidence.is_a?(Numeric) && confidence >= 0 && confidence <= 1
@@ -49,16 +49,16 @@ module AiIntegration
       end
 
       def validate_token_usage
-        tokens = get_field_value('tokens_used')
+        tokens = get_field_value("credits_used")
         return unless tokens
 
         unless tokens.is_a?(Integer) && tokens > 0
-          @errors << "Invalid tokens_used: must be a positive integer"
+          @errors << "Invalid credits_used: must be a positive integer"
         end
       end
 
       def validate_provider
-        provider = get_field_value('provider')
+        provider = get_field_value("provider")
         return unless provider
 
         valid_providers = %w[openai anthropic openrouter google cohere]
@@ -68,7 +68,7 @@ module AiIntegration
       end
 
       def validate_message_content
-        message = get_field_value('message')
+        message = get_field_value("message")
         return unless message
 
         if message.to_s.strip.empty?
@@ -86,7 +86,7 @@ module AiIntegration
       end
 
       def validate_structured_analysis
-        analysis = get_field_value('structured_analysis')
+        analysis = get_field_value("structured_analysis")
         return unless analysis
 
         unless analysis.is_a?(Hash)
@@ -102,7 +102,7 @@ module AiIntegration
 
       def validate_excel_analysis_structure(analysis)
         expected_keys = %w[errors_found warnings_found optimizations_suggested]
-        
+
         expected_keys.each do |key|
           unless analysis.key?(key) || analysis.key?(key.to_sym)
             @errors << "Missing structured_analysis field: #{key}"
@@ -132,7 +132,7 @@ module AiIntegration
       end
 
       def has_structured_analysis?
-        @response.key?('structured_analysis') || @response.key?(:structured_analysis)
+        @response.key?("structured_analysis") || @response.key?(:structured_analysis)
       end
 
       def get_field_value(field_name)
@@ -141,7 +141,7 @@ module AiIntegration
 
       def cleaned_response
         cleaned = {}
-        
+
         # Add all valid fields
         (REQUIRED_FIELDS + OPTIONAL_FIELDS).each do |field|
           value = get_field_value(field)
@@ -149,13 +149,13 @@ module AiIntegration
         end
 
         # Sanitize message content
-        if cleaned['message']
-          cleaned['message'] = sanitize_message(cleaned['message'])
+        if cleaned["message"]
+          cleaned["message"] = sanitize_message(cleaned["message"])
         end
 
         # Ensure confidence score is properly formatted
-        if cleaned['confidence_score']
-          cleaned['confidence_score'] = cleaned['confidence_score'].to_f.round(3)
+        if cleaned["confidence_score"]
+          cleaned["confidence_score"] = cleaned["confidence_score"].to_f.round(3)
         end
 
         cleaned
@@ -164,8 +164,8 @@ module AiIntegration
       def sanitize_message(message)
         # Remove potential harmful scripts and normalize whitespace
         sanitized = message.to_s
-          .gsub(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/mi, '')
-          .gsub(/\s+/, ' ')
+          .gsub(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/mi, "")
+          .gsub(/\s+/, " ")
           .strip
 
         # Truncate if too long
@@ -173,7 +173,7 @@ module AiIntegration
       end
 
       def failure_result
-        Common::Result.failure(["Invalid response format: expected Hash, got #{@response.class}"])
+        Common::Result.failure([ "Invalid response format: expected Hash, got #{@response.class}" ])
       end
     end
   end

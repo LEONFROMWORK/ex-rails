@@ -5,27 +5,27 @@ module AiIntegration
     class ProviderManager
       attr_reader :providers, :current_provider
 
-      DEFAULT_FALLBACK_ORDER = ['openrouter', 'openai', 'anthropic', 'google'].freeze
+      DEFAULT_FALLBACK_ORDER = [ "openrouter", "openai", "anthropic", "google" ].freeze
 
-      def initialize(primary_provider: 'openrouter', fallback_order: DEFAULT_FALLBACK_ORDER)
+      def initialize(primary_provider: "openrouter", fallback_order: DEFAULT_FALLBACK_ORDER)
         @primary_provider = primary_provider
         @fallback_order = fallback_order & Infrastructure::AiProviders::ProviderConfig.available_providers.map(&:to_s)
         @current_provider = primary_provider
         @providers = {}
-        
+
         initialize_providers
       end
 
-      def generate_response(prompt:, max_tokens: 1000, temperature: 0.7, model: nil, tier: 'tier1', images: nil)
+      def generate_response(prompt:, max_tokens: 1000, temperature: 0.7, model: nil, tier: "tier1", images: nil)
         @fallback_order.each do |provider_name|
           next unless provider_available?(provider_name)
-          
+
           begin
             @current_provider = provider_name
             provider = get_provider(provider_name)
-            
+
             Rails.logger.info("Attempting AI request with provider: #{provider_name}, tier: #{tier}")
-            
+
             # Build request parameters
             request_params = {
               prompt: prompt,
@@ -33,21 +33,21 @@ module AiIntegration
               temperature: temperature,
               tier: tier
             }
-            
+
             # Add model if specified, otherwise use tier-specific model
             if model
               request_params[:model] = model
             else
               request_params[:model] = select_model_for_provider(provider_name, tier)
             end
-            
+
             # Add images for multimodal providers
             if images&.any? && supports_multimodal?(provider_name)
               request_params[:images] = images
             end
-            
+
             result = provider.generate_response(**request_params)
-            
+
             if result.success?
               Rails.logger.info("Successfully generated response with #{provider_name} (tier: #{tier})")
               return result
@@ -55,17 +55,17 @@ module AiIntegration
               Rails.logger.warn("Provider #{provider_name} failed: #{result.error}")
               next
             end
-            
+
           rescue StandardError => e
             Rails.logger.error("Provider #{provider_name} error: #{e.message}")
             next
           end
         end
-        
+
         Common::Result.failure(
           Common::Errors::AIProviderError.new(
-            provider: 'all',
-            message: 'All AI providers failed'
+            provider: "all",
+            message: "All AI providers failed"
           )
         )
       end
@@ -97,7 +97,7 @@ module AiIntegration
       def initialize_providers
         @fallback_order.each do |provider_name|
           next unless provider_available?(provider_name)
-          
+
           begin
             @providers[provider_name] = create_provider(provider_name)
           rescue StandardError => e
@@ -108,13 +108,13 @@ module AiIntegration
 
       def create_provider(provider_name)
         case provider_name
-        when 'openrouter'
+        when "openrouter"
           Infrastructure::AiProviders::OpenRouterProvider.new
-        when 'openai'
+        when "openai"
           Infrastructure::AiProviders::OpenAiProvider.new
-        when 'anthropic'
+        when "anthropic"
           Infrastructure::AiProviders::AnthropicProvider.new
-        when 'google'
+        when "google"
           Infrastructure::AiProviders::GoogleProvider.new
         else
           raise ArgumentError, "Unknown provider: #{provider_name}"
@@ -127,7 +127,7 @@ module AiIntegration
 
       def supports_multimodal?(provider_name)
         # OpenRouter and OpenAI support multimodal
-        ['openrouter', 'openai'].include?(provider_name)
+        [ "openrouter", "openai" ].include?(provider_name)
       end
     end
   end

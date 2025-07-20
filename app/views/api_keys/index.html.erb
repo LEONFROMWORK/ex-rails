@@ -2,15 +2,15 @@
 
 <div class="space-y-8">
   <!-- Header -->
-  <div class="border-b border-gray-200 dark:border-gray-700 pb-5">
+  <div class="border-b border-border pb-5">
     <div class="flex items-center justify-between">
       <div>
-        <h3 class="text-2xl font-bold leading-6 text-gray-900 dark:text-white">API Keys</h3>
-        <p class="mt-2 max-w-4xl text-sm text-gray-500 dark:text-gray-400">
+        <h3 class="text-2xl font-bold leading-6 text-foreground">API Keys</h3>
+        <p class="mt-2 max-w-4xl text-sm text-muted-foreground">
           Manage your API keys for programmatic access to ExcelApp services.
         </p>
       </div>
-      <button class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-600">
+      <button class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-primary-foreground bg-primary hover:bg-primary/90">
         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
         </svg>
@@ -20,18 +20,18 @@
   </div>
 
   <!-- Coming Soon Notice -->
-  <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-6">
+  <div class="bg-primary/10 border border-primary/20 rounded-lg p-6">
     <div class="flex">
       <div class="flex-shrink-0">
-        <svg class="h-8 w-8 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg class="h-8 w-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
         </svg>
       </div>
       <div class="ml-4">
-        <h3 class="text-lg font-medium text-blue-800 dark:text-blue-200">
+        <h3 class="text-lg font-medium text-primary">
           API Access Coming Soon
         </h3>
-        <div class="mt-2 text-blue-700 dark:text-blue-300">
+        <div class="mt-2 text-primary/80">
           <p class="text-sm mb-3">
             We're working on providing programmatic access to ExcelApp's AI-powered Excel analysis capabilities. 
             The API will allow you to:
@@ -51,16 +51,16 @@
   </div>
 
   <!-- Feature Preview -->
-  <div class="bg-white dark:bg-gray-800 shadow rounded-lg border border-gray-200 dark:border-gray-700">
+  <div class="bg-card shadow rounded-lg border border-border">
     <div class="px-4 py-5 sm:p-6">
-      <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">API Documentation Preview</h3>
+      <h3 class="text-lg font-medium text-foreground mb-4">API Documentation Preview</h3>
       
       <div class="space-y-6">
         <!-- Authentication -->
         <div>
-          <h4 class="text-base font-medium text-gray-900 dark:text-white mb-2">Authentication</h4>
-          <div class="bg-gray-50 dark:bg-gray-700 rounded-md p-4">
-            <code class="text-sm text-gray-800 dark:text-gray-200">
+          <h4 class="text-base font-medium text-foreground mb-2">Authentication</h4>
+          <div class="bg-muted rounded-md p-4">
+            <code class="text-sm text-foreground">
               curl -H "Authorization: Bearer YOUR_API_KEY" \<br>
               &nbsp;&nbsp;&nbsp;&nbsp; https://api.excelapp.com/v1/files
             </code>
@@ -69,9 +69,9 @@
 
         <!-- Upload File -->
         <div>
-          <h4 class="text-base font-medium text-gray-900 dark:text-white mb-2">Upload & Analyze File</h4>
-          <div class="bg-gray-50 dark:bg-gray-700 rounded-md p-4">
-            <code class="text-sm text-gray-800 dark:text-gray-200">
+          <h4 class="text-base font-medium text-foreground mb-2">Upload & Analyze File</h4>
+          <div class="bg-muted rounded-md p-4">
+            <code class="text-sm text-foreground">
               curl -X POST \<br>
               &nbsp;&nbsp;&nbsp;&nbsp; -H "Authorization: Bearer YOUR_API_KEY" \<br>
               &nbsp;&nbsp;&nbsp;&nbsp; -F "file=@spreadsheet.xlsx" \<br>
@@ -82,9 +82,9 @@
 
         <!-- Get Results -->
         <div>
-          <h4 class="text-base font-medium text-gray-900 dark:text-white mb-2">Get Analysis Results</h4>
-          <div class="bg-gray-50 dark:bg-gray-700 rounded-md p-4">
-            <code class="text-sm text-gray-800 dark:text-gray-200">
+          <h4 class="text-base font-medium text-foreground mb-2">Get Analysis Results</h4>
+          <div class="bg-muted rounded-md p-4">
+            <code class="text-sm text-foreground">
               curl -H "Authorization: Bearer YOUR_API_KEY" \<br>
               &nbsp;&nbsp;&nbsp;&nbsp; https://api.excelapp.com/v1/analyses/123
             </code>
@@ -92,10 +92,10 @@
         </div>
       </div>
       
-      <div class="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
-        <p class="text-sm text-gray-500 dark:text-gray-400">
+      <div class="mt-6 pt-6 border-t border-border">
+        <p class="text-sm text-muted-foreground">
           Want to be notified when the API is available? 
-          <a href="mailto:api@excelapp.com" class="text-blue-600 dark:text-blue-400 hover:text-blue-500 dark:hover:text-blue-300">
+          <a href="mailto:api@excelapp.com" class="text-primary hover:text-primary/80">
             Contact us
           </a> to join our early access program.
         </p>

@@ -24,7 +24,7 @@ class RagDocument < ApplicationRecord
 
   # Validations
   validates :content, presence: true, length: { minimum: 10, maximum: 10000 }
-  validates :tokens, presence: true, numericality: { greater_than: 0 }
+  validates :credits, presence: true, numericality: { greater_than: 0 }
   validates :metadata, presence: true
   validates :embedding_text, presence: true
 
@@ -33,8 +33,8 @@ class RagDocument < ApplicationRecord
   scope :by_language, ->(language) { where("metadata->>'language' = ?", language) }
   scope :by_difficulty, ->(difficulty) { where("metadata->>'difficulty' = ?", difficulty) }
   scope :recent, -> { where(created_at: 1.week.ago..Time.current) }
-  scope :with_functions, ->(functions) { 
-    where(functions.map { "LOWER(content) LIKE ?" }.join(" OR "), 
+  scope :with_functions, ->(functions) {
+    where(functions.map { "LOWER(content) LIKE ?" }.join(" OR "),
           *functions.map { |f| "%#{f.downcase}%" })
   }
 
@@ -45,23 +45,23 @@ class RagDocument < ApplicationRecord
 
   # Instance methods
   def source
-    metadata['source']
+    metadata["source"]
   end
 
   def language
-    metadata['language'] || 'en'
+    metadata["language"] || "en"
   end
 
   def difficulty
-    metadata['difficulty'] || 'medium'
+    metadata["difficulty"] || "medium"
   end
 
   def functions
-    metadata['functions'] || []
+    metadata["functions"] || []
   end
 
   def excel_elements
-    metadata['excel_elements'] || []
+    metadata["excel_elements"] || []
   end
 
   def embedding
@@ -77,14 +77,14 @@ class RagDocument < ApplicationRecord
 
   def similarity_to(other_embedding)
     return 0.0 unless embedding.present? && other_embedding.present?
-    
+
     # Cosine similarity
     dot_product = embedding.zip(other_embedding).sum { |a, b| a * b }
     magnitude1 = Math.sqrt(embedding.sum { |a| a * a })
     magnitude2 = Math.sqrt(other_embedding.sum { |a| a * a })
-    
+
     return 0.0 if magnitude1 == 0 || magnitude2 == 0
-    
+
     dot_product / (magnitude1 * magnitude2)
   end
 
@@ -111,7 +111,7 @@ class RagDocument < ApplicationRecord
   def self.full_text_search(query, limit: 10)
     search_terms = query.downcase.split(/\W+/).reject { |term| term.length < 2 }
     return none if search_terms.empty?
-    
+
     tsquery = search_terms.map { |term| "#{term}:*" }.join(" & ")
     where("to_tsvector('english', content) @@ to_tsquery('english', ?)", tsquery)
       .limit(limit)
@@ -122,13 +122,13 @@ class RagDocument < ApplicationRecord
     # For now, use a simple approach without pgvector
     # This should be replaced with proper vector search when pgvector is configured
     all_docs = all.to_a
-    
+
     # Calculate similarities
     docs_with_similarity = all_docs.map do |doc|
       similarity = doc.similarity_to(query_embedding)
-      [doc, similarity]
+      [ doc, similarity ]
     end
-    
+
     # Filter by threshold and sort
     docs_with_similarity
       .select { |doc, similarity| similarity >= threshold }
@@ -147,8 +147,8 @@ class RagDocument < ApplicationRecord
 
   def self.cleanup_duplicates
     # Find and remove duplicate content
-    duplicate_groups = group(:content).having('COUNT(*) > 1').count
-    
+    duplicate_groups = group(:content).having("COUNT(*) > 1").count
+
     duplicate_groups.each do |content, count|
       duplicates = where(content: content).order(:created_at)
       duplicates.offset(1).destroy_all # Keep the oldest one
@@ -158,8 +158,8 @@ class RagDocument < ApplicationRecord
   def self.statistics
     {
       total_count: count,
-      total_tokens: sum(:tokens),
-      average_tokens: average(:tokens)&.round(2),
+      total_tokens: sum(:credits),
+      average_tokens: average(:credits)&.round(2),
       sources: distinct.pluck("metadata->>'source'").compact.sort,
       languages: distinct.pluck("metadata->>'language'").compact.sort,
       difficulties: distinct.pluck("metadata->>'difficulty'").compact.sort,
@@ -177,40 +177,40 @@ class RagDocument < ApplicationRecord
 
   def sanitize_content
     return unless content.present?
-    
+
     # Remove HTML tags and normalize whitespace
     self.content = ActionController::Base.helpers.sanitize(content, tags: [])
-    self.content = content.gsub(/\s+/, ' ').strip
-    
+    self.content = content.gsub(/\s+/, " ").strip
+
     # Limit content length
     self.content = content.truncate(5000) if content.length > 5000
   end
 
   def extract_metadata
     return unless content.present?
-    
+
     self.metadata ||= {}
-    
+
     # Extract Excel functions
     excel_functions = extract_excel_functions(content)
-    self.metadata['functions'] = excel_functions if excel_functions.any?
-    
+    self.metadata["functions"] = excel_functions if excel_functions.any?
+
     # Extract cell references
     cell_references = extract_cell_references(content)
-    self.metadata['excel_elements'] = cell_references if cell_references.any?
-    
+    self.metadata["excel_elements"] = cell_references if cell_references.any?
+
     # Auto-detect language (simple heuristic)
-    self.metadata['language'] ||= detect_language(content)
-    
+    self.metadata["language"] ||= detect_language(content)
+
     # Auto-detect difficulty based on content complexity
-    self.metadata['difficulty'] ||= detect_difficulty(content)
+    self.metadata["difficulty"] ||= detect_difficulty(content)
   end
 
   def calculate_tokens
     return unless content.present?
-    
+
     # Simple token estimation: ~4 characters per token
-    self.tokens = (content.length / 4.0).ceil
+    self.credits = (content.length / 4.0).ceil
   end
 
   def extract_excel_functions(text)
@@ -220,14 +220,14 @@ class RagDocument < ApplicationRecord
       XLOOKUP FILTER SORT UNIQUE TEXTJOIN CONCATENATE LEFT RIGHT
       MID LEN DATE TODAY NOW YEAR MONTH DAY WEEKDAY PIVOT
     ]
-    
+
     found_functions = []
     excel_functions.each do |func|
       if text.upcase.include?(func)
         found_functions << func
       end
     end
-    
+
     found_functions.uniq
   end
 
@@ -240,44 +240,44 @@ class RagDocument < ApplicationRecord
   def detect_language(text)
     # Simple heuristic: check for Korean characters
     if text.match?(/[ㄱ-ㅎ가-힣]/)
-      'ko'
+      "ko"
     else
-      'en'
+      "en"
     end
   end
 
   def detect_difficulty(text)
     complexity_score = 0
-    
+
     # Length factor
     complexity_score += 1 if text.length > 500
     complexity_score += 1 if text.length > 1000
-    
+
     # Formula complexity
     complex_functions = %w[VLOOKUP HLOOKUP INDEX MATCH SUMIFS COUNTIFS XLOOKUP]
     complex_functions.each do |func|
       complexity_score += 1 if text.upcase.include?(func)
     end
-    
+
     # Nested functions
     complexity_score += 1 if text.match?(/\w+\(\w+\(/)
-    
+
     # Multiple conditions
-    complexity_score += 1 if text.include?('AND') || text.include?('OR')
-    
+    complexity_score += 1 if text.include?("AND") || text.include?("OR")
+
     case complexity_score
-    when 0..1 then 'simple'
-    when 2..3 then 'medium'
-    when 4..5 then 'complex'
-    else 'expert'
+    when 0..1 then "simple"
+    when 2..3 then "medium"
+    when 4..5 then "complex"
+    else "expert"
     end
   end
 
   def self.import_batch(batch)
     values = batch.map do |doc|
-      "(#{connection.quote(doc[:content])}, #{connection.quote(doc[:metadata].to_json)}, #{connection.quote(doc[:embedding])}, #{doc[:tokens]}, NOW(), NOW())"
+      "(#{connection.quote(doc[:content])}, #{connection.quote(doc[:metadata].to_json)}, #{connection.quote(doc[:embedding])}, #{doc[:credits]}, NOW(), NOW())"
     end
-    
+
     sql = "INSERT INTO rag_documents (content, metadata, embedding, tokens, created_at, updated_at) VALUES #{values.join(', ')}"
     connection.execute(sql)
   end

@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe Api::V1::AiController, type: :controller do
-  let(:user) { create(:user, tokens: 200) }
+  let(:user) { create(:user, credits: 200) }
   let(:excel_file) { create(:excel_file, user: user) }
   let(:conversation) { create(:chat_conversation, user: user, excel_file: excel_file) }
 
@@ -33,7 +33,7 @@ RSpec.describe Api::V1::AiController, type: :controller do
 
         expect(response).to have_http_status(:ok)
         json_response = JSON.parse(response.body)
-        
+
         expect(json_response['status']).to eq('success')
         expect(json_response['data']).to include('message', 'conversation_id', 'tokens_used')
       end
@@ -49,11 +49,11 @@ RSpec.describe Api::V1::AiController, type: :controller do
       end
 
       it 'consumes user tokens' do
-        original_tokens = user.tokens
+        original_tokens = user.credits
         post :chat, params: valid_params
 
         user.reload
-        expect(user.tokens).to be < original_tokens
+        expect(user.credits).to be < original_tokens
       end
     end
 
@@ -63,7 +63,7 @@ RSpec.describe Api::V1::AiController, type: :controller do
 
         expect(response).to have_http_status(:bad_request)
         json_response = JSON.parse(response.body)
-        
+
         expect(json_response['status']).to eq('error')
         expect(json_response['message']).to include('Message is required')
       end
@@ -71,7 +71,7 @@ RSpec.describe Api::V1::AiController, type: :controller do
 
     context 'with insufficient tokens' do
       before do
-        user.update!(tokens: 1)
+        user.update!(credits: 1)
         allow_any_instance_of(Ai::Handlers::ChatHandler).to receive(:execute).and_return(
           Common::Result.failure('Insufficient tokens')
         )
@@ -82,7 +82,7 @@ RSpec.describe Api::V1::AiController, type: :controller do
 
         expect(response).to have_http_status(:unprocessable_entity)
         json_response = JSON.parse(response.body)
-        
+
         expect(json_response['status']).to eq('error')
         expect(json_response['message']).to include('Insufficient tokens')
       end
@@ -94,7 +94,7 @@ RSpec.describe Api::V1::AiController, type: :controller do
 
         expect(response).to have_http_status(:not_found)
         json_response = JSON.parse(response.body)
-        
+
         expect(json_response['status']).to eq('error')
       end
     end
@@ -132,7 +132,7 @@ RSpec.describe Api::V1::AiController, type: :controller do
 
   describe 'POST #feedback' do
     let(:chat_message) do
-      create(:chat_message, 
+      create(:chat_message,
         chat_conversation: conversation,
         user: user,
         role: 'assistant',
@@ -161,7 +161,7 @@ RSpec.describe Api::V1::AiController, type: :controller do
 
         expect(response).to have_http_status(:ok)
         json_response = JSON.parse(response.body)
-        
+
         expect(json_response['status']).to eq('success')
         expect(json_response['data']).to include('feedback_id')
       end
@@ -188,7 +188,7 @@ RSpec.describe Api::V1::AiController, type: :controller do
 
         expect(response).to have_http_status(:unprocessable_entity)
         json_response = JSON.parse(response.body)
-        
+
         expect(json_response['status']).to eq('error')
         expect(json_response['message']).to include('Rating must be between 1 and 5')
       end
@@ -243,7 +243,7 @@ RSpec.describe Api::V1::AiController, type: :controller do
 
         # The last request should be rate limited
         # Note: This would need actual rate limiting middleware configured
-        expect(response.status).to be_in([200, 429])
+        expect(response.status).to be_in([ 200, 429 ])
       end
     end
   end
@@ -261,7 +261,7 @@ RSpec.describe Api::V1::AiController, type: :controller do
 
         expect(response).to have_http_status(:service_unavailable)
         json_response = JSON.parse(response.body)
-        
+
         expect(json_response['status']).to eq('error')
         expect(json_response['message']).to include('temporarily unavailable')
       end
@@ -279,7 +279,7 @@ RSpec.describe Api::V1::AiController, type: :controller do
 
         expect(response).to have_http_status(:internal_server_error)
         json_response = JSON.parse(response.body)
-        
+
         expect(json_response['status']).to eq('error')
       end
     end
@@ -290,7 +290,7 @@ RSpec.describe Api::V1::AiController, type: :controller do
       post :chat, params: { message: 'test message' }
 
       json_response = JSON.parse(response.body)
-      
+
       expect(json_response).to include('status', 'data')
       expect(json_response['status']).to eq('success')
       expect(json_response['data']).to be_a(Hash)
@@ -304,7 +304,7 @@ RSpec.describe Api::V1::AiController, type: :controller do
       post :chat, params: { message: 'test message' }
 
       json_response = JSON.parse(response.body)
-      
+
       expect(json_response).to include('status', 'message')
       expect(json_response['status']).to eq('error')
       expect(json_response['message']).to be_a(String)

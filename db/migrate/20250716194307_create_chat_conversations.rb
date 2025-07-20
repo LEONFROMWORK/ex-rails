@@ -8,10 +8,10 @@ class CreateChatConversations < ActiveRecord::Migration[8.0]
       t.json :context
       t.integer :message_count, default: 0
       t.integer :total_tokens_used, default: 0
-      
+
       t.timestamps
     end
-    
+
     add_index :chat_conversations, :status
     add_index :chat_conversations, :created_at
   end

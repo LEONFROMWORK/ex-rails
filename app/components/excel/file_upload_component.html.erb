@@ -44,7 +44,7 @@
       
       <div class="flex justify-between items-center">
         <div class="text-sm text-muted-foreground">
-          Token cost: ~10 tokens
+          Token cost: ~10 credits
         </div>
         <button 
           type="submit" 
@@ -64,14 +64,14 @@
         </svg>
         
         <div class="text-sm text-muted-foreground">
-          <p class="font-medium">Insufficient tokens</p>
-          <p>You need at least 10 tokens to upload files</p>
-          <p>Current balance: <%= user.tokens %> tokens</p>
+          <p class="font-medium">Insufficient credits</p>
+          <p>You need at least 10 credits to upload files</p>
+          <p>Current balance: <%= user.credits %> credits</p>
         </div>
       </div>
       
       <div class="mt-4">
-        <a href="/tokens/purchase" class="inline-flex items-center px-4 py-2 bg-primary text-primary-foreground rounded-md text-sm font-medium hover:bg-primary/90 transition-colors">
+        <a href="/credits/purchase" class="inline-flex items-center px-4 py-2 bg-primary text-primary-foreground rounded-md text-sm font-medium hover:bg-primary/90 transition-colors">
           Purchase Tokens
         </a>
       </div>

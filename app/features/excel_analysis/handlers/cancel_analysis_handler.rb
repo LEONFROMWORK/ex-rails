@@ -31,9 +31,9 @@ module ExcelAnalysis
         begin
           # Cancel the analysis
           cancel_analysis
-          
+
           Rails.logger.info("Analysis cancelled for file #{@excel_file.id} by user #{@user.id}")
-          
+
           Common::Result.success({
             message: "Analysis cancelled successfully"
           })
@@ -56,14 +56,14 @@ module ExcelAnalysis
 
       def cancel_analysis
         # Update file status
-        @excel_file.update!(status: 'cancelled')
-        
+        @excel_file.update!(status: "cancelled")
+
         # Cancel any pending background jobs
         cancel_background_jobs
-        
+
         # Broadcast cancellation to WebSocket subscribers
         broadcast_cancellation
-        
+
         # Refund tokens if analysis hasn't started
         refund_tokens_if_applicable
       end
@@ -71,7 +71,7 @@ module ExcelAnalysis
       def cancel_background_jobs
         # Find and cancel any pending ExcelAnalysisJob for this file
         # This is a simplified version - in production you'd want more sophisticated job management
-        
+
         # For Solid Queue, we'd need to implement job cancellation
         # For now, we'll just update the status and let the job handle it
         Rails.logger.info("Cancelling background jobs for file #{@excel_file.id}")
@@ -81,8 +81,8 @@ module ExcelAnalysis
         ActionCable.server.broadcast(
           "excel_analysis_#{@excel_file.id}",
           {
-            type: 'cancelled',
-            message: 'Analysis has been cancelled',
+            type: "cancelled",
+            message: "Analysis has been cancelled",
             status: @excel_file.status,
             timestamp: Time.current
           }
@@ -91,10 +91,10 @@ module ExcelAnalysis
 
       def refund_tokens_if_applicable
         # Only refund if analysis hasn't actually started processing
-        if @excel_file.status == 'uploaded' || @excel_file.analyses.empty?
+        if @excel_file.status == "uploaded" || @excel_file.analyses.empty?
           # Refund the base cost (10 tokens)
-          @user.increment!(:tokens, 10)
-          
+          @user.increment!(:credits, 10)
+
           Rails.logger.info("Refunded 10 tokens to user #{@user.id} for cancelled analysis")
         end
       end

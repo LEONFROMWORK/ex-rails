@@ -1,0 +1,20 @@
+#!/bin/bash
+# Update README table of contents
+
+set -e
+
+# Check if README.md is staged
+if git diff --cached --name-only | grep -q "^README\.md$"; then
+    echo "📚 README.md changed, checking table of contents..."
+    
+    # Check if doctoc is available
+    if command -v doctoc &> /dev/null; then
+        echo "Updating table of contents..."
+        doctoc README.md --github
+        git add README.md
+        echo "✅ Table of contents updated"
+    else
+        echo "⚠️  doctoc not found. Install with: npm install -g doctoc"
+        echo "Table of contents not updated automatically"
+    fi
+fi

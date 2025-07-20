@@ -72,9 +72,9 @@ RSpec.describe AiIntegration::MultiProvider::AiAnalysisService do
             "estimated_time_saved" => "5 minutes"
           }.to_json,
           usage: {
-            prompt_tokens: 100,
-            completion_tokens: 150,
-            total_tokens: 250
+            prompt_credits: 100,
+            completion_credits: 150,
+            total_credits: 250
           },
           model: 'gpt-3.5-turbo'
         }
@@ -109,14 +109,14 @@ RSpec.describe AiIntegration::MultiProvider::AiAnalysisService do
           tier: 'tier1'
         )
 
-        expect(result.value[:tokens_used]).to eq(250)
+        expect(result.value[:credits_used]).to eq(250)
       end
     end
 
     context 'with user access validation' do
-      let(:user_basic) { create(:user, tier: 'basic', tokens: 10) }
-      let(:user_pro) { create(:user, tier: 'pro', tokens: 100) }
-      let(:user_poor) { create(:user, tier: 'free', tokens: 2) }
+      let(:user_basic) { create(:user, tier: 'basic', credits: 10) }
+      let(:user_pro) { create(:user, tier: 'pro', credits: 100) }
+      let(:user_poor) { create(:user, tier: 'free', credits: 2) }
 
       before do
         allow(ENV).to receive(:[]).with('OPENAI_API_KEY').and_return('test-key')
@@ -180,7 +180,7 @@ RSpec.describe AiIntegration::MultiProvider::AiAnalysisService do
 
       expect(status).to be_an(Array)
       expect(status.length).to eq(3)
-      
+
       openai_status = status.find { |s| s[:name] == 'openai' }
       expect(openai_status[:available]).to be true
       expect(openai_status[:current]).to be true

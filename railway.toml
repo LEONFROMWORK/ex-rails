@@ -1,0 +1,46 @@
+[build]
+builder = "nixpacks"
+buildCommand = "bundle install && npm install && bundle exec rails assets:precompile"
+
+[deploy]
+startCommand = "bundle exec rails db:migrate && bundle exec rails server -b 0.0.0.0 -p ${PORT:-3000}"
+healthcheckPath = "/up"
+healthcheckTimeout = 300
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 3
+
+[env]
+RAILS_ENV = "production"
+RAILS_SERVE_STATIC_FILES = "true"
+RAILS_LOG_TO_STDOUT = "true"
+WEB_CONCURRENCY = "2"
+RAILS_MAX_THREADS = "5"
+NODE_OPTIONS = "--max-old-space-size=512"
+
+# Required environment variables (set in Railway dashboard):
+# - RAILS_MASTER_KEY
+# - SECRET_KEY_BASE
+# - DATABASE_URL (PostgreSQL)
+# - REDIS_URL (Redis)
+# - RAILS_HOST (your domain)
+# 
+# AI Services:
+# - OPENAI_API_KEY
+# - ANTHROPIC_API_KEY
+# - GOOGLE_AI_API_KEY
+# - OPENROUTER_API_KEY
+#
+# OAuth:
+# - GOOGLE_CLIENT_ID
+# - GOOGLE_CLIENT_SECRET
+# - KAKAO_CLIENT_ID
+# - KAKAO_CLIENT_SECRET
+#
+# Admin:
+# - ADMIN_EMAILS
+#
+# Formula Engine:
+# - FORMULA_ENGINE_URL (if deployed separately)
+
+[experimental]
+incrementalBuildPaths = ["Gemfile.lock", "package-lock.json", "yarn.lock"]

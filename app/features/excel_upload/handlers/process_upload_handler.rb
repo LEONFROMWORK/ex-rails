@@ -21,12 +21,12 @@ module ExcelUpload
           )
         end
 
-        # Validate user has sufficient tokens
-        unless @user.tokens >= 10
+        # Validate user has sufficient credits
+        unless @user.credits >= 10
           return Common::Result.failure(
             Common::Errors::BusinessError.new(
-              message: "Insufficient tokens. You need at least 10 tokens to upload a file.",
-              code: "INSUFFICIENT_TOKENS"
+              message: "Insufficient credits. You need at least 10 credits to upload a file.",
+              code: "INSUFFICIENT_CREDITS"
             )
           )
         end
@@ -38,12 +38,12 @@ module ExcelUpload
         begin
           # Process upload
           excel_file = process_file_upload
-          
+
           # Queue analysis job
           ExcelAnalysisJob.perform_later(excel_file.id, @user.id)
-          
+
           Rails.logger.info("File uploaded successfully: #{excel_file.id} by user #{@user.id}")
-          
+
           Common::Result.success({
             file_id: excel_file.id,
             message: "File uploaded successfully and queued for analysis"
@@ -104,13 +104,13 @@ module ExcelUpload
 
       def valid_file_content?
         file_extension = File.extname(@file.original_filename).downcase
-        
+
         case file_extension
-        when '.xlsx', '.xlsm'
+        when ".xlsx", ".xlsm"
           validate_xlsx_content
-        when '.xls'
+        when ".xls"
           validate_xls_content
-        when '.csv'
+        when ".csv"
           validate_csv_content
         else
           false
@@ -122,7 +122,7 @@ module ExcelUpload
         @file.rewind
         signature = @file.read(4)
         @file.rewind
-        
+
         signature == "PK\x03\x04"
       end
 
@@ -131,7 +131,7 @@ module ExcelUpload
         @file.rewind
         signature = @file.read(8)
         @file.rewind
-        
+
         signature == "\xD0\xCF\x11\xE0\xA1\xB1\x1A\xE1"
       end
 
@@ -139,9 +139,9 @@ module ExcelUpload
         # Basic CSV validation - check if it's readable text
         begin
           @file.rewind
-          sample = @file.read(1024).force_encoding('UTF-8')
+          sample = @file.read(1024).force_encoding("UTF-8")
           @file.rewind
-          
+
           # Check if it's valid UTF-8 and contains typical CSV characters
           sample.valid_encoding? && sample.match?(/[,;\t\n\r]/)
         rescue
@@ -153,14 +153,14 @@ module ExcelUpload
         # Generate unique filename
         file_extension = File.extname(@file.original_filename)
         unique_filename = "#{SecureRandom.uuid}#{file_extension}"
-        
+
         # Create upload directory if it doesn't exist
-        upload_dir = Rails.root.join('storage', 'uploads', 'excel_files')
+        upload_dir = Rails.root.join("storage", "uploads", "excel_files")
         FileUtils.mkdir_p(upload_dir)
-        
+
         # Save file to disk
         file_path = upload_dir.join(unique_filename)
-        File.open(file_path, 'wb') do |f|
+        File.open(file_path, "wb") do |f|
           @file.rewind
           f.write(@file.read)
         end
@@ -170,7 +170,7 @@ module ExcelUpload
           original_name: @file.original_filename,
           file_path: file_path.to_s,
           file_size: @file.size,
-          status: 'uploaded',
+          status: "uploaded",
           content_type: @file.content_type
         )
 

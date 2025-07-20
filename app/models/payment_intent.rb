@@ -9,13 +9,13 @@ class PaymentIntent < ApplicationRecord
   validates :payment_type, presence: true, inclusion: { in: %w[token_purchase subscription] }
   validates :status, presence: true
 
-  enum status: {
-    created: 'created',
-    pending: 'pending',
-    completed: 'completed',
-    failed: 'failed',
-    canceled: 'canceled',
-    expired: 'expired'
+  enum :status, {
+    created: "created",
+    pending: "pending",
+    completed: "completed",
+    failed: "failed",
+    canceled: "canceled",
+    expired: "expired"
   }
 
   scope :recent, -> { order(created_at: :desc) }
@@ -24,22 +24,22 @@ class PaymentIntent < ApplicationRecord
   scope :by_payment_type, ->(type) { where(payment_type: type) }
 
   def token_amount
-    return 0 unless payment_type == 'token_purchase'
-    
+    return 0 unless payment_type == "token_purchase"
+
     # 100 KRW = 1 token
     (amount / 100).to_i
   end
 
   def subscription_tier
-    return nil unless payment_type == 'subscription'
-    
+    return nil unless payment_type == "subscription"
+
     case amount
     when 9_900..29_899
-      'pro'
+      "pro"
     when 29_900..Float::INFINITY
-      'enterprise'
+      "enterprise"
     else
-      'basic'
+      "basic"
     end
   end
 
@@ -53,9 +53,9 @@ class PaymentIntent < ApplicationRecord
 
   def display_name
     case payment_type
-    when 'token_purchase'
+    when "token_purchase"
       "토큰 #{token_amount}개 구매"
-    when 'subscription'
+    when "subscription"
       "#{subscription_tier&.upcase} 구독"
     else
       "결제"
@@ -63,8 +63,8 @@ class PaymentIntent < ApplicationRecord
   end
 
   def self.cleanup_expired
-    where(status: ['created', 'pending'])
-      .where('created_at < ?', 1.hour.ago)
-      .update_all(status: 'expired')
+    where(status: [ "created", "pending" ])
+      .where("created_at < ?", 1.hour.ago)
+      .update_all(status: "expired")
   end
 end

@@ -53,23 +53,68 @@ AI 기반 엑셀 오류 자동 감지 및 수정 SaaS 플랫폼
 
 ## 🏗️ 아키텍처
 
-### Vertical Slice Architecture
+### Vertical Slice + SOLID 원칙 적용
+
+이 애플리케이션은 **Vertical Slice Architecture**와 **SOLID 원칙**을 조합하여 설계되었습니다.
+
+#### 아키텍처 원칙
+
+**1. Vertical Slice Architecture**
+- 기능을 기술적 계층이 아닌 비즈니스 역량별로 구성
+- 각 도메인이 필요한 모든 컴포넌트를 포함 (commands, queries, services, repositories)
+- 기능 간 결합도 감소 및 독립적 진화 가능
+
+**2. SOLID 원칙 적용**
+- **S** - Single Responsibility: 각 클래스는 하나의 변경 이유만 가짐
+- **O** - Open/Closed: 수정 없이 확장 가능 (Factory, Strategy 패턴)
+- **L** - Liskov Substitution: 인터페이스 일관성 유지
+- **I** - Interface Segregation: 작고 집중된 인터페이스 (Contracts)
+- **D** - Dependency Inversion: 구현이 아닌 추상화에 의존
+
+#### 도메인 구조
 ```
-app/
-├── features/                 # 기능별 수직 슬라이스
-│   ├── excel_upload/        # 파일 업로드
-│   ├── excel_analysis/      # 엑셀 분석
-│   ├── ai_integration/      # AI 통합
-│   ├── payment_processing/  # 결제 처리
-│   └── user_management/     # 사용자 관리
-├── common/                  # 공통 유틸리티
-├── infrastructure/          # 외부 의존성
-└── components/             # UI 컴포넌트
+app/domains/
+├── shared/                     # 공유 계약 및 타입
+│   ├── contracts/
+│   │   ├── command.rb         # 기본 명령 인터페이스
+│   │   ├── query.rb           # 기본 쿼리 인터페이스
+│   │   └── service.rb         # 기본 서비스 인터페이스
+│   └── types/
+│       └── result.rb          # 에러 처리용 Result 모나드
+├── excel_analysis/            # Excel 분석 도메인
+│   ├── commands/              # 비즈니스 작업 (쓰기)
+│   ├── queries/               # 데이터 조회 (읽기)
+│   ├── analyzers/            # 분석 구현체
+│   ├── contracts/            # 도메인 인터페이스
+│   ├── factories/            # 생성 패턴
+│   └── repositories/         # 데이터 접근
+├── excel_generation/          # Excel 생성 도메인
+├── ai_integration/           # AI 제공자 통합
+└── user_management/          # 사용자 작업
 ```
 
-### 2단계 AI 시스템
+#### 컨트롤러 구조 (Vertical Slice)
 ```
-사용자 요청 → Tier 1 분석 → 신뢰도 확인 → Tier 2 분석 (필요시)
+controllers/
+├── excel_analysis_controller.rb    # Excel 분석 전용
+├── excel_generation_controller.rb  # Excel 생성 전용
+├── ai_integration_controller.rb    # AI 통합 전용
+└── user_management_controller.rb   # 사용자 관리 전용
+```
+
+#### OpenRouter 통합 AI 시스템
+```
+OpenRouter API Key (단일 키) → 다중 모델 접근
+├── Cost Effective: Gemini Flash ($0.075/1M tokens)
+├── Balanced: Claude Haiku ($0.25/1M tokens)
+└── Premium: GPT-4 Vision ($10/1M tokens)
+```
+
+#### 요청 플로우
+```
+Controller → Command/Query → Service → Repository → Database
+     ↓
+   Result Pattern을 통한 일관된 에러 처리
 ```
 
 ## 📦 설치 및 실행

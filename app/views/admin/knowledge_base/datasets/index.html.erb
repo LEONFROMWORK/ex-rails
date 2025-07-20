@@ -1,23 +1,23 @@
 <% content_for :title, "데이터셋 관리" %>
 
-<div class="min-h-screen bg-gray-50">
+<div class="min-h-screen bg-background">
   <div class="container mx-auto px-4 py-8">
     <!-- Page Header -->
     <div class="flex items-center justify-between mb-8">
       <div>
-        <div class="flex items-center gap-2 text-sm text-gray-600 mb-2">
-          <%= link_to "관리자", admin_root_path, class: "hover:text-gray-900" %>
+        <div class="flex items-center gap-2 text-sm text-muted-foreground mb-2">
+          <%= link_to "관리자", admin_root_path, class: "hover:text-foreground" %>
           <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
           </svg>
-          <%= link_to "지식 베이스", admin_knowledge_base_root_path, class: "hover:text-gray-900" %>
+          <%= link_to "지식 베이스", admin_knowledge_base_root_path, class: "hover:text-foreground" %>
           <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
           </svg>
           <span>데이터셋 관리</span>
         </div>
-        <h1 class="text-3xl font-bold text-gray-900">데이터셋 관리</h1>
-        <p class="text-gray-600 mt-2">Excel Q&A 데이터셋을 업로드하고 관리하세요</p>
+        <h1 class="text-3xl font-bold text-foreground">데이터셋 관리</h1>
+        <p class="text-muted-foreground mt-2">Excel Q&A 데이터셋을 업로드하고 관리하세요</p>
       </div>
       <div class="flex gap-2">
         <%= render Ui::ButtonComponent.new do %>
@@ -35,24 +35,24 @@
     <input type="file" id="fileInput" accept=".jsonl,.json" style="display: none" onchange="handleFileUpload(event)">
 
     <!-- Upload Progress -->
-    <div id="uploadProgress" class="bg-white rounded-lg shadow p-6 mb-8 hidden">
+    <div id="uploadProgress" class="bg-card rounded-lg shadow p-6 mb-8 hidden">
       <div class="flex items-center gap-3 mb-4">
-        <svg class="h-5 w-5 text-blue-500 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg class="h-5 w-5 text-primary animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
         </svg>
-        <h3 class="text-lg font-semibold text-gray-900">파일 업로드 중...</h3>
+        <h3 class="text-lg font-semibold text-foreground">파일 업로드 중...</h3>
       </div>
-      <div class="w-full bg-gray-200 rounded-full h-2">
-        <div id="progressBar" class="bg-blue-600 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+      <div class="w-full bg-muted rounded-full h-2">
+        <div id="progressBar" class="bg-primary h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
       </div>
-      <p id="progressText" class="text-sm text-gray-600 mt-2">업로드 준비 중...</p>
+      <p id="progressText" class="text-sm text-muted-foreground mt-2">업로드 준비 중...</p>
     </div>
 
     <!-- Datasets List -->
-    <div class="bg-white rounded-lg shadow">
-      <div class="px-6 py-4 border-b border-gray-200">
-        <h2 class="text-lg font-semibold text-gray-900">업로드된 데이터셋</h2>
-        <p class="text-gray-600 text-sm">총 <%= @datasets.length %>개의 데이터셋</p>
+    <div class="bg-card rounded-lg shadow">
+      <div class="px-6 py-4 border-b border-border">
+        <h2 class="text-lg font-semibold text-foreground">업로드된 데이터셋</h2>
+        <p class="text-muted-foreground text-sm">총 <%= @datasets.length %>개의 데이터셋</p>
       </div>
       
       <div class="p-6">
@@ -62,8 +62,8 @@
               <div class="border rounded-lg p-6">
                 <div class="flex items-center justify-between mb-4">
                   <div>
-                    <h3 class="text-lg font-semibold text-gray-900"><%= dataset[:name] %></h3>
-                    <p class="text-sm text-gray-500">ID: <%= dataset[:id] %></p>
+                    <h3 class="text-lg font-semibold text-foreground"><%= dataset[:name] %></h3>
+                    <p class="text-sm text-muted-foreground">ID: <%= dataset[:id] %></p>
                   </div>
                   <div class="flex items-center gap-2">
                     <%= render Ui::BadgeComponent.new(
@@ -102,26 +102,26 @@
                 
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
                   <div>
-                    <p class="text-sm text-gray-500">파일 형식</p>
-                    <p class="font-medium text-gray-900"><%= dataset[:file_type] %></p>
+                    <p class="text-sm text-muted-foreground">파일 형식</p>
+                    <p class="font-medium text-foreground"><%= dataset[:file_type] %></p>
                   </div>
                   <div>
-                    <p class="text-sm text-gray-500">파일 크기</p>
-                    <p class="font-medium text-gray-900"><%= dataset[:file_size] %></p>
+                    <p class="text-sm text-muted-foreground">파일 크기</p>
+                    <p class="font-medium text-foreground"><%= dataset[:file_size] %></p>
                   </div>
                   <div>
-                    <p class="text-sm text-gray-500">레코드 수</p>
-                    <p class="font-medium text-gray-900"><%= number_with_delimiter(dataset[:record_count]) %></p>
+                    <p class="text-sm text-muted-foreground">레코드 수</p>
+                    <p class="font-medium text-foreground"><%= number_with_delimiter(dataset[:record_count]) %></p>
                   </div>
                   <div>
-                    <p class="text-sm text-gray-500">업로드 시간</p>
-                    <p class="font-medium text-gray-900"><%= time_ago_in_words(Time.parse(dataset[:uploaded_at])) %> 전</p>
+                    <p class="text-sm text-muted-foreground">업로드 시간</p>
+                    <p class="font-medium text-foreground"><%= time_ago_in_words(Time.parse(dataset[:uploaded_at])) %> 전</p>
                   </div>
                 </div>
                 
                 <% if dataset[:processed_at] %>
-                  <div class="pt-4 border-t border-gray-200">
-                    <p class="text-sm text-gray-500">
+                  <div class="pt-4 border-t border-border">
+                    <p class="text-sm text-muted-foreground">
                       처리 완료: <%= time_ago_in_words(Time.parse(dataset[:processed_at])) %> 전
                     </p>
                   </div>
@@ -131,11 +131,11 @@
           </div>
         <% else %>
           <div class="text-center py-12">
-            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="mx-auto h-12 w-12 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
             </svg>
-            <h3 class="mt-2 text-sm font-medium text-gray-900">데이터셋이 없습니다</h3>
-            <p class="mt-1 text-sm text-gray-500">첫 번째 데이터셋을 업로드해보세요</p>
+            <h3 class="mt-2 text-sm font-medium text-foreground">데이터셋이 없습니다</h3>
+            <p class="mt-1 text-sm text-muted-foreground">첫 번째 데이터셋을 업로드해보세요</p>
             <%= render Ui::ButtonComponent.new(class: "mt-3") do %>
               <button onclick="document.getElementById('fileInput').click()">데이터셋 업로드</button>
             <% end %>
@@ -145,9 +145,9 @@
     </div>
 
     <!-- Upload Guidelines -->
-    <div class="bg-white rounded-lg shadow p-6 mt-8">
-      <h3 class="text-lg font-semibold text-gray-900 mb-4">업로드 가이드라인</h3>
-      <div class="space-y-2 text-sm text-gray-700">
+    <div class="bg-card rounded-lg shadow p-6 mt-8">
+      <h3 class="text-lg font-semibold text-foreground mb-4">업로드 가이드라인</h3>
+      <div class="space-y-2 text-sm text-muted-foreground">
         <p><strong>지원 형식</strong>: JSONL (JSON Lines) 형식만 지원됩니다</p>
         <p><strong>파일 크기</strong>: 최대 100MB까지 업로드 가능합니다</p>
         <p><strong>데이터 구조</strong>: 각 라인은 {question: "", answer: "", category: ""} 형식이어야 합니다</p>

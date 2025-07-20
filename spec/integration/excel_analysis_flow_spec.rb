@@ -3,25 +3,25 @@
 require 'rails_helper'
 
 RSpec.describe 'Excel Analysis Flow Integration', type: :request do
-  let(:user) { create(:user, tokens: 100) }
+  let(:user) { create(:user, credits: 100) }
   let(:file_path) { Rails.root.join('spec', 'fixtures', 'test_excel.xlsx') }
-  
+
   before do
     # Create a simple test Excel file if it doesn't exist
     unless File.exist?(file_path)
       FileUtils.mkdir_p(File.dirname(file_path))
-      
+
       # Create a minimal Excel file for testing
       package = Axlsx::Package.new
       workbook = package.workbook
-      
+
       workbook.add_worksheet(name: "Test Sheet") do |sheet|
-        sheet.add_row ["Name", "Age", "Amount"]
-        sheet.add_row ["John", 25, 1000]
-        sheet.add_row ["Jane", "invalid", 2000]  # Invalid data type
-        sheet.add_row ["Bob", 30, "not_number"]  # Invalid data type
+        sheet.add_row [ "Name", "Age", "Amount" ]
+        sheet.add_row [ "John", 25, 1000 ]
+        sheet.add_row [ "Jane", "invalid", 2000 ]  # Invalid data type
+        sheet.add_row [ "Bob", 30, "not_number" ]  # Invalid data type
       end
-      
+
       package.serialize(file_path)
     end
   end
@@ -63,7 +63,7 @@ RSpec.describe 'Excel Analysis Flow Integration', type: :request do
 
         # Step 4: Run AI analysis (with mock)
         ai_service = AiIntegration::MultiProvider::AiAnalysisService.new
-        
+
         # Mock AI provider to avoid API calls
         allow_any_instance_of(Infrastructure::AiProviders::OpenAiProvider)
           .to receive(:generate_response)
@@ -90,7 +90,7 @@ RSpec.describe 'Excel Analysis Flow Integration', type: :request do
               "summary" => "Found data type inconsistencies",
               "estimated_time_saved" => "10 minutes"
             }.to_json,
-            usage: { total_tokens: 150 },
+            usage: { total_credits: 150 },
             model: 'gpt-3.5-turbo'
           }))
 
@@ -113,7 +113,7 @@ RSpec.describe 'Excel Analysis Flow Integration', type: :request do
           detected_errors: errors,
           ai_analysis: ai_result.value[:analysis],
           ai_tier_used: 'tier1',
-          tokens_used: ai_result.value[:tokens_used]
+          tokens_used: ai_result.value[:credits_used]
         )
 
         expect(analysis).to be_persisted
@@ -122,7 +122,7 @@ RSpec.describe 'Excel Analysis Flow Integration', type: :request do
 
         # Step 6: Verify user tokens were consumed
         expect { user.consume_tokens!(5) }.not_to raise_error
-        expect(user.reload.tokens).to eq(95)
+        expect(user.reload.credits).to eq(95)
 
         # Step 7: Update Excel file status
         excel_file.update!(status: 'analyzed')
@@ -153,7 +153,7 @@ RSpec.describe 'Excel Analysis Flow Integration', type: :request do
 
         ai_service = AiIntegration::MultiProvider::AiAnalysisService.new
         ai_result = ai_service.analyze_errors(
-          errors: [{ type: 'test_error', severity: 'low' }],
+          errors: [ { type: 'test_error', severity: 'low' } ],
           file_metadata: { name: excel_file.original_name },
           tier: 'tier1',
           user: user
@@ -165,7 +165,7 @@ RSpec.describe 'Excel Analysis Flow Integration', type: :request do
     end
 
     context 'when user has insufficient tokens' do
-      let(:poor_user) { create(:user, tokens: 2) }
+      let(:poor_user) { create(:user, credits: 2) }
 
       it 'rejects AI analysis request' do
         ai_service = AiIntegration::MultiProvider::AiAnalysisService.new
@@ -186,11 +186,11 @@ RSpec.describe 'Excel Analysis Flow Integration', type: :request do
     context 'when user purchases tokens' do
       it 'successfully processes token purchase flow' do
         payment_handler = PaymentProcessing::Handlers::PaymentHandler.new
-        
+
         # Mock TossPayments service
         mock_toss_service = instance_double(PaymentProcessing::Services::TossPaymentsService)
         allow(PaymentProcessing::Services::TossPaymentsService).to receive(:new).and_return(mock_toss_service)
-        
+
         allow(mock_toss_service).to receive(:create_payment).and_return(
           Common::Result.success({
             payment_key: 'test_payment_key',

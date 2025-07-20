@@ -14,13 +14,13 @@ class CreateKnowledgeThreads < ActiveRecord::Migration[8.0]
       t.string :source_url                         # Original URL
       t.boolean :is_active, default: true         # For soft deletion
       t.datetime :processed_at
-      
+
       t.timestamps
     end
-    
+
     add_index :knowledge_threads, :external_id
     add_index :knowledge_threads, :source
-    add_index :knowledge_threads, [:external_id, :source], unique: true
+    add_index :knowledge_threads, [ :external_id, :source ], unique: true
     add_index :knowledge_threads, :category
     add_index :knowledge_threads, :quality_score
     add_index :knowledge_threads, :op_confirmed

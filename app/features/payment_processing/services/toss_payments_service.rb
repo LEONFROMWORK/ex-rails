@@ -3,13 +3,13 @@
 module PaymentProcessing
   module Services
     class TossPaymentsService
-      BASE_URL = 'https://api.tosspayments.com/v1'
-      
+      BASE_URL = "https://api.tosspayments.com/v1"
+
       def initialize
-        @client_key = ENV['TOSS_CLIENT_KEY']
-        @secret_key = ENV['TOSS_SECRET_KEY']
-        @webhook_secret = ENV['TOSS_WEBHOOK_SECRET']
-        
+        @client_key = ENV["TOSS_CLIENT_KEY"]
+        @secret_key = ENV["TOSS_SECRET_KEY"]
+        @webhook_secret = ENV["TOSS_WEBHOOK_SECRET"]
+
         validate_configuration
       end
 
@@ -26,16 +26,16 @@ module PaymentProcessing
 
         response = make_request(
           method: :post,
-          endpoint: '/payments',
+          endpoint: "/payments",
           data: payment_data
         )
 
         if response.success?
           payment_response = response.parsed_response
-          
+
           Common::Result.success({
-            payment_key: payment_response['paymentKey'],
-            checkout_url: payment_response['checkout']['url'],
+            payment_key: payment_response["paymentKey"],
+            checkout_url: payment_response["checkout"]["url"],
             order_id: order_id
           })
         else
@@ -62,12 +62,12 @@ module PaymentProcessing
 
         if response.success?
           payment_data = response.parsed_response
-          
+
           Common::Result.success({
-            transactionKey: payment_data['transactionKey'],
-            method: payment_data['method'],
-            status: payment_data['status'],
-            approvedAt: payment_data['approvedAt']
+            transactionKey: payment_data["transactionKey"],
+            method: payment_data["method"],
+            status: payment_data["status"],
+            approvedAt: payment_data["approvedAt"]
           })
         else
           handle_api_error(response)
@@ -128,9 +128,9 @@ module PaymentProcessing
 
       def validate_configuration
         missing_keys = []
-        missing_keys << 'TOSS_CLIENT_KEY' unless @client_key.present?
-        missing_keys << 'TOSS_SECRET_KEY' unless @secret_key.present?
-        
+        missing_keys << "TOSS_CLIENT_KEY" unless @client_key.present?
+        missing_keys << "TOSS_SECRET_KEY" unless @secret_key.present?
+
         if missing_keys.any?
           raise "TossPayments configuration missing: #{missing_keys.join(', ')}"
         end
@@ -138,11 +138,11 @@ module PaymentProcessing
 
       def make_request(method:, endpoint:, data: nil)
         url = "#{BASE_URL}#{endpoint}"
-        
+
         headers = {
-          'Authorization' => "Basic #{encode_credentials}",
-          'Content-Type' => 'application/json',
-          'User-Agent' => 'ExcelApp-Rails/1.0'
+          "Authorization" => "Basic #{encode_credentials}",
+          "Content-Type" => "application/json",
+          "User-Agent" => "ExcelApp-Rails/1.0"
         }
 
         options = {
@@ -169,21 +169,21 @@ module PaymentProcessing
 
       def handle_api_error(response)
         error_data = response.parsed_response
-        
-        error_message = if error_data.is_a?(Hash)
-                          error_data.dig('message') || 'Unknown TossPayments error'
-                        else
-                          'TossPayments API error'
-                        end
 
-        error_code = error_data.dig('code') if error_data.is_a?(Hash)
+        error_message = if error_data.is_a?(Hash)
+                          error_data.dig("message") || "Unknown TossPayments error"
+        else
+                          "TossPayments API error"
+        end
+
+        error_code = error_data.dig("code") if error_data.is_a?(Hash)
 
         Rails.logger.error("TossPayments API error: #{error_message} (Code: #{error_code})")
 
         Common::Result.failure(
           Common::Errors::BusinessError.new(
             message: error_message,
-            code: error_code || 'TOSS_API_ERROR',
+            code: error_code || "TOSS_API_ERROR",
             details: {
               status_code: response.code,
               response_body: error_data
@@ -194,10 +194,10 @@ module PaymentProcessing
 
       def get_order_name(payment_type, amount)
         case payment_type
-        when 'token_purchase'
+        when "token_purchase"
           tokens = (amount / 100).to_i
           "ExcelApp 토큰 #{tokens}개 구매"
-        when 'subscription'
+        when "subscription"
           tier = determine_subscription_tier_by_amount(amount)
           "ExcelApp #{tier.upcase} 구독"
         else
@@ -208,11 +208,11 @@ module PaymentProcessing
       def determine_subscription_tier_by_amount(amount)
         case amount
         when 0..9_900
-          'basic'
+          "basic"
         when 9_900..29_900
-          'pro'
+          "pro"
         else
-          'enterprise'
+          "enterprise"
         end
       end
 
@@ -231,7 +231,7 @@ module PaymentProcessing
       end
 
       def generate_webhook_signature(payload)
-        OpenSSL::HMAC.hexdigest('SHA256', @webhook_secret, payload)
+        OpenSSL::HMAC.hexdigest("SHA256", @webhook_secret, payload)
       end
 
       def secure_compare(a, b)

@@ -8,7 +8,7 @@ module ExcelAnalysis
       def perform(excel_file_id:, user_id:)
         excel_file = ExcelFile.find(excel_file_id)
         user = User.find(user_id)
-        
+
         # Update status
         excel_file.update!(status: "processing")
         broadcast_progress(excel_file, "Starting analysis...", 0)
@@ -16,7 +16,7 @@ module ExcelAnalysis
         # Run error detection
         analyzer = ExcelAnalysis::Services::ErrorAnalyzerService.new(excel_file)
         errors_result = analyzer.analyze
-        
+
         return handle_analysis_failure(excel_file, errors_result) if errors_result.failure?
 
         detected_errors = errors_result.value

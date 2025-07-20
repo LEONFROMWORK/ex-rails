@@ -2,31 +2,31 @@
 
 <div class="space-y-8">
   <!-- Header -->
-  <div class="border-b border-gray-200 dark:border-gray-700 pb-5">
-    <h3 class="text-2xl font-bold leading-6 text-gray-900 dark:text-white">Settings</h3>
-    <p class="mt-2 max-w-4xl text-sm text-gray-500 dark:text-gray-400">
+  <div class="border-b border-border pb-5">
+    <h3 class="text-2xl font-bold leading-6 text-foreground">Settings</h3>
+    <p class="mt-2 max-w-4xl text-sm text-muted-foreground">
       Manage your account settings, preferences, and billing information.
     </p>
   </div>
 
   <!-- Account Settings -->
-  <div class="bg-white dark:bg-gray-800 shadow rounded-lg border border-gray-200 dark:border-gray-700">
+  <div class="bg-card shadow rounded-lg border border-border">
     <div class="px-4 py-5 sm:p-6">
-      <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Account Settings</h3>
+      <h3 class="text-lg font-medium text-foreground mb-4">Account Settings</h3>
       
       <div class="space-y-6">
-        <div class="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-md p-4">
+        <div class="bg-warning/10 border border-warning rounded-md p-4">
           <div class="flex">
             <div class="flex-shrink-0">
-              <svg class="h-5 w-5 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="h-5 w-5 text-warning" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"/>
               </svg>
             </div>
             <div class="ml-3">
-              <h3 class="text-sm font-medium text-yellow-800 dark:text-yellow-200">
+              <h3 class="text-sm font-medium text-warning">
                 Profile Editing Coming Soon
               </h3>
-              <div class="mt-2 text-sm text-yellow-700 dark:text-yellow-300">
+              <div class="mt-2 text-sm text-warning">
                 <p>Profile editing functionality is currently under development. For now, you can view your profile information.</p>
               </div>
             </div>
@@ -37,68 +37,70 @@
   </div>
 
   <!-- Subscription & Billing -->
-  <div class="bg-white dark:bg-gray-800 shadow rounded-lg border border-gray-200 dark:border-gray-700">
-    <div class="px-4 py-5 sm:p-6">
-      <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Subscription & Billing</h3>
-      
-      <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
-        <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Current Plan</label>
-          <div class="mt-1">
-            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 capitalize">
-              <%= @user.tier %> Plan
-            </span>
+  <% if Rails.application.config.features[:payment_enabled] %>
+    <div class="bg-card shadow rounded-lg border border-border">
+      <div class="px-4 py-5 sm:p-6">
+        <h3 class="text-lg font-medium text-foreground mb-4">Subscription & Billing</h3>
+        
+        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+          <div>
+            <label class="block text-sm font-medium text-muted-foreground">Current Plan</label>
+            <div class="mt-1">
+              <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-primary/10 text-primary capitalize">
+                <%= @user.tier %> Plan
+              </span>
+            </div>
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium text-muted-foreground">Available Tokens</label>
+            <div class="mt-1">
+              <span class="text-sm text-foreground font-medium"><%= number_with_delimiter(@user.credits) %> credits</span>
+            </div>
           </div>
         </div>
         
-        <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Available Tokens</label>
-          <div class="mt-1">
-            <span class="text-sm text-gray-900 dark:text-white font-medium"><%= number_with_delimiter(@user.tokens) %> tokens</span>
-          </div>
+        <div class="mt-6 space-x-3">
+          <a href="/subscriptions" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-primary-foreground bg-primary hover:bg-primary/90">
+            Upgrade Plan
+          </a>
+          <a href="#" class="inline-flex items-center px-4 py-2 border border-border text-sm font-medium rounded-md text-foreground bg-card hover:bg-muted">
+            Purchase Tokens
+          </a>
         </div>
       </div>
-      
-      <div class="mt-6 space-x-3">
-        <a href="/subscriptions" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-600">
-          Upgrade Plan
-        </a>
-        <a href="#" class="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700">
-          Purchase Tokens
-        </a>
-      </div>
     </div>
-  </div>
+  <% end %>
 
   <!-- API Keys -->
-  <div class="bg-white dark:bg-gray-800 shadow rounded-lg border border-gray-200 dark:border-gray-700">
+  <div class="bg-card shadow rounded-lg border border-border">
     <div class="px-4 py-5 sm:p-6">
-      <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">API Access</h3>
+      <h3 class="text-lg font-medium text-foreground mb-4">API Access</h3>
       
-      <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">
+      <p class="text-sm text-muted-foreground mb-4">
         Manage your API keys for programmatic access to ExcelApp services.
       </p>
       
       <div class="space-y-4">
-        <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-md p-4">
+        <div class="bg-primary/10 border border-primary rounded-md p-4">
           <div class="flex">
             <div class="flex-shrink-0">
-              <svg class="h-5 w-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="h-5 w-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
               </svg>
             </div>
             <div class="ml-3">
-              <h3 class="text-sm font-medium text-blue-800 dark:text-blue-200">
+              <h3 class="text-sm font-medium text-primary">
                 API Keys Feature
               </h3>
-              <div class="mt-2 text-sm text-blue-700 dark:text-blue-300">
+              <div class="mt-2 text-sm text-primary">
                 <p>API access functionality is currently under development. This will allow you to integrate ExcelApp with your own applications.</p>
               </div>
             </div>
           </div>
         </div>
         
-        <a href="/api_keys" class="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700">
+        <a href="/api_keys" class="inline-flex items-center px-4 py-2 border border-border text-sm font-medium rounded-md text-foreground bg-card hover:bg-muted">
           <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/>
           </svg>
@@ -109,30 +111,30 @@
   </div>
 
   <!-- Preferences -->
-  <div class="bg-white dark:bg-gray-800 shadow rounded-lg border border-gray-200 dark:border-gray-700">
+  <div class="bg-card shadow rounded-lg border border-border">
     <div class="px-4 py-5 sm:p-6">
-      <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Preferences</h3>
+      <h3 class="text-lg font-medium text-foreground mb-4">Preferences</h3>
       
       <div class="space-y-4">
         <!-- Theme Settings -->
         <div class="flex items-center justify-between">
           <div>
-            <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Theme</label>
-            <p class="text-sm text-gray-500 dark:text-gray-400">Choose your preferred color scheme</p>
+            <label class="text-sm font-medium text-muted-foreground">Theme</label>
+            <p class="text-sm text-muted-foreground">Choose your preferred color scheme</p>
           </div>
           <div class="flex items-center space-x-4">
             <%= render Ui::ThemeToggleComponent.new(size: :md, show_label: true, position: :right) %>
             <div class="flex items-center space-x-2" data-controller="theme">
               <button data-action="click->theme#setLight" 
-                      class="px-3 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700">
+                      class="px-3 py-1 text-sm border border-border rounded-md text-foreground hover:bg-muted">
                 Light
               </button>
               <button data-action="click->theme#setDark" 
-                      class="px-3 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700">
+                      class="px-3 py-1 text-sm border border-border rounded-md text-foreground hover:bg-muted">
                 Dark
               </button>
               <button data-action="click->theme#setSystem" 
-                      class="px-3 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700">
+                      class="px-3 py-1 text-sm border border-border rounded-md text-foreground hover:bg-muted">
                 System
               </button>
             </div>
@@ -142,13 +144,13 @@
         <!-- Email Notifications -->
         <div class="flex items-center justify-between">
           <div>
-            <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Email Notifications</label>
-            <p class="text-sm text-gray-500 dark:text-gray-400">Receive email updates about your analyses</p>
+            <label class="text-sm font-medium text-muted-foreground">Email Notifications</label>
+            <p class="text-sm text-muted-foreground">Receive email updates about your analyses</p>
           </div>
           <div>
             <label class="inline-flex items-center">
-              <input type="checkbox" checked class="form-checkbox h-4 w-4 text-blue-600 rounded border-gray-300 dark:border-gray-600 focus:ring-blue-500">
-              <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Enabled</span>
+              <input type="checkbox" checked class="form-checkbox h-4 w-4 text-primary rounded border-border focus:ring-primary">
+              <span class="ml-2 text-sm text-foreground">Enabled</span>
             </label>
           </div>
         </div>
@@ -157,27 +159,27 @@
   </div>
 
   <!-- Account Actions -->
-  <div class="bg-white dark:bg-gray-800 shadow rounded-lg border border-gray-200 dark:border-gray-700">
+  <div class="bg-card shadow rounded-lg border border-border">
     <div class="px-4 py-5 sm:p-6">
-      <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Account Actions</h3>
+      <h3 class="text-lg font-medium text-foreground mb-4">Account Actions</h3>
       
       <div class="space-y-4">
-        <div class="flex items-center justify-between py-3 border-t border-gray-200 dark:border-gray-700">
+        <div class="flex items-center justify-between py-3 border-t border-border">
           <div>
-            <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300">Export Data</h4>
-            <p class="text-sm text-gray-500 dark:text-gray-400">Download a copy of your data and analysis history</p>
+            <h4 class="text-sm font-medium text-foreground">Export Data</h4>
+            <p class="text-sm text-muted-foreground">Download a copy of your data and analysis history</p>
           </div>
-          <button class="px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700">
+          <button class="px-4 py-2 border border-border text-sm font-medium rounded-md text-foreground bg-card hover:bg-muted">
             Export
           </button>
         </div>
         
-        <div class="flex items-center justify-between py-3 border-t border-gray-200 dark:border-gray-700">
+        <div class="flex items-center justify-between py-3 border-t border-border">
           <div>
-            <h4 class="text-sm font-medium text-red-700 dark:text-red-400">Delete Account</h4>
-            <p class="text-sm text-gray-500 dark:text-gray-400">Permanently delete your account and all associated data</p>
+            <h4 class="text-sm font-medium text-destructive">Delete Account</h4>
+            <p class="text-sm text-muted-foreground">Permanently delete your account and all associated data</p>
           </div>
-          <button class="px-4 py-2 border border-red-300 dark:border-red-600 text-sm font-medium rounded-md text-red-700 dark:text-red-400 bg-white dark:bg-gray-800 hover:bg-red-50 dark:hover:bg-red-900/20">
+          <button class="px-4 py-2 border border-destructive text-sm font-medium rounded-md text-destructive bg-card hover:bg-destructive/10">
             Delete Account
           </button>
         </div>

@@ -1,0 +1,18 @@
+#!/bin/bash
+# Check for focused RSpec tests (fit, fdescribe, fcontext, focus: true)
+
+set -e
+
+# Check for focused specs in staged files
+if git diff --cached --name-only | grep -E "spec/.*_spec\.rb$" | xargs grep -l -E "(^|\s)(fit|fdescribe|fcontext|focus:\s*true)" 2>/dev/null; then
+    echo "❌ Focused specs detected!"
+    echo "Please remove focus from the following specs before committing:"
+    echo ""
+    git diff --cached --name-only | grep -E "spec/.*_spec\.rb$" | xargs grep -n -E "(^|\s)(fit|fdescribe|fcontext|focus:\s*true)" 2>/dev/null | sed 's/^/  /'
+    echo ""
+    echo "Replace 'fit' with 'it', 'fdescribe' with 'describe', 'fcontext' with 'context'"
+    echo "Remove 'focus: true' from test blocks"
+    exit 1
+fi
+
+echo "✅ No focused specs detected"

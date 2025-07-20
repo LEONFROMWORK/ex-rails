@@ -14,9 +14,9 @@ module UserManagement
           payments = @user.payment_history
                           .page(@page)
                           .per(@per_page)
-          
+
           Rails.logger.info("Retrieved #{payments.count} payments for user #{@user.id}")
-          
+
           Common::Result.success({
             payments: payments,
             total_count: payments.total_count,

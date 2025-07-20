@@ -17,8 +17,8 @@ module Api
     # 필터링 옵션들
     @threads = @threads.by_source(params[:source]) if params[:source].present?
     @threads = @threads.by_category(params[:category]) if params[:category].present?
-    @threads = @threads.where('quality_score >= ?', params[:min_quality]) if params[:min_quality].present?
-    @threads = @threads.where('updated_at >= ?', params[:since]) if params[:since].present?
+    @threads = @threads.where("quality_score >= ?", params[:min_quality]) if params[:min_quality].present?
+    @threads = @threads.where("updated_at >= ?", params[:since]) if params[:since].present?
 
     render json: {
       threads: @threads.map(&:to_rag_format),
@@ -46,7 +46,7 @@ module Api
   def show
     @thread = KnowledgeThread.active.find_by!(
       external_id: params[:id],
-      source: params[:source] || 'reddit'
+      source: params[:source] || "reddit"
     )
 
     render json: {
@@ -63,16 +63,16 @@ module Api
   # GET /api/v1/knowledge_threads/export
   # 전체 데이터 익스포트 (JSON Lines 형식)
   def export
-    export_format = params[:format] || 'json'
-    batch_size = [params[:batch_size]&.to_i || 1000, 5000].min
+    export_format = params[:format] || "json"
+    batch_size = [ params[:batch_size]&.to_i || 1000, 5000 ].min
 
     case export_format
-    when 'jsonl'
+    when "jsonl"
       export_jsonl(batch_size)
-    when 'json'
+    when "json"
       export_json(batch_size)
     else
-      render json: { error: 'Unsupported export format' }, status: :unprocessable_entity
+      render json: { error: "Unsupported export format" }, status: :unprocessable_entity
     end
   end
 
@@ -92,17 +92,17 @@ module Api
   private
 
   def require_api_key
-    api_key = request.headers['Authorization']&.gsub(/^Bearer /, '') || params[:api_key]
-    
-    unless api_key == Rails.application.credentials.api_key || 
-           api_key == ENV['EXCELAPP_API_KEY']
-      render json: { error: 'Unauthorized' }, status: :unauthorized
+    api_key = request.headers["Authorization"]&.gsub(/^Bearer /, "") || params[:api_key]
+
+    unless api_key == Rails.application.credentials.api_key ||
+           api_key == ENV["EXCELAPP_API_KEY"]
+      render json: { error: "Unauthorized" }, status: :unauthorized
     end
   end
 
   def export_jsonl(batch_size)
-    response.headers['Content-Type'] = 'application/x-ndjson'
-    response.headers['Content-Disposition'] = 
+    response.headers["Content-Type"] = "application/x-ndjson"
+    response.headers["Content-Disposition"] =
       "attachment; filename=\"knowledge_threads_#{Date.current}.jsonl\""
 
     # 스트리밍 응답으로 메모리 효율적으로 처리
@@ -117,11 +117,11 @@ module Api
 
   def export_json(batch_size)
     threads = KnowledgeThread.active.limit(batch_size)
-    
+
     # 필터링 적용
     threads = threads.by_source(params[:source]) if params[:source].present?
     threads = threads.by_category(params[:category]) if params[:category].present?
-    threads = threads.where('quality_score >= ?', params[:min_quality]) if params[:min_quality].present?
+    threads = threads.where("quality_score >= ?", params[:min_quality]) if params[:min_quality].present?
 
     render json: {
       threads: threads.map(&:to_rag_format),
@@ -137,7 +137,7 @@ module Api
 
   def quality_distribution_stats
     KnowledgeThread.active.group(
-      "CASE 
+      "CASE
         WHEN quality_score >= 9.0 THEN 'excellent'
         WHEN quality_score >= 7.5 THEN 'good'
         WHEN quality_score >= 6.0 THEN 'fair'
@@ -152,11 +152,11 @@ module Api
 
   def recent_activity_stats
     {
-      last_24h: KnowledgeThread.active.where('created_at > ?', 24.hours.ago).count,
-      last_week: KnowledgeThread.active.where('created_at > ?', 1.week.ago).count,
-      last_month: KnowledgeThread.active.where('created_at > ?', 1.month.ago).count,
+      last_24h: KnowledgeThread.active.where("created_at > ?", 24.hours.ago).count,
+      last_week: KnowledgeThread.active.where("created_at > ?", 1.week.ago).count,
+      last_month: KnowledgeThread.active.where("created_at > ?", 1.month.ago).count,
       recent_by_source: KnowledgeThread.active
-                          .where('created_at > ?', 1.week.ago)
+                          .where("created_at > ?", 1.week.ago)
                           .group(:source)
                           .count
     }

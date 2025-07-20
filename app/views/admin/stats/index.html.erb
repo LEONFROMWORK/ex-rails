@@ -1,78 +1,78 @@
 <% content_for :title, "Admin - Statistics" %>
 
-<div class="min-h-screen bg-gray-50">
+<div class="min-h-screen bg-background">
   <div class="container mx-auto px-4 py-8">
     <div class="mb-8">
-      <h1 class="text-3xl font-bold text-gray-900">System Statistics</h1>
-      <p class="text-gray-600">Detailed system metrics and analytics</p>
+      <h1 class="text-3xl font-bold text-foreground">System Statistics</h1>
+      <p class="text-muted-foreground">Detailed system metrics and analytics</p>
     </div>
 
     <!-- User Stats -->
     <div class="mb-8">
-      <h2 class="text-xl font-semibold text-gray-900 mb-4">User Statistics</h2>
+      <h2 class="text-xl font-semibold text-foreground mb-4">User Statistics</h2>
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div class="bg-white rounded-lg shadow p-6">
-          <h3 class="text-lg font-medium text-gray-900">Total Users</h3>
-          <p class="text-3xl font-bold text-blue-600"><%= @stats[:users][:total] %></p>
+        <div class="bg-card rounded-lg shadow p-6">
+          <h3 class="text-lg font-medium text-foreground">Total Users</h3>
+          <p class="text-3xl font-bold text-primary"><%= @stats[:users][:total] %></p>
         </div>
-        <div class="bg-white rounded-lg shadow p-6">
-          <h3 class="text-lg font-medium text-gray-900">Active Users</h3>
-          <p class="text-3xl font-bold text-green-600"><%= @stats[:users][:active] %></p>
-          <p class="text-sm text-gray-500">Last 7 days</p>
+        <div class="bg-card rounded-lg shadow p-6">
+          <h3 class="text-lg font-medium text-foreground">Active Users</h3>
+          <p class="text-3xl font-bold text-success"><%= @stats[:users][:active] %></p>
+          <p class="text-sm text-muted-foreground">Last 7 days</p>
         </div>
-        <div class="bg-white rounded-lg shadow p-6">
-          <h3 class="text-lg font-medium text-gray-900">New Users</h3>
+        <div class="bg-card rounded-lg shadow p-6">
+          <h3 class="text-lg font-medium text-foreground">New Users</h3>
           <p class="text-3xl font-bold text-purple-600"><%= @stats[:users][:new_this_week] %></p>
-          <p class="text-sm text-gray-500">This week</p>
+          <p class="text-sm text-muted-foreground">This week</p>
         </div>
       </div>
     </div>
 
     <!-- File Stats -->
     <div class="mb-8">
-      <h2 class="text-xl font-semibold text-gray-900 mb-4">File Statistics</h2>
+      <h2 class="text-xl font-semibold text-foreground mb-4">File Statistics</h2>
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div class="bg-white rounded-lg shadow p-6">
-          <h3 class="text-lg font-medium text-gray-900">Total Files</h3>
-          <p class="text-3xl font-bold text-blue-600"><%= @stats[:files][:total] %></p>
+        <div class="bg-card rounded-lg shadow p-6">
+          <h3 class="text-lg font-medium text-foreground">Total Files</h3>
+          <p class="text-3xl font-bold text-primary"><%= @stats[:files][:total] %></p>
         </div>
-        <div class="bg-white rounded-lg shadow p-6">
-          <h3 class="text-lg font-medium text-gray-900">Processed Files</h3>
-          <p class="text-3xl font-bold text-green-600"><%= @stats[:files][:processed] %></p>
+        <div class="bg-card rounded-lg shadow p-6">
+          <h3 class="text-lg font-medium text-foreground">Processed Files</h3>
+          <p class="text-3xl font-bold text-success"><%= @stats[:files][:processed] %></p>
         </div>
-        <div class="bg-white rounded-lg shadow p-6">
-          <h3 class="text-lg font-medium text-gray-900">Failed Files</h3>
-          <p class="text-3xl font-bold text-red-600"><%= @stats[:files][:failed] %></p>
+        <div class="bg-card rounded-lg shadow p-6">
+          <h3 class="text-lg font-medium text-foreground">Failed Files</h3>
+          <p class="text-3xl font-bold text-destructive"><%= @stats[:files][:failed] %></p>
         </div>
       </div>
     </div>
 
     <!-- Analysis Stats -->
     <div class="mb-8">
-      <h2 class="text-xl font-semibold text-gray-900 mb-4">Analysis Statistics</h2>
+      <h2 class="text-xl font-semibold text-foreground mb-4">Analysis Statistics</h2>
       <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div class="bg-white rounded-lg shadow p-6">
-          <h3 class="text-lg font-medium text-gray-900">Total Analyses</h3>
-          <p class="text-3xl font-bold text-blue-600"><%= @stats[:analyses][:total] %></p>
+        <div class="bg-card rounded-lg shadow p-6">
+          <h3 class="text-lg font-medium text-foreground">Total Analyses</h3>
+          <p class="text-3xl font-bold text-primary"><%= @stats[:analyses][:total] %></p>
         </div>
-        <div class="bg-white rounded-lg shadow p-6">
-          <h3 class="text-lg font-medium text-gray-900">This Week</h3>
-          <p class="text-3xl font-bold text-green-600"><%= @stats[:analyses][:this_week] %></p>
+        <div class="bg-card rounded-lg shadow p-6">
+          <h3 class="text-lg font-medium text-foreground">This Week</h3>
+          <p class="text-3xl font-bold text-success"><%= @stats[:analyses][:this_week] %></p>
         </div>
-        <div class="bg-white rounded-lg shadow p-6">
-          <h3 class="text-lg font-medium text-gray-900">Tier 1 AI</h3>
-          <p class="text-3xl font-bold text-yellow-600"><%= @stats[:analyses][:tier1] %></p>
+        <div class="bg-card rounded-lg shadow p-6">
+          <h3 class="text-lg font-medium text-foreground">Tier 1 AI</h3>
+          <p class="text-3xl font-bold text-warning"><%= @stats[:analyses][:tier1] %></p>
         </div>
-        <div class="bg-white rounded-lg shadow p-6">
-          <h3 class="text-lg font-medium text-gray-900">Tier 2 AI</h3>
-          <p class="text-3xl font-bold text-red-600"><%= @stats[:analyses][:tier2] %></p>
+        <div class="bg-card rounded-lg shadow p-6">
+          <h3 class="text-lg font-medium text-foreground">Tier 2 AI</h3>
+          <p class="text-3xl font-bold text-destructive"><%= @stats[:analyses][:tier2] %></p>
         </div>
       </div>
     </div>
 
     <!-- Navigation -->
-    <div class="bg-white rounded-lg shadow p-6">
-      <h2 class="text-lg font-semibold text-gray-900 mb-4">Navigation</h2>
+    <div class="bg-card rounded-lg shadow p-6">
+      <h2 class="text-lg font-semibold text-foreground mb-4">Navigation</h2>
       <div class="flex flex-wrap gap-4">
         <%= render Ui::ButtonComponent.new(variant: :outline) do %>
           <%= link_to "Back to Dashboard", admin_root_path, class: "text-inherit no-underline" %>

@@ -1,13 +1,49 @@
 <!DOCTYPE html>
-<html class="h-full bg-gray-50 dark:bg-gray-900" data-controller="theme" data-theme-value="<%= cookies[:theme] || 'light' %>">
+<html class="h-full bg-background <%= @theme == 'dark' ? 'dark' : '' %>" 
+      lang="ko"
+      role="document">
   <head>
-    <title><%= content_for(:title) || "ExcelApp Rails" %></title>
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="mobile-web-app-capable" content="yes">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <%= yield :seo_meta_tags %>
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
+    
+    <!-- Prevent theme flash -->
+    <script>
+      (function() {
+        const theme = document.cookie.match(/theme=([^;]+)/)?.[1] || 
+                      localStorage.getItem('theme') || 
+                      (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        if (theme === 'dark') {
+          document.documentElement.classList.add('dark');
+        }
+      })();
+    </script>
 
+    <!-- SEO 및 PWA 메타태그 -->
+    <meta name="robots" content="index, follow">
+    <meta name="googlebot" content="index, follow">
+    <meta name="theme-color" content="#3B82F6">
+    <meta name="msapplication-TileColor" content="#3B82F6">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="color-scheme" content="light dark">
+    
+    <!-- Pretendard Font -->
+    <link rel="stylesheet" as="style" crossorigin 
+          href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+    
+    <!-- 모바일 최적화 -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="ExcelApp">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-touch-fullscreen" content="yes">
+    
+    <!-- DNS 미리 연결 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
     <%= yield :head %>
 
     <%# Enable PWA manifest for installable apps (make sure to enable in config/routes.rb too!) %>
@@ -21,110 +57,118 @@
     <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
     <%= stylesheet_link_tag "application.tailwind", "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
+    
+    <%# Vite integration for Vue.js %>
+    <%= vite_client_tag %>
+    <%= vite_javascript_tag 'application' %>
+    
+    <!-- 구조화된 데이터 -->
+    <%= yield :structured_data %>
+
   </head>
 
-  <body class="h-full bg-gray-50 dark:bg-gray-900">
+  <body class="h-full bg-background overflow-hidden" role="main">
     <% if user_signed_in? %>
-      <!-- Sidebar Navigation (for authenticated users) -->
-      <%= render Navigation::SidebarComponent.new(current_user: current_user, current_path: request.path) %>
-      
-      <!-- Main content area -->
-      <div class="lg:pl-72" data-controller="mobile-menu">
-        <!-- Header -->
+      <!-- Modern Layout: Header + Right Sidebar -->
+      <div class="h-full flex flex-col" data-controller="sidebar">
+        <!-- Fixed Header -->
         <%= render Navigation::HeaderComponent.new(current_user: current_user, current_path: request.path) %>
-
-        <!-- Flash messages (for authenticated users) -->
-        <% if flash.any? %>
-          <div class="px-4 sm:px-6 lg:px-8 py-4">
-            <% flash.each do |type, message| %>
-              <div class="rounded-md p-4 <%= type == 'notice' ? 'bg-green-50 dark:bg-green-900/50' : 'bg-red-50 dark:bg-red-900/50' %> mb-4">
-                <div class="flex">
-                  <div class="flex-shrink-0">
-                    <% if type == 'notice' %>
-                      <svg class="h-5 w-5 text-green-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-                      </svg>
-                    <% else %>
-                      <svg class="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
-                      </svg>
-                    <% end %>
-                  </div>
-                  <div class="ml-3">
-                    <p class="text-sm font-medium <%= type == 'notice' ? 'text-green-800 dark:text-green-200' : 'text-red-800 dark:text-red-200' %>">
-                      <%= message %>
-                    </p>
-                  </div>
-                </div>
+        
+        <!-- Main Content + Right Sidebar -->
+        <div class="flex-1 flex pt-16">
+          <!-- Main Content Area -->
+          <main class="flex-1 overflow-y-auto" role="main" id="main-content">
+            <!-- Flash messages -->
+            <div class="px-4 sm:px-6 lg:px-8 py-4">
+              <%= render_flash_messages %>
+            </div>
+            
+            <!-- Page Content -->
+            <div class="px-4 sm:px-6 lg:px-8 pb-8">
+              <%= yield %>
+            </div>
+          </main>
+          
+          <!-- Right Sidebar (Desktop) -->
+          <nav role="navigation" aria-label="Main navigation" class="hidden lg:block">
+            <%= render Navigation::RightSidebarComponent.new(current_user: current_user, current_path: request.path) %>
+          </nav>
+          
+          <!-- Mobile Sidebar Overlay -->
+          <div class="lg:hidden">
+            <!-- Backdrop -->
+            <div class="fixed inset-0 z-40 bg-black/50 opacity-0 pointer-events-none transition-opacity duration-300"
+                 data-sidebar-target="backdrop"
+                 data-action="click->sidebar#close"></div>
+            
+            <!-- Mobile Sidebar -->
+            <div class="fixed top-0 right-0 bottom-0 z-50 w-80 max-w-[85vw] bg-background transform translate-x-full transition-transform duration-300 shadow-xl"
+                 data-sidebar-target="panel">
+              <!-- Mobile Sidebar Header -->
+              <div class="flex items-center justify-between p-4 border-b border-border">
+                <h2 class="text-lg font-semibold text-foreground">메뉴</h2>
+                <button class="p-2 text-muted-foreground hover:text-foreground transition-colors duration-200"
+                        data-action="click->sidebar#close">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
               </div>
-            <% end %>
+              
+              <!-- Mobile Sidebar Content -->
+              <div class="overflow-y-auto h-full pb-20">
+                <%= render Navigation::RightSidebarComponent.new(current_user: current_user, current_path: request.path) %>
+              </div>
+            </div>
           </div>
-        <% end %>
-
-        <!-- Main content -->
-        <main class="py-8">
-          <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <%= yield %>
-          </div>
-        </main>
+        </div>
       </div>
     <% else %>
-      <!-- Public navigation (for unauthenticated users) -->
-      <nav class="bg-white dark:bg-gray-900 shadow border-b border-gray-200 dark:border-gray-700">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div class="flex justify-between h-16">
-            <div class="flex">
-              <div class="flex-shrink-0 flex items-center">
-                <%= link_to root_path, class: "flex items-center" do %>
-                  <div class="h-8 w-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-                    <span class="text-white font-bold text-lg">E</span>
-                  </div>
-                  <span class="ml-3 text-xl font-bold text-gray-900 dark:text-white">ExcelApp</span>
-                <% end %>
-              </div>
+      <!-- Modern Public Header -->
+      <header class="fixed top-0 left-0 right-0 h-16 bg-background/80 backdrop-blur-md border-b border-border z-40">
+        <div class="h-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="h-full flex items-center justify-between">
+            <!-- Logo -->
+            <div class="flex items-center">
+              <%= link_to root_path, class: "flex items-center space-x-3" do %>
+                <div class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+                  <span class="text-primary-foreground font-bold text-sm">EA</span>
+                </div>
+                <span class="text-lg font-semibold text-foreground">ExcelApp</span>
+              <% end %>
             </div>
-            <div class="flex items-center space-x-4">
-              <%= link_to "Login", login_path, class: "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 text-sm font-medium" %>
-              <%= link_to "Sign up", signup_path, class: "ml-8 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-600" %>
+            
+            <!-- Actions -->
+            <div class="flex items-center space-x-3">
+              <!-- Theme Toggle -->
+              <button class="p-2 text-muted-foreground hover:text-foreground transition-colors duration-200"
+                      data-controller="theme"
+                      data-action="click->theme#toggle">
+                <svg class="w-5 h-5 block dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                </svg>
+                <svg class="w-5 h-5 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                </svg>
+              </button>
               
-              <!-- Theme toggle for public pages -->
-              <%= render Ui::ThemeToggleComponent.new(size: :sm, show_label: false) %>
+              <!-- Login Button -->
+              <%= link_to "로그인", auth_login_path, 
+                  class: "px-4 py-2 text-sm font-medium text-primary-foreground bg-primary hover:bg-primary/90 rounded-lg transition-colors duration-200" %>
             </div>
           </div>
         </div>
-      </nav>
+      </header>
 
-      <!-- Flash messages (for unauthenticated users) -->
-      <% if flash.any? %>
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
-          <% flash.each do |type, message| %>
-            <div class="rounded-md p-4 <%= type == 'notice' ? 'bg-green-50 dark:bg-green-900/50' : 'bg-red-50 dark:bg-red-900/50' %> mb-4">
-              <div class="flex">
-                <div class="flex-shrink-0">
-                  <% if type == 'notice' %>
-                    <svg class="h-5 w-5 text-green-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-                    </svg>
-                  <% else %>
-                    <svg class="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
-                    </svg>
-                  <% end %>
-                </div>
-                <div class="ml-3">
-                  <p class="text-sm font-medium <%= type == 'notice' ? 'text-green-800 dark:text-green-200' : 'text-red-800 dark:text-red-200' %>">
-                    <%= message %>
-                  </p>
-                </div>
-              </div>
-            </div>
-          <% end %>
+      <!-- Main content with padding for fixed header -->
+      <main class="pt-16 min-h-screen" role="main" id="main-content">
+        <!-- Flash messages -->
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <%= render_flash_messages %>
         </div>
-      <% end %>
-
-      <!-- Main content -->
-      <main class="py-8">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        <!-- Page content -->
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <%= yield %>
         </div>
       </main>

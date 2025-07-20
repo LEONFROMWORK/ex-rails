@@ -9,7 +9,7 @@ module PaymentProcessing
       attribute :user
       attribute :amount, :integer
       attribute :payment_type, :string
-      attribute :currency, :string, default: 'KRW'
+      attribute :currency, :string, default: "KRW"
 
       validates :user, presence: true
       validates :amount, presence: true, numericality: { greater_than: 0 }
@@ -20,10 +20,10 @@ module PaymentProcessing
         return false unless user.present?
 
         case payment_type
-        when 'token_purchase'
+        when "token_purchase"
           # Anyone can purchase tokens
           true
-        when 'subscription'
+        when "subscription"
           # Check if user can upgrade/change subscription
           can_change_subscription?
         else
@@ -33,9 +33,9 @@ module PaymentProcessing
 
       def minimum_amount
         case payment_type
-        when 'token_purchase'
+        when "token_purchase"
           1000 # 1000 KRW minimum for token purchase
-        when 'subscription'
+        when "subscription"
           9900 # 9900 KRW minimum for basic subscription
         else
           0
@@ -44,9 +44,9 @@ module PaymentProcessing
 
       def maximum_amount
         case payment_type
-        when 'token_purchase'
+        when "token_purchase"
           1_000_000 # 1M KRW maximum for single token purchase
-        when 'subscription'
+        when "subscription"
           100_000 # 100K KRW maximum for enterprise subscription
         else
           0
@@ -54,22 +54,22 @@ module PaymentProcessing
       end
 
       def token_amount
-        return 0 unless payment_type == 'token_purchase'
-        
+        return 0 unless payment_type == "token_purchase"
+
         # 100 KRW = 1 token
         (amount / 100).to_i
       end
 
       def subscription_tier
-        return nil unless payment_type == 'subscription'
-        
+        return nil unless payment_type == "subscription"
+
         case amount
         when 0..9_899
           nil # Invalid amount
         when 9_900..29_899
-          'pro'
+          "pro"
         when 29_900..Float::INFINITY
-          'enterprise'
+          "enterprise"
         else
           nil
         end

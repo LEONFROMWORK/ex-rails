@@ -2,64 +2,64 @@
 
 <div class="space-y-8">
   <!-- Header -->
-  <div class="border-b border-gray-200 dark:border-gray-700 pb-5">
-    <h3 class="text-2xl font-bold leading-6 text-gray-900 dark:text-white">Profile</h3>
-    <p class="mt-2 max-w-4xl text-sm text-gray-500 dark:text-gray-400">
+  <div class="border-b border-border pb-5">
+    <h3 class="text-2xl font-bold leading-6 text-foreground">Profile</h3>
+    <p class="mt-2 max-w-4xl text-sm text-muted-foreground">
       Manage your account information and preferences.
     </p>
   </div>
 
   <!-- Profile Information -->
-  <div class="bg-white dark:bg-gray-800 shadow rounded-lg border border-gray-200 dark:border-gray-700">
+  <div class="bg-card shadow rounded-lg border border-border">
     <div class="px-4 py-5 sm:p-6">
-      <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Account Information</h3>
+      <h3 class="text-lg font-medium text-foreground mb-4">Account Information</h3>
       
       <div class="space-y-6">
         <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
           <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Full Name</label>
+            <label class="block text-sm font-medium text-foreground">Full Name</label>
             <div class="mt-1">
               <input type="text" value="<%= @user.name %>" disabled 
-                     class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white">
+                     class="shadow-sm focus:ring-ring focus:border-ring block w-full sm:text-sm border-input rounded-md bg-muted text-foreground">
             </div>
           </div>
           
           <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Email Address</label>
+            <label class="block text-sm font-medium text-foreground">Email Address</label>
             <div class="mt-1">
               <input type="email" value="<%= @user.email %>" disabled 
-                     class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white">
+                     class="shadow-sm focus:ring-ring focus:border-ring block w-full sm:text-sm border-input rounded-md bg-muted text-foreground">
             </div>
           </div>
           
           <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">User Tier</label>
+            <label class="block text-sm font-medium text-foreground">User Tier</label>
             <div class="mt-1">
               <input type="text" value="<%= @user.tier.humanize %>" disabled 
-                     class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white">
+                     class="shadow-sm focus:ring-ring focus:border-ring block w-full sm:text-sm border-input rounded-md bg-muted text-foreground">
             </div>
           </div>
           
           <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Available Tokens</label>
+            <label class="block text-sm font-medium text-foreground">Available Tokens</label>
             <div class="mt-1">
-              <input type="text" value="<%= number_with_delimiter(@user.tokens) %>" disabled 
-                     class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white">
+              <input type="text" value="<%= number_with_delimiter(@user.credits) %>" disabled 
+                     class="shadow-sm focus:ring-ring focus:border-ring block w-full sm:text-sm border-input rounded-md bg-muted text-foreground">
             </div>
           </div>
         </div>
         
         <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Member Since</label>
+          <label class="block text-sm font-medium text-foreground">Member Since</label>
           <div class="mt-1">
             <input type="text" value="<%= @user.created_at.strftime('%B %d, %Y') %>" disabled 
-                   class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white">
+                   class="shadow-sm focus:ring-ring focus:border-ring block w-full sm:text-sm border-input rounded-md bg-muted text-foreground">
           </div>
         </div>
       </div>
       
       <div class="mt-6">
-        <a href="/settings" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-600">
+        <a href="/settings" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-primary-foreground bg-primary hover:bg-primary/90">
           Edit Profile
         </a>
       </div>
@@ -68,54 +68,54 @@
 
   <!-- Account Stats -->
   <div class="grid grid-cols-1 gap-5 sm:grid-cols-3">
-    <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg border border-gray-200 dark:border-gray-700">
+    <div class="bg-card overflow-hidden shadow rounded-lg border border-border">
       <div class="p-5">
         <div class="flex items-center">
           <div class="flex-shrink-0">
-            <svg class="h-6 w-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="h-6 w-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
             </svg>
           </div>
           <div class="ml-5 w-0 flex-1">
             <dl>
-              <dt class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">Files Uploaded</dt>
-              <dd class="text-lg font-medium text-gray-900 dark:text-white"><%= @user.excel_files.count %></dd>
+              <dt class="text-sm font-medium text-muted-foreground truncate">Files Uploaded</dt>
+              <dd class="text-lg font-medium text-foreground"><%= @user.excel_files.count %></dd>
             </dl>
           </div>
         </div>
       </div>
     </div>
 
-    <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg border border-gray-200 dark:border-gray-700">
+    <div class="bg-card overflow-hidden shadow rounded-lg border border-border">
       <div class="p-5">
         <div class="flex items-center">
           <div class="flex-shrink-0">
-            <svg class="h-6 w-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="h-6 w-6 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
             </svg>
           </div>
           <div class="ml-5 w-0 flex-1">
             <dl>
-              <dt class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">Analyses Run</dt>
-              <dd class="text-lg font-medium text-gray-900 dark:text-white"><%= @user.analyses.count %></dd>
+              <dt class="text-sm font-medium text-muted-foreground truncate">Analyses Run</dt>
+              <dd class="text-lg font-medium text-foreground"><%= @user.analyses.count %></dd>
             </dl>
           </div>
         </div>
       </div>
     </div>
 
-    <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg border border-gray-200 dark:border-gray-700">
+    <div class="bg-card overflow-hidden shadow rounded-lg border border-border">
       <div class="p-5">
         <div class="flex items-center">
           <div class="flex-shrink-0">
-            <svg class="h-6 w-6 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="h-6 w-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
             </svg>
           </div>
           <div class="ml-5 w-0 flex-1">
             <dl>
-              <dt class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">Chat Messages</dt>
-              <dd class="text-lg font-medium text-gray-900 dark:text-white"><%= @user.chat_conversations.joins(:chat_messages).count rescue 0 %></dd>
+              <dt class="text-sm font-medium text-muted-foreground truncate">Chat Messages</dt>
+              <dd class="text-lg font-medium text-foreground"><%= @user.chat_conversations.joins(:chat_messages).count rescue 0 %></dd>
             </dl>
           </div>
         </div>

@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>오류가 발생했습니다 - ExcelApp</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <style>
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        margin: 0;
+        padding: 20px;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      
+      .error-container {
+        background: white;
+        border-radius: 12px;
+        padding: 40px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        max-width: 500px;
+        text-align: center;
+      }
+      
+      .error-icon {
+        font-size: 64px;
+        margin-bottom: 20px;
+        color: #e74c3c;
+      }
+      
+      h1 {
+        color: #2c3e50;
+        margin-bottom: 10px;
+        font-size: 24px;
+        font-weight: 600;
+      }
+      
+      p {
+        color: #7f8c8d;
+        line-height: 1.5;
+        margin-bottom: 30px;
+      }
+      
+      .btn {
+        background: #3498db;
+        color: white;
+        padding: 12px 24px;
+        border: none;
+        border-radius: 6px;
+        text-decoration: none;
+        display: inline-block;
+        font-weight: 500;
+        transition: background 0.3s;
+      }
+      
+      .btn:hover {
+        background: #2980b9;
+      }
+      
+      .error-id {
+        background: #f8f9fa;
+        padding: 8px 16px;
+        border-radius: 4px;
+        font-family: monospace;
+        font-size: 12px;
+        color: #666;
+        margin-top: 20px;
+        border: 1px solid #dee2e6;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="error-container">
+      <div class="error-icon">⚠️</div>
+      <h1>오류가 발생했습니다</h1>
+      <p>
+        요청을 처리하는 중에 문제가 발생했습니다.<br>
+        잠시 후 다시 시도해주세요.
+      </p>
+      
+      <%= link_to '홈으로 돌아가기', root_path, class: 'btn' %>
+      
+      <% if Current.request_id %>
+        <div class="error-id">
+          오류 ID: <%= Current.request_id %>
+        </div>
+      <% end %>
+    </div>
+  </body>
+</html>

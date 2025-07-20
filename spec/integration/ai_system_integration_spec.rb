@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe 'AI System Integration', type: :integration do
-  let(:user) { create(:user, :pro, tokens: 500) }
+  let(:user) { create(:user, :pro, credits: 500) }
   let(:excel_file) { create(:excel_file, user: user) }
 
   before do
@@ -26,7 +26,7 @@ RSpec.describe 'AI System Integration', type: :integration do
         result = handler.execute
 
         expect(result).to be_success
-        expect(result.value).to include(:message, :analysis_id, :errors_found, :ai_tier_used, :tokens_used)
+        expect(result.value).to include(:message, :analysis_id, :errors_found, :ai_tier_used, :credits_used)
 
         # Verify file status updated
         excel_file.reload
@@ -36,7 +36,7 @@ RSpec.describe 'AI System Integration', type: :integration do
         analysis = excel_file.latest_analysis
         expect(analysis).to be_present
         expect(analysis.ai_tier_used).to be_present
-        expect(analysis.tokens_used).to be > 0
+        expect(analysis.credits_used).to be > 0
       end
 
       it 'escalates to tier 2 when confidence is low' do
@@ -56,11 +56,11 @@ RSpec.describe 'AI System Integration', type: :integration do
 
         analysis = excel_file.reload.latest_analysis
         expect(analysis.ai_tier_used).to eq(2)
-        expect(analysis.tokens_used).to be > 100 # Should use more tokens for tier 2
+        expect(analysis.credits_used).to be > 100 # Should use more tokens for tier 2
       end
 
       it 'handles insufficient tokens gracefully' do
-        user.update!(tokens: 2) # Not enough for any tier
+        user.update!(credits: 2) # Not enough for any tier
 
         handler = ExcelAnalysis::Handlers::AnalyzeExcelHandler.new(
           excel_file: excel_file,
@@ -183,16 +183,16 @@ RSpec.describe 'AI System Integration', type: :integration do
       chat_message = conversation.reload.chat_messages.last
       expect(chat_message.content).to be_present
       expect(chat_message.ai_tier_used).to be_present
-      expect(chat_message.tokens_used).to be > 0
+      expect(chat_message.credits_used).to be > 0
 
       # Verify user tokens were consumed
       user.reload
-      expect(user.tokens).to be < 500
+      expect(user.credits).to be < 500
     end
 
     it 'handles chat feedback system' do
       # Create a chat message first
-      chat_message = create(:chat_message, 
+      chat_message = create(:chat_message,
         chat_conversation: conversation,
         user: user,
         role: 'assistant',
@@ -273,7 +273,7 @@ RSpec.describe 'AI System Integration', type: :integration do
     it 'handles concurrent analysis requests' do
       # Create multiple files
       files = 3.times.map { create(:excel_file, user: user) }
-      
+
       # Process them concurrently
       threads = files.map do |file|
         Thread.new do

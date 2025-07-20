@@ -1,23 +1,23 @@
 <% content_for :title, "AI 학습 관리" %>
 
-<div class="min-h-screen bg-gray-50">
+<div class="min-h-screen bg-background">
   <div class="container mx-auto px-4 py-8">
     <!-- Page Header -->
     <div class="flex items-center justify-between mb-8">
       <div>
-        <div class="flex items-center gap-2 text-sm text-gray-600 mb-2">
-          <%= link_to "관리자", admin_root_path, class: "hover:text-gray-900" %>
+        <div class="flex items-center gap-2 text-sm text-muted-foreground mb-2">
+          <%= link_to "관리자", admin_root_path, class: "hover:text-foreground" %>
           <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
           </svg>
-          <%= link_to "지식 베이스", admin_knowledge_base_root_path, class: "hover:text-gray-900" %>
+          <%= link_to "지식 베이스", admin_knowledge_base_root_path, class: "hover:text-foreground" %>
           <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
           </svg>
           <span>AI 학습 관리</span>
         </div>
-        <h1 class="text-3xl font-bold text-gray-900">AI 학습 관리</h1>
-        <p class="text-gray-600 mt-2">AI 모델의 학습 상태를 모니터링하고 관리하세요</p>
+        <h1 class="text-3xl font-bold text-foreground">AI 학습 관리</h1>
+        <p class="text-muted-foreground mt-2">AI 모델의 학습 상태를 모니터링하고 관리하세요</p>
       </div>
       <div class="flex gap-2">
         <%= render Ui::ButtonComponent.new do %>
@@ -30,37 +30,37 @@
 
     <!-- Learning Statistics -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-      <div class="bg-white rounded-lg shadow p-6">
-        <h3 class="text-lg font-semibold text-gray-900 mb-4">학습 데이터</h3>
+      <div class="bg-card rounded-lg shadow p-6">
+        <h3 class="text-lg font-semibold text-foreground mb-4">학습 데이터</h3>
         <div class="space-y-3">
           <div class="flex justify-between">
-            <span class="text-gray-600">총 훈련 데이터:</span>
+            <span class="text-muted-foreground">총 훈련 데이터:</span>
             <span class="font-semibold"><%= number_with_delimiter(@learning_stats[:total_training_data]) %></span>
           </div>
           <div class="flex justify-between">
-            <span class="text-gray-600">모델 버전:</span>
+            <span class="text-muted-foreground">모델 버전:</span>
             <span class="font-semibold"><%= @learning_stats[:model_version] %></span>
           </div>
           <div class="flex justify-between">
-            <span class="text-gray-600">마지막 학습:</span>
+            <span class="text-muted-foreground">마지막 학습:</span>
             <span class="font-semibold"><%= time_ago_in_words(@learning_stats[:last_training]) %> 전</span>
           </div>
         </div>
       </div>
 
-      <div class="bg-white rounded-lg shadow p-6">
-        <h3 class="text-lg font-semibold text-gray-900 mb-4">정확도 지표</h3>
+      <div class="bg-card rounded-lg shadow p-6">
+        <h3 class="text-lg font-semibold text-foreground mb-4">정확도 지표</h3>
         <div class="space-y-3">
           <div class="flex justify-between">
-            <span class="text-gray-600">훈련 정확도:</span>
-            <span class="font-semibold text-green-600"><%= @learning_stats[:training_accuracy] %>%</span>
+            <span class="text-muted-foreground">훈련 정확도:</span>
+            <span class="font-semibold text-success"><%= @learning_stats[:training_accuracy] %>%</span>
           </div>
           <div class="flex justify-between">
-            <span class="text-gray-600">검증 정확도:</span>
-            <span class="font-semibold text-blue-600"><%= @learning_stats[:validation_accuracy] %>%</span>
+            <span class="text-muted-foreground">검증 정확도:</span>
+            <span class="font-semibold text-primary"><%= @learning_stats[:validation_accuracy] %>%</span>
           </div>
           <div class="flex justify-between">
-            <span class="text-gray-600">학습 상태:</span>
+            <span class="text-muted-foreground">학습 상태:</span>
             <%= render Ui::BadgeComponent.new(variant: :success) do %>
               <%= @learning_stats[:training_status].humanize %>
             <% end %>
@@ -68,19 +68,19 @@
         </div>
       </div>
 
-      <div class="bg-white rounded-lg shadow p-6">
-        <h3 class="text-lg font-semibold text-gray-900 mb-4">학습 지표</h3>
+      <div class="bg-card rounded-lg shadow p-6">
+        <h3 class="text-lg font-semibold text-foreground mb-4">학습 지표</h3>
         <div class="space-y-3">
           <div class="flex justify-between">
-            <span class="text-gray-600">완료된 에포크:</span>
+            <span class="text-muted-foreground">완료된 에포크:</span>
             <span class="font-semibold"><%= @training_metrics[:epochs_completed] %>/<%= @training_metrics[:total_epochs] %></span>
           </div>
           <div class="flex justify-between">
-            <span class="text-gray-600">현재 손실:</span>
+            <span class="text-muted-foreground">현재 손실:</span>
             <span class="font-semibold"><%= @training_metrics[:current_loss] %></span>
           </div>
           <div class="flex justify-between">
-            <span class="text-gray-600">학습 시간:</span>
+            <span class="text-muted-foreground">학습 시간:</span>
             <span class="font-semibold"><%= @training_metrics[:training_time] %></span>
           </div>
         </div>
@@ -88,15 +88,15 @@
     </div>
 
     <!-- Model Status -->
-    <div class="bg-white rounded-lg shadow p-6 mb-8">
-      <h3 class="text-lg font-semibold text-gray-900 mb-4">모델 상태</h3>
+    <div class="bg-card rounded-lg shadow p-6 mb-8">
+      <h3 class="text-lg font-semibold text-foreground mb-4">모델 상태</h3>
       <div class="space-y-4">
         <% @model_status.each do |model| %>
           <div class="border rounded-lg p-4">
             <div class="flex items-center justify-between mb-3">
               <div>
-                <h4 class="font-semibold text-gray-900"><%= model[:name] %></h4>
-                <p class="text-sm text-gray-500">버전: <%= model[:version] %></p>
+                <h4 class="font-semibold text-foreground"><%= model[:name] %></h4>
+                <p class="text-sm text-muted-foreground">버전: <%= model[:version] %></p>
               </div>
               <div class="flex items-center gap-2">
                 <%= render Ui::BadgeComponent.new(
@@ -126,12 +126,12 @@
             
             <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
               <div>
-                <p class="text-sm text-gray-500">정확도</p>
-                <p class="font-medium text-gray-900"><%= model[:accuracy] %>%</p>
+                <p class="text-sm text-muted-foreground">정확도</p>
+                <p class="font-medium text-foreground"><%= model[:accuracy] %>%</p>
               </div>
               <div>
-                <p class="text-sm text-gray-500">마지막 업데이트</p>
-                <p class="font-medium text-gray-900"><%= time_ago_in_words(model[:last_updated]) %> 전</p>
+                <p class="text-sm text-muted-foreground">마지막 업데이트</p>
+                <p class="font-medium text-foreground"><%= time_ago_in_words(model[:last_updated]) %> 전</p>
               </div>
               <div class="flex items-center gap-2">
                 <%= render Ui::ButtonComponent.new(variant: :outline, size: :sm) do %>
@@ -149,10 +149,10 @@
     </div>
 
     <!-- Training History Chart Placeholder -->
-    <div class="bg-white rounded-lg shadow p-6">
-      <h3 class="text-lg font-semibold text-gray-900 mb-4">학습 히스토리</h3>
-      <div class="h-64 bg-gray-100 rounded-lg flex items-center justify-center">
-        <p class="text-gray-500">학습 진행 차트가 여기에 표시됩니다</p>
+    <div class="bg-card rounded-lg shadow p-6">
+      <h3 class="text-lg font-semibold text-foreground mb-4">학습 히스토리</h3>
+      <div class="h-64 bg-muted rounded-lg flex items-center justify-center">
+        <p class="text-muted-foreground">학습 진행 차트가 여기에 표시됩니다</p>
       </div>
     </div>
   </div>

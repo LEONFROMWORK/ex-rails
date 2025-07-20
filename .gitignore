@@ -4,12 +4,17 @@
 # or operating system, you probably want to add a global ignore instead:
 #   git config --global core.excludesfile '~/.gitignore_global'
 
+####################
+# Rails Specific
+####################
+
 # Ignore bundler config.
 /.bundle
 
 # Ignore all environment files (except templates).
 /.env*
 !/.env*.erb
+!/.env.example
 
 # Ignore all logfiles and tempfiles.
 /log/*
@@ -29,6 +34,7 @@
 !/tmp/storage/
 !/tmp/storage/.keep
 
+# Ignore precompiled assets.
 /public/assets
 
 # Ignore master key for decrypting credentials and more.
@@ -37,45 +43,170 @@
 # Ignore application configuration
 /config/application.yml
 
-# Ignore node_modules
-/node_modules
-
-# Ignore yarn files
-/yarn-error.log
-yarn-debug.log*
-
-# Ignore .DS_Store files
-.DS_Store
-
-# Ignore coverage files
-/coverage/
-
-# Ignore test files
-/spec/tmp/
-/spec/examples.txt
-
-# Ignore database files
-*.sqlite3
-*.sqlite3-journal
-
-# Ignore log files
-*.log
-
-# Ignore uploads
-/public/uploads
-
-# Ignore compiled assets
-/public/assets/
-
 # Ignore Solid Queue files
 /tmp/solid_queue*
 
-# Ignore editor files
+####################
+# Database
+####################
+
+# SQLite databases
+*.sqlite3
+*.sqlite3-journal
+*.sqlite3-*
+
+# PostgreSQL
+*.dump
+
+####################
+# Node.js & JavaScript
+####################
+
+# Dependencies
+/node_modules
+/formula_service/node_modules
+
+# Yarn files
+/yarn-error.log
+yarn-debug.log*
+.yarn-integrity
+
+# npm files
+npm-debug.log*
+.npm
+
+# Build outputs
+/dist
+/build
+
+####################
+# Testing & Coverage
+####################
+
+# Coverage files
+/coverage/
+/spec/tmp/
+/spec/examples.txt
+
+# Test artifacts
+*.rbc
+capybara-*.html
+.rspec
+/spec/reports/
+/test/tmp/
+/test/version_tmp/
+
+# Capybara screenshots
+/tmp/capybara/
+
+# Test files in formula_service
+/formula_service/tests/
+/formula_service/temp/
+/formula_service/*.test.js
+/formula_service/*_test.js
+
+####################
+# Development Tools
+####################
+
+# Editor files
 .vscode/
 .idea/
 *.swp
 *.swo
 *~
+*.sublime-*
 
-# Ignore OS files
+# Ruby debugging
+.byebug_history
+
+# Spring
+/spring/*.pid
+
+####################
+# Operating System
+####################
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
 Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
+
+####################
+# Logs
+####################
+
+*.log
+/scout_apm.log
+
+####################
+# Uploads & User Content
+####################
+
+/public/uploads
+/public/packs
+/public/packs-test
+
+####################
+# Secrets & Security
+####################
+
+# API keys and secrets
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# SSH keys
+*.pem
+*.key
+!*.key.example
+
+####################
+# Deployment
+####################
+
+# Docker
+.dockerignore
+docker-compose.override.yml
+
+# Railway
+.railway
+
+# Render
+.render
+
+####################
+# AI & ML Models
+####################
+
+# Model files
+*.model
+*.pkl
+*.pickle
+*.h5
+*.onnx
+
+# Vector databases
+/vector_db
+/chroma_db
+
+# Vite Ruby
+/public/vite*
+node_modules
+# Vite uses dotenv and suggests to ignore local-only env files. See
+# https://vitejs.dev/guide/env-and-mode.html#env-files
+*.local
+

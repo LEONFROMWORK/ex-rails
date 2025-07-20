@@ -12,10 +12,10 @@ class CreateExcelFiles < ActiveRecord::Migration[8.0]
       t.integer :row_count
       t.integer :column_count
       t.string :file_format
-      
+
       t.timestamps
     end
-    
+
     add_index :excel_files, :status
     add_index :excel_files, :content_hash
     add_index :excel_files, :created_at

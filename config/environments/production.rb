@@ -55,7 +55,7 @@ Rails.application.configure do
   # config.action_mailer.raise_delivery_errors = false
 
   # Set host to be used by links generated in mailer templates.
-  config.action_mailer.default_url_options = { host: "example.com" }
+  config.action_mailer.default_url_options = { host: ENV.fetch("RAILS_HOST", "localhost:3000") }
 
   # Specify outgoing SMTP server. Remember to add smtp/* credentials via rails credentials:edit.
   # config.action_mailer.smtp_settings = {
@@ -79,15 +79,18 @@ Rails.application.configure do
   # Allow asset precompilation without secret_key_base
   config.require_master_key = false
 
-  # Force SECRET_KEY_BASE for deployment
-  config.secret_key_base = ENV['SECRET_KEY_BASE'] || 'hardcoded_secret_key_base_for_production_deployment_fix_12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456'
+  # Force SECRET_KEY_BASE for deployment - SECURITY: No fallback for production
+  config.secret_key_base = ENV.fetch("SECRET_KEY_BASE") do
+    raise "SECRET_KEY_BASE environment variable must be set in production"
+  end
 
   # Enable DNS rebinding protection and other `Host` header attacks.
-  # config.hosts = [
-  #   "example.com",     # Allow requests from example.com
-  #   /.*\.example\.com/ # Allow requests from subdomains like `www.example.com`
-  # ]
-  #
+  config.hosts = [
+    ENV.fetch("RAILS_HOST", "localhost").split(":").first,  # Allow main host
+    /.*\.railway\.app/,  # Allow Railway domains
+    "localhost"  # Allow localhost for health checks
+  ]
+
   # Skip DNS rebinding protection for the default health check endpoint.
-  # config.host_authorization = { exclude: ->(request) { request.path == "/up" } }
+  config.host_authorization = { exclude: ->(request) { request.path == "/up" } }
 end

@@ -2,162 +2,217 @@
 
 module Api
   module V1
-    class PaymentsController < ApplicationController
+    class PaymentsController < ApiController
       before_action :authenticate_user!
-      before_action :set_payment_handler
+      before_action :set_payment_service
+      before_action :set_payment, only: [ :show, :cancel ]
 
-      # POST /api/v1/payments
-      def create
-        request_model = PaymentProcessing::Models::PaymentRequest.new(payment_params.merge(user: current_user))
-        
-        unless request_model.valid?
-          return render json: {
-            success: false,
-            errors: request_model.errors.full_messages
-          }, status: :unprocessable_entity
-        end
-
-        unless request_model.valid_for_user?
-          return render json: {
-            success: false,
-            errors: ['User is not eligible for this payment type']
-          }, status: :forbidden
-        end
-
-        result = @payment_handler.create_payment(request_model)
-
-        if result.success?
-          render json: {
-            success: true,
-            data: result.value
-          }, status: :created
-        else
-          render json: {
-            success: false,
-            error: result.error.message
-          }, status: :unprocessable_entity
-        end
-      end
-
-      # POST /api/v1/payments/confirm
-      def confirm
-        confirmation_request = PaymentProcessing::Models::PaymentConfirmationRequest.new(confirmation_params)
-        
-        unless confirmation_request.valid?
-          return render json: {
-            success: false,
-            errors: confirmation_request.errors.full_messages
-          }, status: :unprocessable_entity
-        end
-
-        result = @payment_handler.confirm_payment(confirmation_request)
-
-        if result.success?
-          render json: {
-            success: true,
-            data: result.value
-          }
-        else
-          render json: {
-            success: false,
-            error: result.error.message
-          }, status: :unprocessable_entity
-        end
-      end
-
-      # GET /api/v1/payments
-      def index
-        handler = UserManagement::Handlers::ListPaymentsHandler.new(
+      # POST /api/v1/payments/request
+      def request
+        result = @payment_service.request_payment(
           user: current_user,
-          page: params[:page] || 1,
-          per_page: params[:per_page] || 10
+          amount: payment_params[:amount],
+          order_name: payment_params[:order_name],
+          method: payment_params[:payment_method] || "card",
+          success_url: payment_params[:success_url],
+          fail_url: payment_params[:fail_url]
         )
-        
-        result = handler.execute
-        
-        if result.success?
-          render json: {
-            success: true,
-            data: result.value[:payments].map { |payment| serialize_payment(payment) },
-            pagination: {
-              current_page: result.value[:current_page],
-              per_page: result.value[:per_page],
-              total_pages: result.value[:total_pages],
-              total_count: result.value[:total_count]
-            }
+
+        render json: {
+          success: true,
+          data: result
+        }
+      rescue PaymentService::PaymentError => e
+        render json: {
+          success: false,
+          error: e.message
+        }, status: :unprocessable_entity
+      end
+
+      # POST /api/v1/payments/approve
+      def approve
+        payment = @payment_service.approve_payment(
+          payment_key: approval_params[:payment_key],
+          order_id: approval_params[:order_id],
+          amount: approval_params[:amount]
+        )
+
+        render json: {
+          success: true,
+          data: {
+            payment_id: payment.id,
+            status: payment.status,
+            transaction_id: payment.transaction_id,
+            approved_at: payment.approved_at
           }
-        else
-          render json: {
-            success: false,
-            error: result.error.message
-          }, status: :unprocessable_entity
-        end
+        }
+      rescue PaymentService::PaymentError => e
+        render json: {
+          success: false,
+          error: e.message
+        }, status: :unprocessable_entity
       end
 
       # GET /api/v1/payments/:id
       def show
-        payment = current_user.payments.find(params[:id])
-        
         render json: {
           success: true,
-          data: serialize_payment(payment)
+          data: payment_json(@payment)
         }
-      rescue ActiveRecord::RecordNotFound
-        render json: {
-          success: false,
-          error: 'Payment not found'
-        }, status: :not_found
       end
 
-      # POST /api/v1/payments/webhook
-      def webhook
-        webhook_request = PaymentProcessing::Models::WebhookRequest.new(
-          payload: request.raw_post,
-          signature: request.headers['X-Toss-Signature']
+      # POST /api/v1/payments/:id/cancel
+      def cancel
+        unless @payment.can_cancel?
+          return render json: {
+            success: false,
+            error: "취소할 수 없는 결제 상태입니다"
+          }, status: :unprocessable_entity
+        end
+
+        payment = @payment_service.cancel_payment(
+          payment_key: @payment.transaction_id,
+          cancel_reason: cancel_params[:reason],
+          cancel_amount: cancel_params[:amount]
         )
 
-        unless webhook_request.valid?
-          return head :bad_request
-        end
+        render json: {
+          success: true,
+          data: payment_json(payment)
+        }
+      rescue PaymentService::PaymentError => e
+        render json: {
+          success: false,
+          error: e.message
+        }, status: :unprocessable_entity
+      end
 
-        result = @payment_handler.handle_webhook(webhook_request)
+      # GET /api/v1/payments
+      def index
+        payments = current_user.payments
+                              .includes(:user)
+                              .order(created_at: :desc)
+                              .page(params[:page])
+                              .per(params[:per_page] || 20)
 
-        if result.success?
-          head :ok
-        else
-          Rails.logger.error("Webhook processing failed: #{result.error}")
-          head :unprocessable_entity
-        end
+        render json: {
+          success: true,
+          data: {
+            payments: payments.map { |p| payment_json(p) },
+            meta: pagination_meta(payments)
+          }
+        }
+      end
+
+      # POST /api/v1/payments/billing_key
+      def issue_billing_key
+        billing_key = @payment_service.issue_billing_key(
+          user: current_user,
+          auth_key: billing_key_params[:auth_key],
+          customer_key: billing_key_params[:customer_key]
+        )
+
+        render json: {
+          success: true,
+          data: {
+            billing_key_id: billing_key.id,
+            billing_key: billing_key.billing_key,
+            card_number: billing_key.masked_card_number,
+            card_brand: billing_key.card_brand
+          }
+        }
+      rescue PaymentService::PaymentError => e
+        render json: {
+          success: false,
+          error: e.message
+        }, status: :unprocessable_entity
+      end
+
+      # POST /api/v1/payments/billing
+      def pay_with_billing
+        payment = @payment_service.pay_with_billing_key(
+          user: current_user,
+          billing_key: billing_params[:billing_key],
+          amount: billing_params[:amount],
+          order_name: billing_params[:order_name]
+        )
+
+        render json: {
+          success: true,
+          data: payment_json(payment)
+        }
+      rescue PaymentService::PaymentError => e
+        render json: {
+          success: false,
+          error: e.message
+        }, status: :unprocessable_entity
       end
 
       private
 
-      def set_payment_handler
-        @payment_handler = PaymentProcessing::Handlers::PaymentHandler.new
+      def set_payment_service
+        @payment_service = PaymentService.new
+      end
+
+      def set_payment
+        @payment = current_user.payments.find(params[:id])
       end
 
       def payment_params
-        params.require(:payment).permit(:amount, :payment_type, :currency)
+        params.require(:payment).permit(
+          :amount,
+          :order_name,
+          :payment_method,
+          :success_url,
+          :fail_url
+        )
       end
 
-      def confirmation_params
-        params.permit(:order_id, :payment_key, :amount)
+      def approval_params
+        params.require(:payment).permit(:payment_key, :order_id, :amount)
       end
 
-      def serialize_payment(payment)
+      def cancel_params
+        params.require(:payment).permit(:reason, :amount)
+      end
+
+      def billing_key_params
+        params.require(:billing_key).permit(:auth_key, :customer_key)
+      end
+
+      def billing_params
+        params.require(:payment).permit(:billing_key, :amount, :order_name)
+      end
+
+      def payment_json(payment)
         {
           id: payment.id,
+          order_id: payment.order_id,
+          transaction_id: payment.transaction_id,
+          payment_method: payment.payment_method,
           amount: payment.amount,
           formatted_amount: payment.formatted_amount,
-          payment_method: payment.display_payment_method,
+          currency: payment.currency,
           status: payment.status,
-          processed_at: payment.processed_at,
-          payment_intent: {
-            order_id: payment.payment_intent.order_id,
-            payment_type: payment.payment_intent.payment_type,
-            display_name: payment.payment_intent.display_name
-          },
-          can_be_refunded: payment.can_be_refunded?
+          card_number: payment.card_number,
+          card_type: payment.card_type,
+          receipt_url: payment.receipt_url,
+          approved_at: payment.approved_at,
+          canceled_at: payment.canceled_at,
+          failed_at: payment.failed_at,
+          failure_code: payment.failure_code,
+          failure_message: payment.failure_message,
+          created_at: payment.created_at,
+          updated_at: payment.updated_at
+        }
+      end
+
+      def pagination_meta(collection)
+        {
+          current_page: collection.current_page,
+          total_pages: collection.total_pages,
+          total_count: collection.total_count,
+          per_page: collection.limit_value
         }
       end
     end

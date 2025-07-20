@@ -1,123 +1,84 @@
-<!-- Mobile header -->
-<div class="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-4 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 shadow-sm sm:gap-x-6 sm:px-6 lg:px-8" 
-     data-controller="mobile-menu">
-  <!-- Mobile menu button -->
-  <button data-action="mobile-menu#open" 
-          class="-m-2.5 p-2.5 text-gray-700 dark:text-gray-300 lg:hidden">
-    <span class="sr-only">Open sidebar</span>
-    <%= icon_svg('menu', 'h-6 w-6') %>
-  </button>
-
-  <!-- Separator -->
-  <div class="h-6 w-px bg-gray-200 dark:bg-gray-700 lg:hidden" aria-hidden="true"></div>
-
-  <!-- Breadcrumbs -->
-  <div class="flex flex-1 gap-x-4 self-stretch lg:gap-x-6">
-    <div class="flex items-center">
-      <nav class="flex" aria-label="Breadcrumb">
-        <ol role="list" class="flex items-center space-x-2">
-          <!-- Home breadcrumb -->
-          <li>
-            <div>
-              <%= link_to root_path, class: "text-gray-400 dark:text-gray-500 hover:text-gray-500 dark:hover:text-gray-400" do %>
-                <svg class="h-5 w-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
-                  <path fill-rule="evenodd" d="M9.293 2.293a1 1 0 011.414 0l7 7A1 1 0 0117 11h-1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-3a1 1 0 00-1-1H9a1 1 0 00-1 1v3a1 1 0 01-1 1H5a1 1 0 01-1-1v-6H3a1 1 0 01-.707-1.707l7-7z" clip-rule="evenodd" />
-                </svg>
-                <span class="sr-only">Home</span>
-              <% end %>
-            </div>
-          </li>
-
-          <!-- Dynamic breadcrumbs -->
-          <% breadcrumbs.each_with_index do |breadcrumb, index| %>
-            <li>
-              <div class="flex items-center">
-                <%= icon_svg('chevron-right', 'h-5 w-5 flex-shrink-0 text-gray-300 dark:text-gray-600') %>
-                <% if breadcrumb[:path] %>
-                  <%= link_to breadcrumb[:name], breadcrumb[:path], 
-                      class: "ml-2 text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300" %>
-                <% else %>
-                  <span class="ml-2 text-sm font-medium text-gray-900 dark:text-white">
-                    <%= breadcrumb[:name] %>
-                  </span>
-                <% end %>
-              </div>
-            </li>
-          <% end %>
-        </ol>
-      </nav>
-    </div>
-
-    <!-- Header actions -->
-    <div class="ml-auto flex items-center gap-x-4 lg:gap-x-6">
-      <!-- Search button (mobile) -->
-      <button class="p-2.5 text-gray-400 dark:text-gray-500 hover:text-gray-500 dark:hover:text-gray-400 sm:hidden">
-        <span class="sr-only">Search</span>
-        <%= icon_svg('search', 'h-6 w-6') %>
-      </button>
-
-      <!-- Search form (desktop) -->
-      <form class="relative hidden sm:flex sm:items-center" action="#" method="GET">
-        <label for="search-field" class="sr-only">Search</label>
-        <div class="relative">
-          <%= icon_svg('search', 'pointer-events-none absolute inset-y-0 left-0 h-full w-5 pl-3 text-gray-400 dark:text-gray-500') %>
-          <input id="search-field" 
-                 class="block h-full w-full border-0 py-0 pl-10 pr-0 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:ring-0 sm:text-sm bg-transparent" 
-                 placeholder="Search..." 
-                 type="search" 
-                 name="search">
+<!-- Modern Clean Header -->
+<header class="fixed top-0 left-0 right-0 h-16 bg-background/80 backdrop-blur-md border-b border-border z-40">
+  <div class="h-full px-4 sm:px-6 lg:px-8">
+    <div class="h-full flex items-center justify-between">
+      <!-- Left Section: Logo & Title -->
+      <div class="flex items-center space-x-4">
+        <!-- Logo -->
+        <div class="flex items-center space-x-3">
+          <div class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+            <span class="text-primary-foreground font-bold text-sm">EA</span>
+          </div>
+          <h1 class="text-lg font-semibold text-foreground hidden sm:block">ExcelApp</h1>
         </div>
-      </form>
-
-      <!-- Theme Toggle -->
-      <div class="hidden sm:block">
-        <%= render Ui::ThemeToggleComponent.new(size: :sm, show_label: false) %>
+        
+        <!-- Divider -->
+        <div class="hidden lg:block h-6 w-px bg-border"></div>
+        
+        <!-- Page Title -->
+        <div class="hidden lg:block">
+          <h2 class="text-sm font-medium text-foreground"><%= page_title %></h2>
+        </div>
       </div>
 
-      <!-- Notifications -->
-      <button class="p-2.5 text-gray-400 dark:text-gray-500 hover:text-gray-500 dark:hover:text-gray-400">
-        <span class="sr-only">View notifications</span>
-        <%= icon_svg('bell', 'h-6 w-6') %>
-      </button>
+      <!-- Center Section: Search (Desktop) -->
+      <div class="hidden lg:block flex-1 max-w-md mx-8">
+        <div class="relative">
+          <input type="text" 
+                 placeholder="검색..."
+                 class="w-full px-4 py-2 pl-10 text-sm bg-muted border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all duration-200">
+          <svg class="absolute left-3 top-2.5 w-4 h-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+        </div>
+      </div>
 
-      <!-- Separator -->
-      <div class="hidden lg:block lg:h-6 lg:w-px lg:bg-gray-200 dark:lg:bg-gray-700" aria-hidden="true"></div>
-
-      <!-- User menu for mobile (shows on small screens) -->
-      <div class="lg:hidden" data-controller="dropdown">
-        <button data-action="dropdown#toggle" 
-                class="flex items-center p-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900">
-          <span class="sr-only">Open user menu</span>
-          <div class="h-8 w-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
-            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">
-              <%= current_user.name.first.upcase %>
-            </span>
-          </div>
+      <!-- Right Section: Actions -->
+      <div class="flex items-center space-x-2 sm:space-x-3">
+        <!-- Mobile Search Toggle -->
+        <button class="lg:hidden p-2 text-muted-foreground hover:text-foreground transition-colors duration-200">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+        </button>
+        
+        <!-- Theme Toggle -->
+        <button class="p-2 text-muted-foreground hover:text-foreground transition-colors duration-200"
+                data-controller="theme"
+                data-action="click->theme#toggle">
+          <svg class="w-5 h-5 block dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+          </svg>
+          <svg class="w-5 h-5 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+          </svg>
         </button>
 
-        <!-- Mobile user dropdown -->
-        <div data-dropdown-target="menu" 
-             class="hidden absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white dark:bg-gray-800 py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-          <%= link_to profile_path, 
-              class: "block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700" do %>
-            Your Profile
-          <% end %>
-          <%= link_to settings_path, 
-              class: "block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700" do %>
-            Settings
-          <% end %>
-          
-          <!-- Theme toggle for mobile header -->
-          <div class="px-4 py-2 border-t border-gray-200 dark:border-gray-700">
-            <%= render Ui::ThemeToggleComponent.new(size: :sm, show_label: true, position: :left) %>
-          </div>
-          
-          <%= link_to auth_logout_path, method: :delete,
-              class: "block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 border-t border-gray-200 dark:border-gray-700" do %>
-            Sign out
-          <% end %>
-        </div>
+        <!-- Notifications -->
+        <button class="relative p-2 text-muted-foreground hover:text-foreground transition-colors duration-200">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+          </svg>
+          <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-destructive rounded-full"></span>
+        </button>
+
+        <!-- Quick Upload Button -->
+        <%= link_to new_excel_file_path, 
+            class: "hidden sm:flex items-center px-4 py-2 text-sm font-medium text-primary-foreground bg-primary hover:bg-primary/90 rounded-lg transition-colors duration-200" do %>
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+          </svg>
+          <span>업로드</span>
+        <% end %>
+
+        <!-- Mobile Menu Toggle (shows right sidebar) -->
+        <button class="lg:hidden p-2 text-muted-foreground hover:text-foreground transition-colors duration-200"
+                data-action="click->sidebar#toggle">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
       </div>
     </div>
   </div>
-</div>
+</header>

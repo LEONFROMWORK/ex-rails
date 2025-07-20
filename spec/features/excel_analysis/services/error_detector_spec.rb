@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe Excel::ErrorDetector do
+RSpec.describe ExcelAnalysis::Services::ErrorDetector do
   let(:sample_file_data) do
     {
       worksheets: [
@@ -255,7 +255,7 @@ RSpec.describe Excel::ErrorDetector do
   describe 'error structure' do
     it 'includes all required fields in error objects' do
       errors = detector.detect_all_errors
-      
+
       expect(errors).not_to be_empty
       error = errors.first
 
@@ -298,7 +298,7 @@ RSpec.describe Excel::ErrorDetector do
           {
             name: 'NoFormulas',
             data: [
-              [{ value: 'Static', row: 0, col: 0 }]
+              [ { value: 'Static', row: 0, col: 0 } ]
             ],
             formulas: [],
             formula_count: 0,
@@ -311,7 +311,7 @@ RSpec.describe Excel::ErrorDetector do
       errors = detector.detect_all_errors
 
       # Should not have formula-related errors
-      formula_errors = errors.select { |e| [:formula_error, :circular_reference].include?(e[:type]) }
+      formula_errors = errors.select { |e| [ :formula_error, :circular_reference ].include?(e[:type]) }
       expect(formula_errors).to be_empty
     end
   end

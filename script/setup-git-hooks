@@ -1,0 +1,38 @@
+#!/bin/bash
+# Git hooks setup script for ExcelApp-Rails
+
+set -e
+
+echo "🔧 Setting up Git hooks for ExcelApp-Rails..."
+
+# Create hooks directory if it doesn't exist
+mkdir -p .git/hooks
+
+# Copy hooks from script directory
+if [ -f "script/hooks/pre-commit" ]; then
+    cp script/hooks/pre-commit .git/hooks/pre-commit
+    chmod +x .git/hooks/pre-commit
+    echo "✅ Pre-commit hook installed"
+fi
+
+if [ -f "script/hooks/pre-push" ]; then
+    cp script/hooks/pre-push .git/hooks/pre-push
+    chmod +x .git/hooks/pre-push
+    echo "✅ Pre-push hook installed"
+fi
+
+if [ -f "script/hooks/commit-msg" ]; then
+    cp script/hooks/commit-msg .git/hooks/commit-msg
+    chmod +x .git/hooks/commit-msg
+    echo "✅ Commit-msg hook installed"
+fi
+
+echo "🎉 Git hooks setup complete!"
+echo ""
+echo "Available hooks:"
+echo "  - pre-commit: Runs linting, formatting, and quick tests"
+echo "  - pre-push: Runs full test suite"
+echo "  - commit-msg: Validates commit message format"
+echo ""
+echo "To skip hooks during commit, use: git commit --no-verify"
+echo "To skip hooks during push, use: git push --no-verify"

@@ -7,7 +7,7 @@ module ExcelUpload
 
       def perform(excel_file_id)
         excel_file = ExcelFile.find(excel_file_id)
-        
+
         # Update status
         excel_file.update!(status: "processing")
         broadcast_progress(excel_file, "Starting file processing...", 0)
@@ -15,7 +15,7 @@ module ExcelUpload
         # Extract metadata
         metadata_service = ExcelUpload::Services::MetadataExtractorService.new(excel_file)
         metadata_result = metadata_service.extract
-        
+
         if metadata_result.success?
           excel_file.update!(
             metadata: metadata_result.value,

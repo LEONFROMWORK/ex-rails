@@ -6,7 +6,7 @@ class CreateUsers < ActiveRecord::Migration[8.0]
       t.string :name, null: false
       t.integer :role, default: 0, null: false
       t.integer :tier, default: 0, null: false
-      t.integer :tokens, default: 100, null: false
+      t.integer :credits, default: 100, null: false
       t.string :referral_code
       t.string :referred_by
       t.boolean :email_verified, default: false, null: false
@@ -16,10 +16,10 @@ class CreateUsers < ActiveRecord::Migration[8.0]
       t.string :confirmation_token
       t.datetime :confirmed_at
       t.datetime :confirmation_sent_at
-      
+
       t.timestamps
     end
-    
+
     add_index :users, :email, unique: true
     add_index :users, :referral_code, unique: true
     add_index :users, :role

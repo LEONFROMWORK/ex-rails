@@ -28,4 +28,112 @@
 #       enabled: "ON"
 
 en:
-  hello: "Hello world"
+  # Common
+  common:
+    app_name: "ExcelApp"
+    welcome: "Welcome"
+    loading: "Loading..."
+    error: "Error"
+    success: "Success"
+    warning: "Warning"
+    info: "Info"
+    confirm: "Confirm"
+    cancel: "Cancel"
+    save: "Save"
+    delete: "Delete"
+    edit: "Edit"
+    back: "Back"
+    next: "Next"
+    previous: "Previous"
+    search: "Search"
+    filter: "Filter"
+    sort: "Sort"
+    
+  # Authentication
+  auth:
+    login: "Login"
+    logout: "Logout"
+    register: "Sign up"
+    forgot_password: "Forgot password"
+    remember_me: "Remember me"
+    sign_in_with: "Sign in with %{provider}"
+    email: "Email"
+    password: "Password"
+    password_confirmation: "Password confirmation"
+    current_password: "Current password"
+    new_password: "New password"
+    
+  # Navigation
+  navigation:
+    home: "Home"
+    dashboard: "Dashboard"
+    excel_files: "Excel Files"
+    files: "Files"
+    chat: "AI Chat"
+    analytics: "Analytics"
+    api_keys: "API Keys"
+    profile: "Profile"
+    settings: "Settings"
+    billing: "Billing"
+    admin: "Admin"
+    admin_dashboard: "Admin Dashboard"
+    users: "Users"
+    analyses: "Analyses"
+    ai_cache: "AI Cache"
+    stats: "Stats"
+    tokens: "Tokens"
+    sign_out: "Sign out"
+    close_menu: "Close menu"
+    open_sidebar: "Open sidebar"
+    your_profile: "Your Profile"
+    view_notifications: "View notifications"
+    open_user_menu: "Open user menu"
+    search_placeholder: "Search..."
+    credits: "credits"
+    upload: "Upload"
+    analysis: "Analysis"
+    
+  # Home page
+  home:
+    hero:
+      title: "AI-Powered Excel Automation Platform"
+      subtitle: "Let AI handle your complex Excel tasks"
+      cta: "Get Started for Free"
+    features:
+      title: "Key Features"
+      ai_analysis: "AI Data Analysis"
+      ai_analysis_desc: "Advanced data pattern analysis and insights using AI models"
+      excel_automation: "Excel Automation"
+      excel_automation_desc: "Maximize efficiency by automating repetitive Excel tasks"
+      real_time_chat: "Real-time AI Chat"
+      real_time_chat_desc: "AI assistant that instantly answers Excel-related questions"
+      
+  # Excel files
+  excel:
+    upload: "Upload File"
+    download: "Download"
+    process: "Process"
+    analyzing: "Analyzing..."
+    file_name: "File Name"
+    file_size: "File Size"
+    uploaded_at: "Uploaded At"
+    status: "Status"
+    actions: "Actions"
+    
+  # Vue components
+  vue:
+    excel_uploader:
+      title: "Excel File Upload"
+      description: "Upload your Excel file to process and analyze data"
+      drag_drop: "Drag and drop your file here"
+      or_click: "or click to browse files"
+      select_file: "Select File"
+      uploading: "Uploading..."
+      upload_success: "Upload successful"
+      upload_error: "Upload failed. Please try again."
+      
+  # Theme
+  theme:
+    light: "Light Mode"
+    dark: "Dark Mode"
+    system: "System"

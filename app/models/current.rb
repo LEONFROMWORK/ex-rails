@@ -5,9 +5,9 @@ class Current < ActiveSupport::CurrentAttributes
   attribute :request_id
   attribute :user_agent
   attribute :ip_address
-  
+
   resets { Time.zone = nil }
-  
+
   def user=(user)
     super
     Time.zone = "Asia/Seoul"

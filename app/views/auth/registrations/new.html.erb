@@ -1,101 +1,113 @@
-<div class="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
-  <div class="max-w-md w-full space-y-8">
-    <div>
-      <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900 dark:text-white">
-        Create your account
-      </h2>
-      <p class="mt-2 text-center text-sm text-gray-600 dark:text-gray-300">
-        Or
-        <%= link_to "sign in to existing account", login_path, class: "font-medium text-blue-600 dark:text-blue-400 hover:text-blue-500 dark:hover:text-blue-300" %>
-      </p>
-    </div>
-    
-    <%= form_with model: @user, url: auth_signup_path, local: true, class: "mt-8 space-y-6" do |form| %>
-      <% if @user.errors.any? %>
-        <div class="rounded-md bg-red-50 dark:bg-red-900/50 p-4">
-          <div class="flex">
-            <div class="flex-shrink-0">
-              <svg class="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
-              </svg>
-            </div>
-            <div class="ml-3">
-              <h3 class="text-sm font-medium text-red-800 dark:text-red-200">
-                There were <%= pluralize(@user.errors.count, "error") %> with your submission
-              </h3>
-              <div class="mt-2 text-sm text-red-700 dark:text-red-300">
-                <ul class="list-disc pl-5 space-y-1">
+<div class="min-h-screen flex items-center justify-center bg-background py-12 px-4 sm:px-6 lg:px-8">
+  <div class="w-full max-w-md">
+    <%= render Ui::CardComponent.new do |card| %>
+      <% card.with_header do %>
+        <div class="space-y-1 text-center">
+          <h2 class="text-2xl font-bold tracking-tight">
+            Create your account
+          </h2>
+          <p class="text-sm text-muted-foreground">
+            Or
+            <%= link_to "sign in to existing account", auth_login_path, class: "font-medium text-primary hover:text-primary/80" %>
+          </p>
+        </div>
+      <% end %>
+      
+      <div class="p-6">
+        <%= form_with model: @user, url: auth_register_path, local: true, class: "space-y-6" do |form| %>
+          <% if @user.errors.any? %>
+            <%= render Ui::AlertComponent.new(variant: :destructive) do %>
+              <div>
+                <p class="font-medium">There were <%= pluralize(@user.errors.count, "error") %> with your submission</p>
+                <ul class="mt-2 list-disc list-inside text-sm">
                   <% @user.errors.full_messages.each do |message| %>
                     <li><%= message %></li>
                   <% end %>
                 </ul>
               </div>
-            </div>
+            <% end %>
+          <% end %>
+          
+          <div class="space-y-4">
+            <%= render Ui::InputComponent.new(
+              name: "user[name]",
+              label: "Full name",
+              placeholder: "John Doe",
+              required: true,
+              value: @user.name
+            ) %>
+            
+            <%= render Ui::InputComponent.new(
+              name: "user[email]",
+              label: "Email address",
+              type: "email",
+              placeholder: "name@example.com",
+              required: true,
+              value: @user.email
+            ) %>
+            
+            <%= render Ui::InputComponent.new(
+              name: "user[password]",
+              label: "Password",
+              type: "password",
+              placeholder: "Minimum 6 characters",
+              required: true
+            ) %>
+            
+            <%= render Ui::InputComponent.new(
+              name: "user[password_confirmation]",
+              label: "Confirm password",
+              type: "password",
+              placeholder: "Re-enter your password",
+              required: true
+            ) %>
+            
+            <% if params[:referral_code].present? %>
+              <div class="space-y-2">
+                <label class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                  Referral code
+                </label>
+                <input 
+                  type="text"
+                  name="referral_code"
+                  value="<%= params[:referral_code] %>"
+                  readonly
+                  class="flex h-10 w-full rounded-md border border-input bg-muted px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                <%= render Ui::BadgeComponent.new(variant: :success, class: "mt-2") do %>
+                  You'll receive bonus credits for using this referral code!
+                <% end %>
+              </div>
+            <% end %>
           </div>
-        </div>
-      <% end %>
-      
-      <div class="space-y-4">
-        <div>
-          <%= form.label :name, class: "block text-sm font-medium text-gray-700 dark:text-gray-300" %>
-          <%= form.text_field :name, 
-              autocomplete: "name", 
-              required: true, 
-              class: "mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white bg-white dark:bg-gray-800 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm",
-              placeholder: "Full name" %>
-        </div>
-        
-        <div>
-          <%= form.label :email, class: "block text-sm font-medium text-gray-700 dark:text-gray-300" %>
-          <%= form.email_field :email, 
-              autocomplete: "email", 
-              required: true, 
-              class: "mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white bg-white dark:bg-gray-800 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm",
-              placeholder: "Email address" %>
-        </div>
-        
-        <div>
-          <%= form.label :password, class: "block text-sm font-medium text-gray-700 dark:text-gray-300" %>
-          <%= form.password_field :password, 
-              autocomplete: "new-password", 
-              required: true,
-              class: "mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white bg-white dark:bg-gray-800 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm",
-              placeholder: "Password (minimum 6 characters)" %>
-        </div>
-        
-        <div>
-          <%= form.label :password_confirmation, class: "block text-sm font-medium text-gray-700 dark:text-gray-300" %>
-          <%= form.password_field :password_confirmation, 
-              autocomplete: "new-password", 
-              required: true,
-              class: "mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white bg-white dark:bg-gray-800 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm",
-              placeholder: "Confirm password" %>
-        </div>
-        
-        <% if params[:referral_code].present? %>
-          <div>
-            <%= label_tag :referral_code, "Referral code", class: "block text-sm font-medium text-gray-700 dark:text-gray-300" %>
-            <%= text_field_tag :referral_code, 
-                params[:referral_code], 
-                readonly: true,
-                class: "mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm" %>
-            <p class="mt-1 text-sm text-green-600 dark:text-green-400">You'll receive bonus tokens for using this referral code!</p>
+
+          <div class="space-y-4">
+            <p class="text-xs text-muted-foreground">
+              By signing up, you agree to our 
+              <%= link_to "Terms of Service", "#", class: "underline underline-offset-4 hover:text-primary" %> 
+              and 
+              <%= link_to "Privacy Policy", "#", class: "underline underline-offset-4 hover:text-primary" %>.
+            </p>
+            
+            <%= render Ui::ButtonComponent.new(
+              type: "submit",
+              variant: :default,
+              class: "w-full"
+            ) do %>
+              Create account
+            <% end %>
           </div>
         <% end %>
-      </div>
-
-      <div>
-        <p class="text-xs text-gray-500 dark:text-gray-400 mb-4">
-          By signing up, you agree to our Terms of Service and Privacy Policy.
-        </p>
-        <%= form.submit "Create account", class: "group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-900 focus:ring-blue-500" %>
+        
+        <div class="mt-6 text-center">
+          <%= render Ui::BadgeComponent.new(variant: :secondary, class: "inline-flex") do %>
+            <svg class="mr-1.5 h-3 w-3 text-green-500" fill="currentColor" viewBox="0 0 8 8">
+              <circle cx="4" cy="4" r="4" />
+            </svg>
+            You'll start with 100 free credits
+          <% end %>
+        </div>
       </div>
     <% end %>
-    
-    <div class="text-center">
-      <p class="text-sm text-gray-600 dark:text-gray-300">
-        You'll start with <span class="font-semibold">100 free tokens</span> to try our service!
-      </p>
-    </div>
   </div>
 </div>

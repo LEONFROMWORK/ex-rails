@@ -1,0 +1,172 @@
+# Pre-commit configuration for ExcelApp-Rails
+# See https://pre-commit.com for more information
+
+repos:
+  # Ruby/Rails specific hooks
+  - repo: local
+    hooks:
+      - id: rubocop
+        name: RuboCop
+        description: Ruby static code analyzer and formatter
+        entry: bundle exec rubocop
+        language: system
+        files: \.(rb|rake)$
+        require_serial: false
+        pass_filenames: true
+        additional_dependencies: []
+
+      - id: brakeman
+        name: Brakeman Security Scanner
+        description: Static analysis security scanner for Ruby on Rails
+        entry: bundle exec brakeman
+        language: system
+        files: \.(rb|rake)$
+        args: [--no-pager, --quiet, --exit-on-warn]
+        pass_filenames: false
+        require_serial: true
+
+      - id: rails-best-practices
+        name: Rails Best Practices
+        description: Code metric tool for Rails projects
+        entry: bundle exec rails_best_practices
+        language: system
+        files: \.(rb|rake)$
+        args: [--silent]
+        pass_filenames: false
+        require_serial: true
+
+  # JavaScript/TypeScript hooks
+  - repo: local
+    hooks:
+      - id: eslint
+        name: ESLint
+        description: JavaScript/TypeScript linting
+        entry: npx eslint
+        language: system
+        files: \.(js|jsx|ts|tsx)$
+        args: [--fix]
+        pass_filenames: true
+
+      - id: prettier
+        name: Prettier
+        description: Code formatter for JavaScript/TypeScript
+        entry: npx prettier
+        language: system
+        files: \.(js|jsx|ts|tsx|json|css|scss|md)$
+        args: [--write]
+        pass_filenames: true
+
+  # General code quality hooks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.4.0
+    hooks:
+      - id: trailing-whitespace
+        args: [--markdown-linebreak-ext=md]
+      - id: end-of-file-fixer
+      - id: check-yaml
+        args: [--allow-multiple-documents]
+      - id: check-json
+      - id: check-merge-conflict
+      - id: check-added-large-files
+        args: [--maxkb=5000]
+      - id: detect-private-key
+      - id: detect-aws-credentials
+      - id: check-case-conflict
+      - id: check-executables-have-shebangs
+      - id: check-shebang-scripts-are-executable
+
+  # Security scanning
+  - repo: local
+    hooks:
+      - id: git-secrets
+        name: Git Secrets Scanner
+        description: Prevents committing secrets to git
+        entry: git-secrets
+        language: system
+        args: [--scan]
+        files: .*
+        pass_filenames: false
+        require_serial: true
+
+  # Database and Rails specific
+  - repo: local
+    hooks:
+      - id: rails-db-schema-check
+        name: Rails Database Schema Check
+        description: Ensure db/schema.rb is included when migrations are present
+        entry: script/hooks/check-schema
+        language: system
+        files: ^db/migrate/.*\.rb$
+        pass_filenames: false
+
+      - id: rails-routes-check
+        name: Rails Routes Check
+        description: Check for unused routes
+        entry: bundle exec rails routes
+        language: system
+        files: ^config/routes\.rb$
+        args: [--unused]
+        pass_filenames: false
+
+  # Testing hooks
+  - repo: local
+    hooks:
+      - id: rspec-focus-check
+        name: RSpec Focus Check
+        description: Prevent committing focused specs
+        entry: script/hooks/check-rspec-focus
+        language: system
+        files: ^spec/.*_spec\.rb$
+        pass_filenames: false
+
+      - id: factory-lint
+        name: Factory Bot Lint
+        description: Lint Factory Bot factories
+        entry: bundle exec rake factory_bot:lint
+        language: system
+        files: ^spec/factories/.*\.rb$
+        pass_filenames: false
+
+  # Documentation hooks
+  - repo: local
+    hooks:
+      - id: readme-toc
+        name: README Table of Contents
+        description: Update README table of contents
+        entry: script/hooks/update-readme-toc
+        language: system
+        files: ^README\.md$
+        pass_filenames: false
+
+  # Commit message validation
+  - repo: https://github.com/compilerla/conventional-pre-commit
+    rev: v3.0.0
+    hooks:
+      - id: conventional-pre-commit
+        stages: [commit-msg]
+        args: [feat, fix, docs, style, refactor, test, chore, perf, ci, build]
+
+# Configuration for specific tools
+default_language_version:
+  python: python3
+  node: system
+
+# Exclude patterns
+exclude: |
+  (?x)^(
+    vendor/.*|
+    node_modules/.*|
+    public/assets/.*|
+    tmp/.*|
+    log/.*|
+    \.git/.*|
+    db/schema\.rb$|
+    Gemfile\.lock$|
+    package-lock\.json$
+  )$
+
+# CI configuration
+ci:
+  autofix_commit_msg: 'style: auto-fix by pre-commit hooks'
+  autoupdate_commit_msg: 'chore: update pre-commit hooks'
+  skip: []

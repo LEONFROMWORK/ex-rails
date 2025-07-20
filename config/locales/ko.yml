@@ -1,0 +1,188 @@
+ko:
+  # 공통
+  common:
+    app_name: "ExcelApp"
+    welcome: "환영합니다"
+    loading: "로딩 중..."
+    error: "오류"
+    success: "성공"
+    warning: "경고"
+    info: "정보"
+    confirm: "확인"
+    cancel: "취소"
+    save: "저장"
+    delete: "삭제"
+    edit: "수정"
+    back: "뒤로"
+    next: "다음"
+    previous: "이전"
+    search: "검색"
+    filter: "필터"
+    sort: "정렬"
+    
+  # 인증
+  auth:
+    login: "로그인"
+    logout: "로그아웃"
+    register: "회원가입"
+    forgot_password: "비밀번호 찾기"
+    remember_me: "로그인 상태 유지"
+    sign_in_with: "%{provider}로 로그인"
+    email: "이메일"
+    password: "비밀번호"
+    password_confirmation: "비밀번호 확인"
+    current_password: "현재 비밀번호"
+    new_password: "새 비밀번호"
+    
+  # 네비게이션
+  navigation:
+    home: "홈"
+    dashboard: "대시보드"
+    excel_files: "엑셀 파일"
+    files: "파일"
+    chat: "AI 채팅"
+    analytics: "분석"
+    api_keys: "API 키"
+    profile: "프로필"
+    settings: "설정"
+    billing: "결제"
+    admin: "관리자"
+    admin_dashboard: "관리자 대시보드"
+    users: "사용자"
+    analyses: "분석"
+    ai_cache: "AI 캐시"
+    stats: "통계"
+    tokens: "토큰"
+    sign_out: "로그아웃"
+    close_menu: "메뉴 닫기"
+    open_sidebar: "사이드바 열기"
+    your_profile: "내 프로필"
+    view_notifications: "알림 보기"
+    open_user_menu: "사용자 메뉴 열기"
+    search_placeholder: "검색..."
+    credits: "크레딧"
+    upload: "업로드"
+    analysis: "분석"
+    
+  # 홈 페이지
+  home:
+    hero:
+      title: "AI 기반 엑셀 자동화 플랫폼"
+      subtitle: "복잡한 엑셀 작업을 AI가 대신 처리합니다"
+      cta: "무료로 시작하기"
+    features:
+      title: "주요 기능"
+      ai_analysis: "AI 데이터 분석"
+      ai_analysis_desc: "고급 AI 모델을 사용한 데이터 패턴 분석 및 인사이트 도출"
+      excel_automation: "엑셀 자동화"
+      excel_automation_desc: "반복적인 엑셀 작업을 자동화하여 업무 효율성 극대화"
+      real_time_chat: "실시간 AI 대화"
+      real_time_chat_desc: "엑셀 관련 질문에 즉시 답변하는 AI 어시스턴트"
+    dashboard:
+      welcome_back: "환영합니다, %{name}님!"
+      subtitle: "AI 기반 엑셀 분석 대시보드"
+      files_analyzed: "분석된 파일"
+      credits_available: "사용 가능한 크레딧"
+      ai_analyses: "AI 분석"
+      upload_new_file: "새 파일 업로드"
+      recent_files: "최근 파일"
+      view_results: "결과 보기"
+      view_progress: "진행 상태 보기"
+      websocket_test: "WebSocket 연결 테스트"
+      test_connection: "연결 테스트"
+      disconnected: "연결 끊김"
+      connected: "연결됨"
+      rejected: "거부됨"
+    landing:
+      title: "ExcelApp"
+      subtitle: "AI 기반 엑셀 오류 검출 및 최적화"
+      smart_detection: "스마트 검출"
+      smart_detection_desc: "AI가 수식 오류, 데이터 유효성 문제, 최적화 기회를 자동으로 감지"
+      real_time_analysis: "실시간 분석"
+      real_time_analysis_desc: "AI가 Excel 파일을 분석하는 동안 즉각적인 피드백과 진행 상황 업데이트 제공"
+      cost_efficient: "비용 효율적"
+      cost_efficient_desc: "고정확도를 유지하면서 비용을 최적화하는 2단계 AI 시스템"
+      get_started: "시작하기"
+      already_have_account: "이미 계정이 있으신가요?"
+      sign_in: "로그인"
+      
+  # 엑셀 파일
+  excel:
+    upload: "파일 업로드"
+    download: "다운로드"
+    process: "처리하기"
+    analyzing: "분석 중..."
+    file_name: "파일명"
+    file_size: "파일 크기"
+    uploaded_at: "업로드 일시"
+    status: "상태"
+    actions: "작업"
+    
+  # Vue 컴포넌트
+  vue:
+    excel_uploader:
+      title: "엑셀 파일 업로드"
+      description: "데이터 처리 및 분석을 위해 엑셀 파일을 업로드하세요"
+      drag_drop: "파일을 여기에 드래그하세요"
+      or_click: "또는 클릭하여 파일 선택"
+      select_file: "파일 선택"
+      uploading: "업로드 중..."
+      upload_success: "업로드 완료"
+      upload_error: "업로드 실패. 다시 시도해주세요."
+      
+  # 테마
+  theme:
+    light: "라이트 모드"
+    dark: "다크 모드"
+    system: "시스템 설정"
+    
+  # 날짜/시간
+  datetime:
+    formats:
+      default: "%Y년 %m월 %d일"
+      long: "%Y년 %m월 %d일 %H:%M"
+      short: "%m/%d %H:%M"
+    distance_in_words:
+      x_seconds:
+        one: "1초"
+        other: "%{count}초"
+      x_minutes:
+        one: "1분"
+        other: "%{count}분"
+      x_hours:
+        one: "1시간"
+        other: "%{count}시간"
+      x_days:
+        one: "1일"
+        other: "%{count}일"
+    ago: "%{time} 전"
+      
+  # 숫자
+  number:
+    format:
+      delimiter: ","
+      separator: "."
+    currency:
+      format:
+        unit: "₩"
+        format: "%u%n"
+        delimiter: ","
+        separator: "."
+        
+  # 에러 메시지
+  errors:
+    messages:
+      blank: "필수 입력 항목입니다"
+      invalid: "올바르지 않은 형식입니다"
+      taken: "이미 사용 중입니다"
+      too_short: "너무 짧습니다 (최소 %{count}자)"
+      too_long: "너무 깁니다 (최대 %{count}자)"
+      wrong_length: "%{count}자여야 합니다"
+      not_a_number: "숫자만 입력 가능합니다"
+      
+  # 플래시 메시지
+  flash:
+    success: "%{message}"
+    error: "오류: %{message}"
+    warning: "주의: %{message}"
+    info: "안내: %{message}"

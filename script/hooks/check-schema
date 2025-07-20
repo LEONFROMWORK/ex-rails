@@ -1,0 +1,19 @@
+#!/bin/bash
+# Check if db/schema.rb is included when migrations are present
+
+set -e
+
+# Check if there are any staged migration files
+if git diff --cached --name-only | grep -q "^db/migrate/"; then
+    # Check if db/schema.rb is also staged
+    if ! git diff --cached --name-only | grep -q "^db/schema.rb$"; then
+        echo "❌ Migration files detected but db/schema.rb is not staged!"
+        echo "Please run 'rails db:migrate' and stage db/schema.rb"
+        echo ""
+        echo "Staged migration files:"
+        git diff --cached --name-only | grep "^db/migrate/" | sed 's/^/  - /'
+        exit 1
+    fi
+fi
+
+echo "✅ Database schema check passed"

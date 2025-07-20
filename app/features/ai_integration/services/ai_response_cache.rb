@@ -5,7 +5,7 @@ module AiIntegration
     class AiResponseCache
         CACHE_TTL = 1.hour.freeze
         MAX_CACHE_SIZE = 10.megabytes.freeze
-        
+
         def initialize
           @cache = Rails.cache
       end
@@ -39,11 +39,11 @@ module AiIntegration
           data: response_data,
           cached_at: Time.current.iso8601,
           expires_at: (Time.current + ttl).iso8601,
-          cache_version: '1.0'
+          cache_version: "1.0"
         }
 
         success = @cache.write(cache_key, cached_response, expires_in: ttl)
-        
+
         if success
           Rails.logger.info("AI response cached with key: #{cache_key}")
           increment_cache_stats(:writes)
@@ -62,10 +62,10 @@ module AiIntegration
         def generate_cache_key(type:, content:, provider:, model: nil, user_tier: nil)
         # Create deterministic hash from content
         content_hash = Digest::SHA256.hexdigest(content.to_s.strip.downcase)
-        
+
         # Include relevant parameters
         key_parts = [
-          'ai_response',
+          "ai_response",
           type.to_s,
           provider.to_s,
           model&.to_s,
@@ -73,20 +73,20 @@ module AiIntegration
           content_hash[0, 16] # First 16 chars of hash
         ].compact
 
-        key_parts.join(':')
+        key_parts.join(":")
       end
 
         def clear_expired
         # This would be called by a background job
-        pattern = 'ai_response:*'
+        pattern = "ai_response:*"
         keys = @cache.redis&.keys(pattern) || []
-        
+
         expired_count = 0
         keys.each do |key|
           cached_data = @cache.read(key)
           next unless cached_data&.is_a?(Hash)
 
-          if cached_data['expires_at'] && Time.parse(cached_data['expires_at']) < Time.current
+          if cached_data["expires_at"] && Time.parse(cached_data["expires_at"]) < Time.current
             @cache.delete(key)
             expired_count += 1
           end
@@ -101,7 +101,7 @@ module AiIntegration
 
         def stats
         cache_stats = get_cache_stats
-        
+
         {
           hits: cache_stats[:hits] || 0,
           misses: cache_stats[:misses] || 0,
@@ -114,9 +114,9 @@ module AiIntegration
       end
 
         def clear_all
-        pattern = 'ai_response:*'
+        pattern = "ai_response:*"
         keys = @cache.redis&.keys(pattern) || []
-        
+
         deleted_count = 0
         keys.each do |key|
           if @cache.delete(key)
@@ -136,18 +136,18 @@ module AiIntegration
 
         def valid_cached_response?(cached_data)
         return false unless cached_data.is_a?(Hash)
-        return false unless cached_data['data'].is_a?(Hash)
-        return false unless cached_data['cached_at']
-        return false unless cached_data['expires_at']
+        return false unless cached_data["data"].is_a?(Hash)
+        return false unless cached_data["cached_at"]
+        return false unless cached_data["expires_at"]
 
         # Check if expired
-        expires_at = Time.parse(cached_data['expires_at'])
+        expires_at = Time.parse(cached_data["expires_at"])
         return false if expires_at < Time.current
 
         # Validate the actual response data
-        response_data = cached_data['data']
-        required_fields = %w[message confidence_score tokens_used provider]
-        
+        response_data = cached_data["data"]
+        required_fields = %w[message confidence_score credits_used provider]
+
         required_fields.all? { |field| response_data.key?(field) }
     rescue => e
         Rails.logger.error("Error validating cached response: #{e.message}")
@@ -156,12 +156,12 @@ module AiIntegration
 
         def cacheable_response?(response_data)
         return false unless response_data.is_a?(Hash)
-        return false unless response_data['message']
-        return false unless response_data['confidence_score']
-        return false unless response_data['provider']
+        return false unless response_data["message"]
+        return false unless response_data["confidence_score"]
+        return false unless response_data["provider"]
 
         # Don't cache responses with low confidence
-        confidence = response_data['confidence_score'].to_f
+        confidence = response_data["confidence_score"].to_f
         return false if confidence < 0.7
 
         # Don't cache very large responses
@@ -172,29 +172,29 @@ module AiIntegration
       end
 
         def increment_cache_stats(stat_type)
-        stats_key = 'ai_cache_stats'
+        stats_key = "ai_cache_stats"
         current_stats = @cache.read(stats_key) || {}
         current_stats[stat_type] = (current_stats[stat_type] || 0) + 1
           @cache.write(stats_key, current_stats, expires_in: 1.day)
       end
 
         def get_cache_stats
-          @cache.read('ai_cache_stats') || {}
+          @cache.read("ai_cache_stats") || {}
       end
 
         def reset_cache_stats
-          @cache.write('ai_cache_stats', {}, expires_in: 1.day)
+          @cache.write("ai_cache_stats", {}, expires_in: 1.day)
       end
 
         def calculate_hit_rate(stats)
         total = (stats[:hits] || 0) + (stats[:misses] || 0)
         return 0.0 if total == 0
-        
+
         ((stats[:hits] || 0).to_f / total * 100).round(2)
       end
 
         def count_total_keys
-        pattern = 'ai_response:*'
+        pattern = "ai_response:*"
           @cache.redis&.keys(pattern)&.count || 0
       rescue
         0

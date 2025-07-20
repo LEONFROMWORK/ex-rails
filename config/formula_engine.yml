@@ -1,0 +1,57 @@
+# FormulaEngine Node.js 서비스 설정
+# 개발/프로덕션 환경별 FormulaEngine 서비스 연결 설정
+
+default: &default
+  # FormulaEngine 서비스 기본 설정
+  base_url: <%= ENV['FORMULA_ENGINE_URL'] || 'http://localhost:3002' %>
+  timeout: 30 # 요청 타임아웃 (초)
+  open_timeout: 10 # 연결 타임아웃 (초)
+  max_retries: 3 # 최대 재시도 횟수
+  retry_delay: 1.0 # 재시도 간격 (초)
+  
+  # 세션 관리 설정
+  session_timeout: 600 # 세션 타임아웃 (초, 10분)
+  session_cleanup_interval: 300 # 세션 정리 주기 (초, 5분)
+  
+  # 성능 설정
+  pool_size: 10 # 연결 풀 크기
+  max_data_size: 10485760 # 최대 데이터 크기 (10MB)
+  
+  # 로깅 설정
+  log_requests: true
+  log_responses: false # 민감한 데이터 포함 가능성으로 기본 false
+  log_level: 'info'
+
+development:
+  <<: *default
+  # 개발 환경 전용 설정
+  base_url: 'http://localhost:3002'
+  log_requests: true
+  log_responses: true
+  log_level: 'debug'
+
+test:
+  <<: *default
+  # 테스트 환경 전용 설정
+  base_url: 'http://localhost:3002'
+  timeout: 5
+  open_timeout: 2
+  log_requests: false
+  log_responses: false
+  log_level: 'warn'
+
+production:
+  <<: *default
+  # 프로덕션 환경 전용 설정
+  base_url: <%= ENV['FORMULA_ENGINE_URL'] || 'http://formula-engine:3002' %>
+  timeout: 60
+  open_timeout: 15
+  max_retries: 5
+  retry_delay: 2.0
+  log_requests: true
+  log_responses: false
+  log_level: 'info'
+  
+  # 프로덕션 성능 최적화
+  pool_size: 20
+  session_timeout: 1800 # 30분

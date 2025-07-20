@@ -1,32 +1,32 @@
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
   <div class="mb-8">
-    <h1 class="text-3xl font-bold text-gray-900">AI Cache Management</h1>
-    <p class="mt-1 text-sm text-gray-500">
+    <h1 class="text-3xl font-bold text-foreground">AI Cache Management</h1>
+    <p class="mt-1 text-sm text-muted-foreground">
       Monitor and manage AI response caching performance
     </p>
   </div>
 
   <div class="grid grid-cols-1 gap-6 lg:grid-cols-4 mb-8">
     <!-- Cache Hit Rate -->
-    <div class="bg-white overflow-hidden shadow rounded-lg">
+    <div class="bg-card overflow-hidden shadow rounded-lg">
       <div class="p-5">
         <div class="flex items-center">
           <div class="flex-shrink-0">
-            <svg class="h-6 w-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="h-6 w-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
             </svg>
           </div>
           <div class="ml-5 w-0 flex-1">
             <dl>
-              <dt class="text-sm font-medium text-gray-500 truncate">Hit Rate</dt>
-              <dd class="text-lg font-medium text-gray-900">
+              <dt class="text-sm font-medium text-muted-foreground truncate">Hit Rate</dt>
+              <dd class="text-lg font-medium text-foreground">
                 <%= @stats[:hit_rate] %>%
                 <% if @stats[:hit_rate] >= 70 %>
-                  <span class="text-green-600 text-sm ml-1">Excellent</span>
+                  <span class="text-success text-sm ml-1">Excellent</span>
                 <% elsif @stats[:hit_rate] >= 50 %>
-                  <span class="text-yellow-600 text-sm ml-1">Good</span>
+                  <span class="text-warning text-sm ml-1">Good</span>
                 <% else %>
-                  <span class="text-red-600 text-sm ml-1">Needs Improvement</span>
+                  <span class="text-destructive text-sm ml-1">Needs Improvement</span>
                 <% end %>
               </dd>
             </dl>
@@ -36,18 +36,18 @@
     </div>
 
     <!-- Total Hits -->
-    <div class="bg-white overflow-hidden shadow rounded-lg">
+    <div class="bg-card overflow-hidden shadow rounded-lg">
       <div class="p-5">
         <div class="flex items-center">
           <div class="flex-shrink-0">
-            <svg class="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="h-6 w-6 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
             </svg>
           </div>
           <div class="ml-5 w-0 flex-1">
             <dl>
-              <dt class="text-sm font-medium text-gray-500 truncate">Cache Hits</dt>
-              <dd class="text-lg font-medium text-gray-900"><%= number_with_delimiter(@stats[:hits]) %></dd>
+              <dt class="text-sm font-medium text-muted-foreground truncate">Cache Hits</dt>
+              <dd class="text-lg font-medium text-foreground"><%= number_with_delimiter(@stats[:hits]) %></dd>
             </dl>
           </div>
         </div>
@@ -55,18 +55,18 @@
     </div>
 
     <!-- Total Misses -->
-    <div class="bg-white overflow-hidden shadow rounded-lg">
+    <div class="bg-card overflow-hidden shadow rounded-lg">
       <div class="p-5">
         <div class="flex items-center">
           <div class="flex-shrink-0">
-            <svg class="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="h-6 w-6 text-destructive" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
             </svg>
           </div>
           <div class="ml-5 w-0 flex-1">
             <dl>
-              <dt class="text-sm font-medium text-gray-500 truncate">Cache Misses</dt>
-              <dd class="text-lg font-medium text-gray-900"><%= number_with_delimiter(@stats[:misses]) %></dd>
+              <dt class="text-sm font-medium text-muted-foreground truncate">Cache Misses</dt>
+              <dd class="text-lg font-medium text-foreground"><%= number_with_delimiter(@stats[:misses]) %></dd>
             </dl>
           </div>
         </div>
@@ -74,7 +74,7 @@
     </div>
 
     <!-- Total Keys -->
-    <div class="bg-white overflow-hidden shadow rounded-lg">
+    <div class="bg-card overflow-hidden shadow rounded-lg">
       <div class="p-5">
         <div class="flex items-center">
           <div class="flex-shrink-0">
@@ -84,8 +84,8 @@
           </div>
           <div class="ml-5 w-0 flex-1">
             <dl>
-              <dt class="text-sm font-medium text-gray-500 truncate">Total Keys</dt>
-              <dd class="text-lg font-medium text-gray-900"><%= number_with_delimiter(@stats[:total_keys]) %></dd>
+              <dt class="text-sm font-medium text-muted-foreground truncate">Total Keys</dt>
+              <dd class="text-lg font-medium text-foreground"><%= number_with_delimiter(@stats[:total_keys]) %></dd>
             </dl>
           </div>
         </div>
@@ -95,26 +95,26 @@
 
   <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
     <!-- Detailed Statistics -->
-    <div class="bg-white overflow-hidden shadow rounded-lg">
+    <div class="bg-card overflow-hidden shadow rounded-lg">
       <div class="px-4 py-5 sm:p-6">
-        <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Cache Statistics</h3>
+        <h3 class="text-lg leading-6 font-medium text-foreground mb-4">Cache Statistics</h3>
         
         <dl class="space-y-4">
           <div class="flex justify-between">
-            <dt class="text-sm font-medium text-gray-500">Successful Writes</dt>
-            <dd class="text-sm text-gray-900"><%= number_with_delimiter(@stats[:writes]) %></dd>
+            <dt class="text-sm font-medium text-muted-foreground">Successful Writes</dt>
+            <dd class="text-sm text-foreground"><%= number_with_delimiter(@stats[:writes]) %></dd>
           </div>
           <div class="flex justify-between">
-            <dt class="text-sm font-medium text-gray-500">Failed Writes</dt>
-            <dd class="text-sm text-gray-900"><%= number_with_delimiter(@stats[:write_failures]) %></dd>
+            <dt class="text-sm font-medium text-muted-foreground">Failed Writes</dt>
+            <dd class="text-sm text-foreground"><%= number_with_delimiter(@stats[:write_failures]) %></dd>
           </div>
           <div class="flex justify-between">
-            <dt class="text-sm font-medium text-gray-500">Cache Errors</dt>
-            <dd class="text-sm text-gray-900"><%= number_with_delimiter(@stats[:errors]) %></dd>
+            <dt class="text-sm font-medium text-muted-foreground">Cache Errors</dt>
+            <dd class="text-sm text-foreground"><%= number_with_delimiter(@stats[:errors]) %></dd>
           </div>
           <div class="flex justify-between">
-            <dt class="text-sm font-medium text-gray-500">Write Success Rate</dt>
-            <dd class="text-sm text-gray-900">
+            <dt class="text-sm font-medium text-muted-foreground">Write Success Rate</dt>
+            <dd class="text-sm text-foreground">
               <% total_writes = @stats[:writes] + @stats[:write_failures] %>
               <% if total_writes > 0 %>
                 <%= ((@stats[:writes].to_f / total_writes) * 100).round(2) %>%
@@ -128,50 +128,50 @@
     </div>
 
     <!-- Cache Management Actions -->
-    <div class="bg-white overflow-hidden shadow rounded-lg">
+    <div class="bg-card overflow-hidden shadow rounded-lg">
       <div class="px-4 py-5 sm:p-6">
-        <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Cache Management</h3>
+        <h3 class="text-lg leading-6 font-medium text-foreground mb-4">Cache Management</h3>
         
         <div class="space-y-4">
           <%= link_to admin_ai_cache_clear_expired_path, method: :post,
-              class: "w-full inline-flex justify-center items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" do %>
-            <svg class="mr-2 -ml-1 h-5 w-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              class: "w-full inline-flex justify-center items-center px-4 py-2 border border-border shadow-sm text-sm font-medium rounded-md text-foreground bg-card hover:bg-muted focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary" do %>
+            <svg class="mr-2 -ml-1 h-5 w-5 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
             </svg>
             Clear Expired Entries
           <% end %>
           
           <button onclick="showClearAllModal()" 
-                  class="w-full inline-flex justify-center items-center px-4 py-2 border border-red-300 shadow-sm text-sm font-medium rounded-md text-red-700 bg-white hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
-            <svg class="mr-2 -ml-1 h-5 w-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  class="w-full inline-flex justify-center items-center px-4 py-2 border border-destructive shadow-sm text-sm font-medium rounded-md text-destructive bg-card hover:bg-destructive/10 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-destructive">
+            <svg class="mr-2 -ml-1 h-5 w-5 text-destructive" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5C2.962 18.167 3.924 19.5 5.464 19.5z"/>
             </svg>
             Clear All Cache
           </button>
           
           <a href="<%= admin_ai_cache_path(format: :json) %>" target="_blank"
-             class="w-full inline-flex justify-center items-center px-4 py-2 border border-blue-300 shadow-sm text-sm font-medium rounded-md text-blue-700 bg-white hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-            <svg class="mr-2 -ml-1 h-5 w-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+             class="w-full inline-flex justify-center items-center px-4 py-2 border border-primary shadow-sm text-sm font-medium rounded-md text-primary bg-card hover:bg-primary/10 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+            <svg class="mr-2 -ml-1 h-5 w-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/>
             </svg>
             View JSON Stats
           </a>
         </div>
 
-        <div class="mt-6 pt-6 border-t border-gray-200">
-          <h4 class="text-sm font-medium text-gray-900 mb-2">Performance Recommendations</h4>
-          <div class="text-sm text-gray-600 space-y-2">
+        <div class="mt-6 pt-6 border-t border-border">
+          <h4 class="text-sm font-medium text-foreground mb-2">Performance Recommendations</h4>
+          <div class="text-sm text-muted-foreground space-y-2">
             <% if @stats[:hit_rate] < 50 %>
-              <p class="text-red-600">• Low hit rate detected. Consider optimizing cache keys or increasing TTL.</p>
+              <p class="text-destructive">• Low hit rate detected. Consider optimizing cache keys or increasing TTL.</p>
             <% end %>
             <% if @stats[:write_failures] > @stats[:writes] * 0.1 %>
-              <p class="text-yellow-600">• High write failure rate. Check Redis connectivity.</p>
+              <p class="text-warning">• High write failure rate. Check Redis connectivity.</p>
             <% end %>
             <% if @stats[:total_keys] > 10000 %>
-              <p class="text-blue-600">• Large number of cache keys. Consider regular cleanup.</p>
+              <p class="text-primary">• Large number of cache keys. Consider regular cleanup.</p>
             <% end %>
             <% if @stats[:hit_rate] >= 70 && @stats[:write_failures] < @stats[:writes] * 0.05 %>
-              <p class="text-green-600">• Cache performance is optimal.</p>
+              <p class="text-success">• Cache performance is optimal.</p>
             <% end %>
           </div>
         </div>
@@ -183,34 +183,34 @@
 <!-- Clear All Modal -->
 <div id="clearAllModal" class="fixed inset-0 z-50 overflow-y-auto hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
   <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-    <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
+    <div class="fixed inset-0 bg-muted-foreground bg-opacity-75 transition-opacity" aria-hidden="true"></div>
     <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-    <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-      <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+    <div class="inline-block align-bottom bg-card rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+      <div class="bg-card px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
         <div class="sm:flex sm:items-start">
-          <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
-            <svg class="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-destructive/10 sm:mx-0 sm:h-10 sm:w-10">
+            <svg class="h-6 w-6 text-destructive" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5C2.962 18.167 3.924 19.5 5.464 19.5z"/>
             </svg>
           </div>
           <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
-            <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">Clear All Cache</h3>
+            <h3 class="text-lg leading-6 font-medium text-foreground" id="modal-title">Clear All Cache</h3>
             <div class="mt-2">
-              <p class="text-sm text-gray-500">
+              <p class="text-sm text-muted-foreground">
                 Are you sure you want to clear all cache entries? This action cannot be undone and will temporarily reduce performance until the cache is repopulated.
               </p>
             </div>
           </div>
         </div>
       </div>
-      <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+      <div class="bg-muted px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
         <%= form_with url: admin_ai_cache_clear_all_path, method: :post, local: true do |form| %>
           <%= form.hidden_field :confirm, value: 'yes' %>
           <%= form.submit "Clear All Cache", 
-              class: "w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm" %>
+              class: "w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-destructive text-base font-medium text-destructive-foreground hover:bg-destructive/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-destructive sm:ml-3 sm:w-auto sm:text-sm" %>
         <% end %>
         <button type="button" onclick="hideClearAllModal()"
-                class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                class="mt-3 w-full inline-flex justify-center rounded-md border border-border shadow-sm px-4 py-2 bg-card text-base font-medium text-foreground hover:bg-muted focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
           Cancel
         </button>
       </div>

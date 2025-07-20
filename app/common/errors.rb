@@ -63,13 +63,13 @@ module Common
       end
     end
 
-    # Insufficient credits error (alias for broader credit systems)
+    # Insufficient credits error
     class InsufficientCreditsError < BusinessError
-      def initialize(message:, required_tokens: nil, current_tokens: nil)
+      def initialize(required:, available:)
         super(
-          message: message,
+          message: "Insufficient credits. Required: #{required}, Available: #{available}",
           code: "INSUFFICIENT_CREDITS",
-          details: { required_tokens: required_tokens, current_tokens: current_tokens }.compact
+          details: { required: required, available: available }
         )
       end
     end
@@ -92,6 +92,42 @@ module Common
           message: "AI Provider Error (#{provider}): #{message}",
           code: "AI_PROVIDER_ERROR",
           details: (details || {}).merge(provider: provider)
+        )
+      end
+    end
+
+    # FormulaEngine errors
+    class FormulaEngineError < BusinessError
+      def initialize(message:, details: nil)
+        super(
+          message: "FormulaEngine Error: #{message}",
+          code: "FORMULA_ENGINE_ERROR",
+          details: details
+        )
+      end
+    end
+
+    # Formula validation errors
+    class FormulaValidationError < BusinessError
+      def initialize(formula:, errors: [], details: nil)
+        message = "Formula validation failed: #{formula}"
+        message += " (#{errors.join(', ')})" if errors.any?
+
+        super(
+          message: message,
+          code: "FORMULA_VALIDATION_ERROR",
+          details: (details || {}).merge(formula: formula, validation_errors: errors)
+        )
+      end
+    end
+
+    # Formula calculation errors
+    class FormulaCalculationError < BusinessError
+      def initialize(formula:, message:, details: nil)
+        super(
+          message: "Formula calculation failed: #{formula} - #{message}",
+          code: "FORMULA_CALCULATION_ERROR",
+          details: (details || {}).merge(formula: formula)
         )
       end
     end

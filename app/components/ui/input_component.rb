@@ -25,16 +25,16 @@ class Ui::InputComponent < ViewComponent::Base
       "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
       "disabled:cursor-not-allowed disabled:opacity-50"
     ]
-    
+
     if error
       base_classes << "border-destructive"
     end
-    
+
     base_classes.join(" ")
   end
 
   def label_classes
-    base_classes = ["text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"]
+    base_classes = [ "text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70" ]
     base_classes << "text-destructive" if error
     base_classes.join(" ")
   end
@@ -48,7 +48,7 @@ class Ui::InputComponent < ViewComponent::Base
       value: value,
       placeholder: placeholder
     }
-    
+
     attrs[:required] = true if required
     attrs.merge!(options)
     attrs

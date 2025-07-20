@@ -1,0 +1,692 @@
+<%
+# SEO 메타태그 설정
+seo_meta_tags(
+  title: "AI 기반 엑셀 분석 대시보드 | ExcelApp Rails",
+  description: "인공지능을 활용한 엑셀 파일 분석, VBA 코드 검토, 템플릿 생성. 무료로 시작하는 스마트한 엑셀 관리 솔루션.",
+  keywords: "엑셀 분석, AI 엑셀, VBA 분석, 엑셀 템플릿, 스프레드시트 분석",
+  canonical: dashboard_index_path
+)
+
+# 구조화된 데이터 추가
+structured_data(:software_application, {
+  name: "ExcelApp Rails Dashboard",
+  description: "AI-powered Excel analysis and template generation platform"
+})
+
+# 빵부스러기 네비게이션
+breadcrumb_navigation([
+  { name: "홈", url: root_path },
+  { name: "대시보드", url: dashboard_index_path }
+])
+%>
+
+<%# 메인 대시보드 페이지 %>
+<div class="min-h-screen bg-background" itemscope itemtype="https://schema.org/WebApplication">
+  <!-- 헤더 -->
+  <div class="bg-card shadow">
+    <div class="container mx-auto px-4 py-6">
+      <div class="flex justify-between items-center">
+        <div>
+          <h1 class="text-3xl font-bold text-foreground">ExcelApp Dashboard</h1>
+          <p class="text-muted-foreground mt-1">AI-powered Excel analysis and generation platform</p>
+        </div>
+        <div class="flex items-center space-x-4">
+          <div class="bg-primary/10 border border-primary/20 rounded-lg px-4 py-2">
+            <span class="text-sm font-medium text-primary">
+              <i class="fas fa-coins mr-2"></i>
+              <%= current_user.credits %> Credits
+            </span>
+          </div>
+          <div class="text-sm text-muted-foreground">
+            <span class="font-medium"><%= current_user.tier.humanize %></span> User
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 메인 콘텐츠 -->
+  <div class="container mx-auto px-4 py-8">
+    <!-- 빠른 작업 메뉴 -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <!-- Excel 파일 업로드 -->
+      <%= render_card(
+        title: "Upload & Analyze",
+        subtitle: "Upload your Excel file for AI-powered error detection and analysis",
+        class: "hover:shadow-xl transition-shadow cursor-pointer"
+      ) do %>
+        <div class="p-6">
+          <div class="flex items-center justify-between mb-4">
+            <div class="bg-primary/10 p-3 rounded-lg">
+              <i class="fas fa-upload text-2xl text-primary"></i>
+            </div>
+            <span class="text-sm text-success font-medium">5-15 credits</span>
+          </div>
+          <%= render_button("Start Upload", variant: :default, as: :link, href: new_excel_file_path, class: "w-full") %>
+        </div>
+      <% end %>
+
+      <!-- 템플릿 생성 -->
+      <%= render_card(
+        title: "Create from Template",
+        subtitle: "Generate Excel files using pre-built templates for various use cases",
+        class: "hover:shadow-xl transition-shadow cursor-pointer"
+      ) do %>
+        <div class="p-6">
+          <div class="flex items-center justify-between mb-4">
+            <div class="bg-success/10 p-3 rounded-lg">
+              <i class="fas fa-file-plus text-2xl text-success"></i>
+            </div>
+            <span class="text-sm text-success font-medium">5-20 credits</span>
+          </div>
+          <%= render_dialog do %>
+            <%= dialog_trigger do %>
+              <%= render_button("Choose Template", variant: :secondary, class: "w-full") %>
+            <% end %>
+            <%= dialog_content do %>
+              <div class="space-y-6">
+                <div>
+                  <h3 class="text-lg font-semibold text-card-foreground flex items-center">
+                    <i class="fas fa-file-plus mr-2 text-success"></i>
+                    Create from Template
+                  </h3>
+                  <p class="text-sm text-muted-foreground mt-1">Choose a template to generate your Excel file</p>
+                </div>
+                
+                <!-- 템플릿 카테고리 -->
+                <div>
+                  <h4 class="font-medium text-card-foreground mb-4">Choose Template Category</h4>
+                  <div class="grid grid-cols-2 gap-3" id="template-categories">
+                    <!-- 카테고리들이 JavaScript로 로드됩니다 -->
+                  </div>
+                </div>
+
+                <!-- 선택된 카테고리의 템플릿들 -->
+                <div id="template-list" class="hidden">
+                  <h4 class="font-medium text-card-foreground mb-4">Available Templates</h4>
+                  <div class="grid grid-cols-1 gap-3" id="templates-container">
+                    <!-- 템플릿들이 여기에 로드됩니다 -->
+                  </div>
+                </div>
+
+                <!-- 템플릿 미리보기 -->
+                <div id="template-preview" class="hidden">
+                  <h4 class="font-medium text-card-foreground mb-4">Template Preview</h4>
+                  <div id="preview-container" class="bg-muted p-4 rounded-lg">
+                    <!-- 미리보기가 여기에 표시됩니다 -->
+                  </div>
+                  
+                  <div class="mt-6 flex justify-end space-x-3">
+                    <%= render_button("Back to Templates", variant: :outline, onclick: "hideTemplatePreview()") %>
+                    <%= render_button("Generate Excel File", variant: :default, onclick: "generateFromTemplate()") do %>
+                      <i class="fas fa-magic mr-2"></i>
+                      Generate Excel File
+                    <% end %>
+                  </div>
+                </div>
+              </div>
+            <% end %>
+          <% end %>
+        </div>
+      <% end %>
+
+      <!-- AI 대화 생성 -->
+      <%= render_card(
+        title: "AI Conversation",
+        subtitle: "Tell AI what you need and get a custom Excel file generated",
+        class: "hover:shadow-xl transition-shadow cursor-pointer"
+      ) do %>
+        <div class="p-6">
+          <div class="flex items-center justify-between mb-4">
+            <div class="bg-purple-100 p-3 rounded-lg">
+              <i class="fas fa-comments text-2xl text-purple-600"></i>
+            </div>
+            <span class="text-sm text-green-600 font-medium">20-50 credits</span>
+          </div>
+          <%= render_dialog do %>
+            <%= dialog_trigger do %>
+              <%= render_button("Start Conversation", variant: :outline, class: "w-full") %>
+            <% end %>
+            <%= dialog_content do %>
+              <div class="space-y-6">
+                <div>
+                  <h3 class="text-lg font-semibold text-card-foreground flex items-center">
+                    <i class="fas fa-comments mr-2 text-purple-500"></i>
+                    AI Conversation Builder
+                  </h3>
+                  <p class="text-sm text-muted-foreground mt-1">Tell AI what you need and get a custom Excel file</p>
+                </div>
+                
+                <!-- 목적 선택 -->
+                <div>
+                  <label class="block text-sm font-medium text-card-foreground mb-2">What do you want to create?</label>
+                  <select id="conversation-purpose" class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
+                    <option value="general">General spreadsheet</option>
+                    <option value="budget">Budget management</option>
+                    <option value="inventory">Inventory tracking</option>
+                    <option value="project">Project planning</option>
+                    <option value="sales">Sales tracking</option>
+                    <option value="hr">HR management</option>
+                    <option value="academic">Academic tracking</option>
+                    <option value="personal">Personal organization</option>
+                  </select>
+                </div>
+
+                <!-- 상세 설명 -->
+                <div>
+                  <label class="block text-sm font-medium text-card-foreground mb-2">Describe what you need</label>
+                  <%= render_textarea(
+                    name: "conversation_description",
+                    id: "conversation-description",
+                    rows: 4,
+                    placeholder: "Tell me what kind of Excel file you need. For example: 'I need a monthly budget tracker with categories for income and expenses, and automatic calculations for totals and remaining budget.'"
+                  ) %>
+                </div>
+
+                <!-- 추가 요구사항 -->
+                <div>
+                  <label class="block text-sm font-medium text-card-foreground mb-2">Additional features (optional)</label>
+                  <div class="grid grid-cols-2 gap-3">
+                    <label class="flex items-center">
+                      <input type="checkbox" class="mr-2" value="charts"> <span class="text-sm">Charts & Graphs</span>
+                    </label>
+                    <label class="flex items-center">
+                      <input type="checkbox" class="mr-2" value="formulas"> <span class="text-sm">Automatic Calculations</span>
+                    </label>
+                    <label class="flex items-center">
+                      <input type="checkbox" class="mr-2" value="formatting"> <span class="text-sm">Color Formatting</span>
+                    </label>
+                    <label class="flex items-center">
+                      <input type="checkbox" class="mr-2" value="validation"> <span class="text-sm">Data Validation</span>
+                    </label>
+                  </div>
+                </div>
+
+                <!-- 파일명 -->
+                <div>
+                  <label class="block text-sm font-medium text-card-foreground mb-2">File name (optional)</label>
+                  <%= render_input(
+                    name: "conversation_filename",
+                    id: "conversation-filename",
+                    placeholder: "My_Excel_File.xlsx"
+                  ) %>
+                </div>
+
+                <div class="flex justify-end space-x-3">
+                  <%= render_button("Cancel", variant: :outline, onclick: "/* close dialog */") %>
+                  <%= render_button("Generate Excel (20-50 credits)", variant: :default, onclick: "generateFromConversation()") do %>
+                    <i class="fas fa-magic mr-2"></i>
+                    Generate Excel (20-50 credits)
+                  <% end %>
+                </div>
+              </div>
+            <% end %>
+          <% end %>
+        </div>
+      <% end %>
+
+      <!-- 이미지 분석 -->
+      <%= render_card(
+        title: "Image Analysis", 
+        subtitle: "Upload Excel screenshots for AI analysis and insights",
+        class: "hover:shadow-xl transition-shadow cursor-pointer"
+      ) do %>
+        <div class="p-6">
+          <div class="flex items-center justify-between mb-4">
+            <div class="bg-orange-100 p-3 rounded-lg">
+              <i class="fas fa-image text-2xl text-orange-600"></i>
+            </div>
+            <span class="text-sm text-green-600 font-medium">20-50 credits</span>
+          </div>
+          <%= render_dialog do %>
+            <%= dialog_trigger do %>
+              <%= render_button("Upload Image", variant: :ghost, class: "w-full") %>
+            <% end %>
+            <%= dialog_content do %>
+              <div class="space-y-6">
+                <div>
+                  <h3 class="text-lg font-semibold text-card-foreground flex items-center">
+                    <i class="fas fa-image mr-2 text-orange-500"></i>
+                    Excel Image Analysis
+                  </h3>
+                  <p class="text-sm text-muted-foreground mt-1">Upload Excel screenshots for AI analysis and insights</p>
+                </div>
+                
+                <!-- 이미지 업로드 -->
+                <div class="border-2 border-dashed border-input rounded-lg p-8 text-center">
+                  <i class="fas fa-cloud-upload-alt text-4xl text-muted-foreground mb-4"></i>
+                  <h4 class="text-lg font-semibold text-card-foreground mb-2">Upload Excel Screenshot</h4>
+                  <p class="text-muted-foreground mb-4">Upload a screenshot or image of your Excel file for AI analysis</p>
+                  <input type="file" id="modal-image-input" accept="image/*" class="hidden">
+                  <%= render_button("Choose Image", variant: :default, onclick: "document.getElementById('modal-image-input').click()") do %>
+                    <i class="fas fa-upload mr-2"></i>
+                    Choose Image
+                  <% end %>
+                  <p class="text-xs text-muted-foreground mt-2">Max 20MB • JPG, PNG, GIF, WebP</p>
+                </div>
+
+                <!-- 분석 타입 -->
+                <div>
+                  <label class="block text-sm font-medium text-card-foreground mb-2">Analysis Type</label>
+                  <select id="modal-analysis-type" class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
+                    <option value="general">General Excel Analysis</option>
+                    <option value="chart_analysis">Chart & Graph Analysis</option>
+                    <option value="formula_visualization">Formula Analysis</option>
+                  </select>
+                </div>
+
+                <!-- 추가 지시사항 -->
+                <div>
+                  <label class="block text-sm font-medium text-card-foreground mb-2">What do you want to know?</label>
+                  <%= render_textarea(
+                    name: "modal_image_prompt",
+                    id: "modal-image-prompt",
+                    rows: 3,
+                    placeholder: "Describe what you want to know about this image..."
+                  ) %>
+                </div>
+
+                <div class="flex justify-end space-x-3">
+                  <%= render_button("Cancel", variant: :outline, onclick: "/* close dialog */") %>
+                  <%= render_button("Analyze Image (20 credits)", variant: :default, id: "modal-analyze-btn", disabled: true, onclick: "analyzeModalImage()") do %>
+                    <i class="fas fa-magic mr-2"></i>
+                    Analyze Image (20 credits)
+                  <% end %>
+                </div>
+              </div>
+            <% end %>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+
+    <!-- 최근 파일들 -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <!-- 최근 업로드한 파일들 -->
+      <%= render_card(
+        title: "Recent Files",
+        class: "h-full"
+      ) do %>
+        <div class="p-6">
+          <div class="flex justify-between items-center mb-6">
+            <div class="flex items-center">
+              <i class="fas fa-clock mr-2 text-blue-500"></i>
+              <h2 class="text-xl font-semibold text-card-foreground">Recent Files</h2>
+            </div>
+            <%= render_button("View All", variant: :ghost, as: :link, href: excel_files_path, class: "text-sm h-auto p-2") do %>
+              View All <i class="fas fa-arrow-right ml-1"></i>
+            <% end %>
+          </div>
+
+          <% if current_user.excel_files.recent.limit(5).any? %>
+            <div class="space-y-3">
+              <% current_user.excel_files.recent.limit(5).each do |file| %>
+                <div class="flex items-center justify-between p-3 bg-muted rounded-lg hover:bg-accent transition-colors">
+                  <div class="flex items-center space-x-3">
+                    <div class="bg-green-100 p-2 rounded">
+                      <i class="fas fa-file-excel text-green-600"></i>
+                    </div>
+                    <div>
+                      <h4 class="font-medium text-card-foreground truncate max-w-xs">
+                        <%= file.original_name %>
+                      </h4>
+                      <p class="text-sm text-muted-foreground">
+                        <%= time_ago_in_words(file.created_at) %> ago • 
+                        <span class="status-<%= file.status %>"><%= file.status.humanize %></span>
+                      </p>
+                    </div>
+                  </div>
+                  <%= render_button(as: :link, href: excel_file_path(file), variant: :ghost, class: "h-auto p-2") do %>
+                    <i class="fas fa-eye"></i>
+                  <% end %>
+                </div>
+              <% end %>
+            </div>
+          <% else %>
+            <div class="text-center py-8">
+              <i class="fas fa-inbox text-4xl text-muted-foreground mb-4"></i>
+              <p class="text-muted-foreground">No files uploaded yet</p>
+              <%= render_button("Upload your first file", variant: :default, as: :link, href: new_excel_file_path, class: "mt-4") %>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+
+      <!-- 최근 분석 결과 -->
+      <%= render_card(
+        title: "Recent Analysis",
+        class: "h-full"
+      ) do %>
+        <div class="p-6">
+          <div class="flex justify-between items-center mb-6">
+            <div class="flex items-center">
+              <i class="fas fa-chart-line mr-2 text-green-500"></i>
+              <h2 class="text-xl font-semibold text-card-foreground">Recent Analysis</h2>
+            </div>
+            <%= render_button("View All", variant: :ghost, as: :link, href: analyses_path, class: "text-sm h-auto p-2") do %>
+              View All <i class="fas fa-arrow-right ml-1"></i>
+            <% end %>
+          </div>
+
+        <% recent_analyses = current_user.analyses.includes(:excel_file).recent.limit(5) %>
+        <% if recent_analyses.any? %>
+          <div class="space-y-3">
+            <% recent_analyses.each do |analysis| %>
+              <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100">
+                <div class="flex items-center space-x-3">
+                  <div class="bg-blue-100 p-2 rounded">
+                    <i class="fas fa-chart-bar text-blue-600"></i>
+                  </div>
+                  <div>
+                    <h4 class="font-medium text-gray-900 truncate max-w-xs">
+                      <%= analysis.excel_file.original_name %>
+                    </h4>
+                    <p class="text-sm text-gray-500">
+                      <%= pluralize(analysis.detected_errors.size, 'error') %> found • 
+                      Tier <%= analysis.ai_tier_used %> • 
+                      <%= number_to_percentage(analysis.confidence_score * 100, precision: 0) %> confidence
+                    </p>
+                  </div>
+                </div>
+                <%= link_to excel_file_path(analysis.excel_file), class: "text-blue-600 hover:text-blue-800" do %>
+                  <i class="fas fa-eye"></i>
+                <% end %>
+              </div>
+            <% end %>
+          </div>
+        <% else %>
+          <div class="text-center py-8">
+            <i class="fas fa-chart-line text-4xl text-gray-300 mb-4"></i>
+            <p class="text-gray-500">No analysis results yet</p>
+            <p class="text-sm text-gray-400 mt-2">Upload an Excel file to get started</p>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+    <!-- 사용량 통계 (Pro/Enterprise만) -->
+    <% if current_user.pro? || current_user.enterprise? %>
+      <div class="mt-8 bg-white rounded-lg shadow-lg p-6">
+        <h2 class="text-xl font-semibold text-gray-900 mb-6">
+          <i class="fas fa-chart-pie mr-2 text-purple-500"></i>
+          Usage Statistics (Last 30 Days)
+        </h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <div class="text-center">
+            <p class="text-3xl font-bold text-blue-600"><%= current_user.analyses.where(created_at: 30.days.ago..Time.current).count %></p>
+            <p class="text-sm text-gray-600">Files Analyzed</p>
+          </div>
+          <div class="text-center">
+            <p class="text-3xl font-bold text-green-600"><%= current_user.analyses.where(created_at: 30.days.ago..Time.current).sum(:credits_used) %></p>
+            <p class="text-sm text-gray-600">Credits Used</p>
+          </div>
+          <div class="text-center">
+            <p class="text-3xl font-bold text-purple-600"><%= current_user.analyses.where(created_at: 30.days.ago..Time.current).average(:confidence_score)&.round(2) || 0 %></p>
+            <p class="text-sm text-gray-600">Avg Confidence</p>
+          </div>
+          <div class="text-center">
+            <p class="text-3xl font-bold text-orange-600">
+              <%= current_user.analyses.joins(:excel_file).where(created_at: 30.days.ago..Time.current).sum('excel_files.file_size') / 1.megabyte %>MB
+            </p>
+            <p class="text-sm text-gray-600">Data Processed</p>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+
+<!-- JavaScript -->
+<script>
+// 전역 변수
+let selectedTemplate = null;
+
+// 템플릿 관련 함수들
+function loadTemplateCategories() {
+  fetch('/excel_generation/templates')
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        displayTemplateCategories(data.categories);
+      }
+    })
+    .catch(error => console.error('Error loading categories:', error));
+}
+
+function displayTemplateCategories(categories) {
+  const container = document.getElementById('template-categories');
+  container.innerHTML = '';
+
+  Object.entries(categories).forEach(([category, templates]) => {
+    const categoryCard = `
+      <div class="bg-gray-50 border border-gray-200 rounded-lg p-4 hover:bg-gray-100 cursor-pointer"
+           onclick="loadTemplatesForCategory('${category}')">
+        <h5 class="font-medium text-gray-900 mb-2">${category.charAt(0).toUpperCase() + category.slice(1)}</h5>
+        <p class="text-sm text-gray-600">${templates.length} templates</p>
+      </div>
+    `;
+    container.innerHTML += categoryCard;
+  });
+}
+
+function loadTemplatesForCategory(category) {
+  fetch(`/excel_generation/templates/${category}`)
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        displayTemplates(data.templates, category);
+      }
+    })
+    .catch(error => console.error('Error loading templates:', error));
+}
+
+function displayTemplates(templates, category) {
+  const container = document.getElementById('templates-container');
+  container.innerHTML = '';
+
+  templates.forEach(template => {
+    const templateCard = `
+      <div class="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md cursor-pointer"
+           onclick="showTemplatePreview('${category}', '${template.name}')">
+        <h5 class="font-medium text-gray-900 mb-2">${template.display_name || template.name}</h5>
+        <p class="text-sm text-gray-600 mb-2">${template.description || 'No description available'}</p>
+        <div class="flex justify-between items-center">
+          <span class="text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded">${template.difficulty || 'beginner'}</span>
+        </div>
+      </div>
+    `;
+    container.innerHTML += templateCard;
+  });
+
+  document.getElementById('template-list').classList.remove('hidden');
+}
+
+function showTemplatePreview(category, templateName) {
+  selectedTemplate = { category, name: templateName };
+  
+  fetch(`/excel_generation/templates/${category}/${templateName}/preview`)
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        document.getElementById('preview-container').innerHTML = data.html_preview;
+        document.getElementById('template-preview').classList.remove('hidden');
+      }
+    })
+    .catch(error => console.error('Error loading preview:', error));
+}
+
+function hideTemplatePreview() {
+  document.getElementById('template-preview').classList.add('hidden');
+}
+
+function generateFromTemplate() {
+  if (!selectedTemplate) {
+    alert('Please select a template first');
+    return;
+  }
+
+  const generateBtn = event.target;
+  generateBtn.disabled = true;
+  generateBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Generating...';
+
+  fetch('/excel_generation/from_template', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content
+    },
+    body: JSON.stringify({
+      template_name: selectedTemplate.name,
+      template_data: {},
+      customizations: {}
+    })
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      alert('Excel file generated successfully!');
+      window.location.href = data.download_url;
+      hideTemplateGenerator();
+    } else {
+      alert('Error: ' + data.error);
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    alert('Generation failed');
+  })
+  .finally(() => {
+    generateBtn.disabled = false;
+    generateBtn.innerHTML = '<i class="fas fa-magic mr-2"></i>Generate Excel File';
+  });
+}
+
+// 대화형 생성
+function generateFromConversation() {
+  const purpose = document.getElementById('conversation-purpose').value;
+  const description = document.getElementById('conversation-description').value;
+  const filename = document.getElementById('conversation-filename').value;
+  
+  if (!description.trim()) {
+    alert('Please describe what you need');
+    return;
+  }
+
+  const features = Array.from(document.querySelectorAll('#conversation-modal input[type="checkbox"]:checked'))
+                       .map(cb => cb.value);
+
+  const conversationData = {
+    messages: [
+      {
+        role: 'user',
+        content: `I need a ${purpose} Excel file. ${description}. Additional features: ${features.join(', ')}`
+      }
+    ],
+    purpose: purpose,
+    features: features
+  };
+
+  const generateBtn = event.target;
+  generateBtn.disabled = true;
+  generateBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Generating...';
+
+  fetch('/excel_generation/from_conversation', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content
+    },
+    body: JSON.stringify({
+      conversation_data: conversationData,
+      filename: filename
+    })
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      alert('Excel file generated successfully!');
+      window.location.href = data.download_url;
+      hideConversationBuilder();
+    } else {
+      alert('Error: ' + data.error);
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    alert('Generation failed');
+  })
+  .finally(() => {
+    generateBtn.disabled = false;
+    generateBtn.innerHTML = '<i class="fas fa-magic mr-2"></i>Generate Excel (20-50 credits)';
+  });
+}
+
+// 이미지 분석
+document.getElementById('modal-image-input').addEventListener('change', function(e) {
+  const file = e.target.files[0];
+  if (file) {
+    if (file.size > 20 * 1024 * 1024) {
+      alert('File size must be under 20MB');
+      return;
+    }
+    document.getElementById('modal-analyze-btn').disabled = false;
+  }
+});
+
+function analyzeModalImage() {
+  const file = document.getElementById('modal-image-input').files[0];
+  const analysisType = document.getElementById('modal-analysis-type').value;
+  const prompt = document.getElementById('modal-image-prompt').value || 
+                'Please analyze this Excel-related image and provide insights.';
+
+  if (!file) {
+    alert('Please select an image first');
+    return;
+  }
+
+  const analyzeBtn = document.getElementById('modal-analyze-btn');
+  analyzeBtn.disabled = true;
+  analyzeBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Analyzing...';
+
+  const formData = new FormData();
+  formData.append('image', file);
+  formData.append('prompt', prompt);
+  formData.append('analysis_type', analysisType);
+
+  fetch('/ai_integration/multimodal/analyze_image', {
+    method: 'POST',
+    headers: {
+      'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content
+    },
+    body: formData
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      alert('Analysis completed! Check the results.');
+      hideImageAnalysis();
+      // 결과 표시 로직 추가 가능
+    } else {
+      alert('Analysis failed: ' + data.error);
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    alert('Analysis failed');
+  })
+  .finally(() => {
+    analyzeBtn.disabled = false;
+    analyzeBtn.innerHTML = '<i class="fas fa-magic mr-2"></i>Analyze Image (20 credits)';
+  });
+}
+</script>
+
+<!-- 스타일 -->
+<style>
+.status-uploaded { color: #10b981; }
+.status-processing { color: #f59e0b; }
+.status-analyzed { color: #3b82f6; }
+.status-failed { color: #ef4444; }
+</style>

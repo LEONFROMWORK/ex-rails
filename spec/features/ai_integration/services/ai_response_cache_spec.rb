@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe Ai::ResponseCache do
+RSpec.describe AiIntegration::Services::AiResponseCache do
   let(:cache_service) { described_class.new }
   let(:valid_response) do
     {
@@ -74,14 +74,14 @@ RSpec.describe Ai::ResponseCache do
 
     it 'does not cache responses with low confidence' do
       low_confidence_response = valid_response.merge('confidence_score' => 0.5)
-      
+
       result = cache_service.set(cache_key, low_confidence_response)
       expect(result).to be false
     end
 
     it 'does not cache responses missing required fields' do
       invalid_response = { 'message' => 'test' }
-      
+
       result = cache_service.set(cache_key, invalid_response)
       expect(result).to be false
     end
@@ -100,13 +100,13 @@ RSpec.describe Ai::ResponseCache do
     it 'removes expired entries' do
       # Create an entry that will expire immediately
       cache_service.set('temp_key', valid_response, ttl: 0.1.seconds)
-      
+
       # Wait for expiration
       sleep(0.2)
-      
+
       expired_count = cache_service.clear_expired
       expect(expired_count).to be >= 0
-      
+
       # Verify entry is gone
       cached_data = cache_service.get('temp_key')
       expect(cached_data).to be_nil
@@ -128,11 +128,11 @@ RSpec.describe Ai::ResponseCache do
     it 'calculates hit rate correctly' do
       # Set up some hits and misses
       cache_service.set('key1', valid_response)
-      
+
       # 2 hits
       cache_service.get('key1')
       cache_service.get('key1')
-      
+
       # 1 miss
       cache_service.get('nonexistent')
 
@@ -163,7 +163,7 @@ RSpec.describe Ai::ResponseCache do
       cache_service.get('key1')
 
       cache_service.clear_all
-      
+
       stats = cache_service.stats
       expect(stats[:hits]).to eq(0)
       expect(stats[:misses]).to eq(0)
@@ -176,10 +176,10 @@ RSpec.describe Ai::ResponseCache do
     it 'validates cached data integrity' do
       # Store valid data
       cache_service.set(cache_key, valid_response)
-      
+
       # Manually corrupt the cache
       Rails.cache.write(cache_key, { invalid: 'data' })
-      
+
       # Should return nil for corrupted data
       cached_data = cache_service.get(cache_key)
       expect(cached_data).to be_nil
@@ -187,7 +187,7 @@ RSpec.describe Ai::ResponseCache do
 
     it 'handles cache read errors gracefully' do
       allow(Rails.cache).to receive(:read).and_raise(StandardError.new('Cache error'))
-      
+
       cached_data = cache_service.get('any_key')
       expect(cached_data).to be_nil
     end
@@ -198,7 +198,7 @@ RSpec.describe Ai::ResponseCache do
       large_response = valid_response.merge(
         'message' => 'x' * 15_000_000 # 15MB
       )
-      
+
       result = cache_service.set('large_key', large_response)
       expect(result).to be false
     end

@@ -4,14 +4,14 @@ module Admin
   module KnowledgeBase
     class DashboardController < ApplicationController
       before_action :require_admin!
-      
+
       def index
         @knowledge_base_stats = fetch_knowledge_base_stats
         @processing_jobs = fetch_processing_jobs
       end
-      
+
       private
-      
+
       def fetch_knowledge_base_stats
         # In production, this would query actual database
         {
@@ -29,14 +29,14 @@ module Admin
           processing_jobs: 1
         }
       end
-      
+
       def fetch_processing_jobs
         # In production, this would query actual background jobs
         [
           {
-            id: 'job_001',
-            type: 'embedding',
-            status: 'running',
+            id: "job_001",
+            type: "embedding",
+            status: "running",
             progress: 67,
             processed_items: 1580,
             total_items: 2340,

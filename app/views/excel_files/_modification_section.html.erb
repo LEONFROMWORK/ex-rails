@@ -1,0 +1,164 @@
+<%# Modern Excel modification interface %>
+<div class="bg-card rounded-xl shadow-sm border border-border overflow-hidden"
+     data-controller="excel-modification"
+     data-excel-modification-file-id-value="<%= @excel_file.id %>"
+     data-excel-modification-api-endpoint-value="/api/v1/excel_modifications/modify">
+  
+  <div class="bg-gradient-to-r from-primary to-primary/80 text-primary-foreground p-6">
+    <h2 class="text-2xl font-bold flex items-center">
+      <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+              d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+      </svg>
+      AI 기반 Excel 수정
+    </h2>
+    <p class="text-primary-foreground/80 mt-1">스크린샷과 설명으로 Excel 파일을 수정하세요</p>
+  </div>
+
+  <div class="p-6 space-y-6">
+    <%# File info %>
+    <div class="bg-muted rounded-lg p-4" data-excel-modification-target="fileInfo">
+      <div class="flex items-center">
+        <svg class="w-10 h-10 text-success mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+        </svg>
+        <div>
+          <h3 class="font-semibold text-foreground"><%= @excel_file.original_name %></h3>
+          <p class="text-sm text-muted-foreground">
+            <%= number_to_human_size(@excel_file.file_size) %> • 
+            업로드: <%= @excel_file.created_at.strftime('%Y년 %m월 %d일') %>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <%# Screenshot upload area %>
+    <div>
+      <label class="block text-sm font-medium text-muted-foreground mb-2">
+        1. 수정하려는 부분의 스크린샷
+      </label>
+      <div data-excel-modification-target="screenshotPreview">
+        <div class="border-2 border-dashed border-input rounded-lg p-8 text-center cursor-pointer hover:border-input/80 transition"
+             data-action="click->excel-modification#selectScreenshot keydown.enter->excel-modification#selectScreenshot"
+             role="button"
+             tabindex="0"
+             aria-label="스크린샷 업로드 영역">
+          <svg class="mx-auto h-12 w-12 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                  d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+          </svg>
+          <p class="mt-2 text-sm text-muted-foreground">클릭하거나 드래그하여 스크린샷 업로드</p>
+          <p class="text-xs text-muted-foreground mt-1">또는 Ctrl+V로 붙여넣기</p>
+        </div>
+      </div>
+      <input type="file" 
+             accept="image/*" 
+             class="hidden"
+             data-excel-modification-target="screenshotInput"
+             data-action="change->excel-modification#screenshotChanged">
+    </div>
+
+    <%# Request input %>
+    <div>
+      <label for="modification-request" class="block text-sm font-medium text-muted-foreground mb-2">
+        2. 어떻게 수정하고 싶으신가요?
+      </label>
+      <textarea id="modification-request"
+                rows="4"
+                class="w-full px-4 py-3 border border-input rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent resize-none"
+                placeholder="예: 이 부분의 숫자가 왜 오류가 나고 있는지 궁금해요. 그리고 여기에는 평균값이 나오면 좋겠어요."
+                data-excel-modification-target="requestInput"
+                data-action="input->excel-modification#requestChanged"
+                aria-label="수정 요청 내용"
+                maxlength="500"></textarea>
+    </div>
+
+    <%# AI Tier selection %>
+    <div>
+      <label class="block text-sm font-medium text-muted-foreground mb-2">
+        3. AI 분석 수준 선택
+      </label>
+      <div class="grid grid-cols-3 gap-3" data-excel-modification-target="tierSelection">
+        <label class="relative cursor-pointer">
+          <input type="radio" name="ai-tier" value="speed" class="peer sr-only" 
+                 data-excel-modification-target="tierInput"
+                 data-action="change->excel-modification#tierChanged">
+          <div class="border-2 rounded-lg p-4 text-center hover:border-input/80 peer-checked:border-primary peer-checked:bg-primary/10">
+            <div class="text-lg font-semibold">Speed</div>
+            <div class="text-sm text-muted-foreground">빠른 처리</div>
+            <div class="text-xs text-primary font-medium mt-1">30 크레딧</div>
+          </div>
+        </label>
+        
+        <label class="relative cursor-pointer">
+          <input type="radio" name="ai-tier" value="balanced" class="peer sr-only" checked
+                 data-excel-modification-target="tierInput"
+                 data-action="change->excel-modification#tierChanged">
+          <div class="border-2 rounded-lg p-4 text-center hover:border-input/80 peer-checked:border-primary peer-checked:bg-primary/10">
+            <div class="text-lg font-semibold">Balanced</div>
+            <div class="text-sm text-muted-foreground">균형잡힌 분석</div>
+            <div class="text-xs text-primary font-medium mt-1">50 크레딧</div>
+          </div>
+        </label>
+        
+        <label class="relative cursor-pointer">
+          <input type="radio" name="ai-tier" value="quality" class="peer sr-only"
+                 data-excel-modification-target="tierInput"
+                 data-action="change->excel-modification#tierChanged"
+                 <%= 'disabled' unless current_user.pro? || current_user.enterprise? %>>
+          <div class="border-2 rounded-lg p-4 text-center hover:border-input/80 peer-checked:border-primary peer-checked:bg-primary/10 
+                      <%= 'opacity-50 cursor-not-allowed' unless current_user.pro? || current_user.enterprise? %>">
+            <div class="text-lg font-semibold">Quality</div>
+            <div class="text-sm text-muted-foreground">정밀한 분석</div>
+            <div class="text-xs text-primary font-medium mt-1">100 크레딧</div>
+            <% unless current_user.pro? || current_user.enterprise? %>
+              <div class="text-xs text-destructive mt-1">Pro 이상</div>
+            <% end %>
+          </div>
+        </label>
+      </div>
+    </div>
+
+    <%# Error message %>
+    <div class="hidden bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded-lg"
+         data-excel-modification-target="errorMessage">
+    </div>
+
+    <%# Submit button %>
+    <div class="flex items-center justify-between">
+      <div class="text-sm text-muted-foreground">
+        <svg class="inline w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+        AI가 스크린샷과 요청을 분석하여 Excel 파일을 수정합니다
+      </div>
+      
+      <button type="button"
+              class="bg-primary text-primary-foreground px-6 py-3 rounded-lg font-medium hover:bg-primary/90 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+              data-excel-modification-target="submitButton"
+              data-action="click->excel-modification#submitModification"
+              disabled>
+        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
+        </svg>
+        수정 요청
+      </button>
+    </div>
+
+    <%# Loading state %>
+    <div class="hidden" data-excel-modification-target="loadingState">
+      <div class="flex items-center justify-center py-8">
+        <div class="flex items-center space-x-3">
+          <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          <span class="text-muted-foreground">AI가 분석 중입니다...</span>
+        </div>
+      </div>
+    </div>
+
+    <%# Result section %>
+    <div data-excel-modification-target="resultSection"></div>
+  </div>
+</div>

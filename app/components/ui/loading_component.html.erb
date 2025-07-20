@@ -1,0 +1,23 @@
+<div class="<%= container_classes %>" role="status" aria-live="polite" aria-label="<%= text %>">
+  <% case variant %>
+  <% when :spinner %>
+    <div class="<%= spinner_classes %>" aria-hidden="true"></div>
+  <% when :pulse %>
+    <div class="<%= pulse_classes %>" aria-hidden="true"></div>
+  <% when :dots %>
+    <div class="<%= dots_classes %>" aria-hidden="true">
+      <div class="<%= dot_classes %>" style="animation-delay: 0ms;"></div>
+      <div class="<%= dot_classes %>" style="animation-delay: 150ms;"></div>
+      <div class="<%= dot_classes %>" style="animation-delay: 300ms;"></div>
+    </div>
+  <% end %>
+  
+  <% if show_text %>
+    <span class="<%= text_classes %> text-gray-600 dark:text-gray-400">
+      <%= text %>
+    </span>
+  <% end %>
+  
+  <!-- Screen reader only text -->
+  <span class="sr-only"><%= text %></span>
+</div>

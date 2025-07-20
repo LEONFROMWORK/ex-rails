@@ -1,0 +1,100 @@
+#!/bin/bash
+# Pre-commit hook for ExcelApp-Rails
+# Runs code quality checks before allowing commit
+
+set -e
+
+echo "🔍 Running pre-commit checks..."
+
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
+NC='\033[0m' # No Color
+
+# Function to print colored output
+print_status() {
+    echo -e "${GREEN}✅ $1${NC}"
+}
+
+print_warning() {
+    echo -e "${YELLOW}⚠️  $1${NC}"
+}
+
+print_error() {
+    echo -e "${RED}❌ $1${NC}"
+}
+
+# Check if bundle is available
+if command -v bundle &> /dev/null; then
+    # Run RuboCop for Ruby files
+    if git diff --cached --name-only | grep -E '\.(rb|rake)$' > /dev/null; then
+        echo "🔍 Checking Ruby code style with RuboCop..."
+        if ! bundle exec rubocop $(git diff --cached --name-only --diff-filter=AM | grep -E '\.(rb|rake)$' | tr '\n' ' '); then
+            print_error "RuboCop failed. Please fix the issues above."
+            exit 1
+        fi
+        print_status "RuboCop checks passed"
+    fi
+
+    # Run Brakeman security check
+    if git diff --cached --name-only | grep -E '\.(rb|rake)$' > /dev/null; then
+        echo "🔒 Running security checks with Brakeman..."
+        if command -v brakeman &> /dev/null; then
+            if ! bundle exec brakeman --no-pager --quiet; then
+                print_error "Brakeman security check failed."
+                exit 1
+            fi
+            print_status "Security checks passed"
+        else
+            print_warning "Brakeman not installed. Consider adding it to your Gemfile."
+        fi
+    fi
+else
+    print_warning "Bundle not available. Skipping Ruby checks."
+fi
+
+# Check if npm/yarn is available for JavaScript linting
+if [ -f "package.json" ]; then
+    if command -v npm &> /dev/null; then
+        # Run ESLint for JavaScript files if available
+        if git diff --cached --name-only | grep -E '\.(js|jsx|ts|tsx)$' > /dev/null; then
+            if [ -f "node_modules/.bin/eslint" ]; then
+                echo "🔍 Checking JavaScript/TypeScript code style..."
+                if ! npm run lint:js 2>/dev/null || ! npx eslint $(git diff --cached --name-only --diff-filter=AM | grep -E '\.(js|jsx|ts|tsx)$' | tr '\n' ' ') 2>/dev/null; then
+                    print_warning "JavaScript linting failed or not configured."
+                fi
+                print_status "JavaScript checks completed"
+            fi
+        fi
+    fi
+fi
+
+# Check for secrets and sensitive information
+echo "🔐 Checking for potential secrets..."
+if git diff --cached | grep -i -E "(password|secret|key|token|api.*key)" > /dev/null; then
+    print_warning "Potential secrets detected in staged changes. Please review:"
+    git diff --cached | grep -i -E "(password|secret|key|token|api.*key)" || true
+    echo ""
+    echo "If these are not actual secrets, you can proceed with commit."
+    echo "Otherwise, please remove them and use environment variables instead."
+fi
+
+# Check for large files
+echo "📁 Checking for large files..."
+large_files=$(git diff --cached --name-only | xargs -I {} stat -f%z {} 2>/dev/null | awk '$1 > 5242880 {print $1}' || true)
+if [ ! -z "$large_files" ]; then
+    print_warning "Large files detected (>5MB). Consider using Git LFS:"
+    git diff --cached --name-only | xargs -I {} sh -c 'size=$(stat -f%z "{}" 2>/dev/null || echo 0); if [ $size -gt 5242880 ]; then echo "  {} ($((size/1024/1024))MB)"; fi'
+fi
+
+# Check for TODO/FIXME comments in staged changes
+echo "📝 Checking for TODO/FIXME comments..."
+if git diff --cached | grep -E "(TODO|FIXME|XXX|HACK)" > /dev/null; then
+    print_warning "TODO/FIXME comments found in staged changes:"
+    git diff --cached | grep -n -E "(TODO|FIXME|XXX|HACK)" || true
+    echo ""
+fi
+
+print_status "Pre-commit checks completed successfully!"
+echo ""

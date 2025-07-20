@@ -12,14 +12,14 @@ module AiIntegration
 
       def execute
         return failure("Message cannot be blank") if @message.blank?
-        return failure("Insufficient tokens") unless @user.tokens >= minimum_tokens_required
+        return failure("Insufficient tokens") unless @user.credits >= minimum_tokens_required
 
         conversation = find_or_create_conversation
         file_context = @file_id ? ExcelFile.find_by(id: @file_id, user: @user) : nil
 
         # 2-tier AI system
         tier1_response = process_with_tier1
-        
+
         if tier1_response[:confidence_score] >= 0.85
           finalize_response(conversation, tier1_response, 1)
         else
@@ -50,38 +50,38 @@ module AiIntegration
       def process_with_tier1
         service = AiIntegration::Services::MultiProviderService.new(tier: 1)
         context = build_context
-        
+
         response = service.chat(
           message: @message,
           context: context,
           user: @user
         )
-        
+
         {
           response: response[:message],
           confidence_score: response[:confidence_score] || 0.7,
-          tokens_used: response[:tokens_used] || 5,
+          credits_used: response[:credits_used] || 5,
           provider: response[:provider]
         }
       end
 
       def process_with_tier2(tier1_response)
         return failure("Insufficient tokens for Tier 2 analysis") unless @user.can_use_ai_tier?(2)
-        
+
         service = AiIntegration::Services::MultiProviderService.new(tier: 2)
         context = build_context
-        
+
         response = service.chat(
           message: @message,
           context: context,
           previous_response: tier1_response[:response],
           user: @user
         )
-        
+
         {
           response: response[:message],
           confidence_score: response[:confidence_score] || 0.9,
-          tokens_used: (tier1_response[:tokens_used] || 5) + (response[:tokens_used] || 50),
+          credits_used: (tier1_response[:credits_used] || 5) + (response[:credits_used] || 50),
           provider: response[:provider]
         }
       end
@@ -91,7 +91,7 @@ module AiIntegration
           user_tier: @user.tier,
           conversation_history: recent_messages
         }
-        
+
         if @file_id && file = @user.excel_files.find_by(id: @file_id)
           context[:file_info] = {
             name: file.original_name,
@@ -106,13 +106,13 @@ module AiIntegration
             }
           }
         end
-        
+
         context
       end
 
       def recent_messages
         return [] unless @conversation_id
-        
+
         conversation = @user.chat_conversations.find(@conversation_id)
         conversation.chat_messages.recent.limit(10).map { |msg|
           {
@@ -126,27 +126,27 @@ module AiIntegration
       def finalize_response(conversation, ai_response, tier_used)
         # Save user message
         user_message = conversation.chat_messages.create!(
-          role: 'user',
+          role: "user",
           content: @message
         )
-        
+
         # Save AI response
         ai_message = conversation.chat_messages.create!(
-          role: 'assistant',
+          role: "assistant",
           content: ai_response[:response],
           ai_tier_used: tier_used,
-          tokens_used: ai_response[:tokens_used],
+          credits_used: ai_response[:credits_used],
           confidence_score: ai_response[:confidence_score],
           provider: ai_response[:provider]
         )
-        
+
         # Consume tokens
-        @user.consume_tokens!(ai_response[:tokens_used])
-        
+        @user.consume_tokens!(ai_response[:credits_used])
+
         success({
           response: ai_response[:response],
           conversation_id: conversation.id,
-          tokens_used: ai_response[:tokens_used],
+          credits_used: ai_response[:credits_used],
           ai_tier_used: tier_used,
           confidence_score: ai_response[:confidence_score]
         })

@@ -33,7 +33,7 @@ module PaymentProcessing
           # Update payment intent with TossPayments data
           payment_intent.value.update!(
             toss_payment_key: toss_result.value[:payment_key],
-            status: 'pending'
+            status: "pending"
           )
 
           Common::Result.success({
@@ -42,7 +42,7 @@ module PaymentProcessing
             amount: amount
           })
         else
-          payment_intent.value.update!(status: 'failed', error_message: toss_result.error.message)
+          payment_intent.value.update!(status: "failed", error_message: toss_result.error.message)
           toss_result
         end
 
@@ -81,7 +81,7 @@ module PaymentProcessing
         else
           # Handle payment failure
           payment_intent.value.update!(
-            status: 'failed',
+            status: "failed",
             error_message: toss_result.error.message
           )
           toss_result
@@ -110,15 +110,15 @@ module PaymentProcessing
         end
 
         event_data = JSON.parse(request.payload)
-        event_type = event_data['eventType']
-        payment_data = event_data['data']
+        event_type = event_data["eventType"]
+        payment_data = event_data["data"]
 
         case event_type
-        when 'Payment.Paid'
+        when "Payment.Paid"
           handle_payment_paid(payment_data)
-        when 'Payment.Failed'
+        when "Payment.Failed"
           handle_payment_failed(payment_data)
-        when 'Payment.Canceled'
+        when "Payment.Canceled"
           handle_payment_canceled(payment_data)
         else
           Rails.logger.info("Unhandled webhook event: #{event_type}")
@@ -141,8 +141,8 @@ module PaymentProcessing
         errors << "User is required" unless request.user.present?
         errors << "Amount must be positive" unless request.amount.to_i > 0
         errors << "Payment type is required" unless request.payment_type.present?
-        
-        valid_types = ['token_purchase', 'subscription']
+
+        valid_types = [ "credits_purchase", "subscription" ]
         errors << "Invalid payment type" unless valid_types.include?(request.payment_type)
 
         return Common::Result.success if errors.empty?
@@ -171,13 +171,13 @@ module PaymentProcessing
 
       def create_payment_intent(user, amount, payment_type)
         order_id = generate_order_id
-        
+
         payment_intent = PaymentIntent.create!(
           user: user,
           order_id: order_id,
           amount: amount,
           payment_type: payment_type,
-          status: 'created'
+          status: "created"
         )
 
         Common::Result.success(payment_intent)
@@ -191,7 +191,7 @@ module PaymentProcessing
 
       def find_payment_intent(order_id)
         payment_intent = PaymentIntent.find_by(order_id: order_id)
-        
+
         if payment_intent
           Common::Result.success(payment_intent)
         else
@@ -208,16 +208,16 @@ module PaymentProcessing
         ActiveRecord::Base.transaction do
           # Update payment intent
           payment_intent.update!(
-            status: 'completed',
-            toss_transaction_id: toss_data['transactionKey'],
+            status: "completed",
+            toss_transaction_id: toss_data["transactionKey"],
             paid_at: Time.current
           )
 
           # Process based on payment type
           case payment_intent.payment_type
-          when 'token_purchase'
-            process_token_purchase(payment_intent)
-          when 'subscription'
+          when "credits_purchase"
+            process_credits_purchase(payment_intent)
+          when "subscription"
             process_subscription_payment(payment_intent)
           end
 
@@ -226,15 +226,15 @@ module PaymentProcessing
             user: payment_intent.user,
             payment_intent: payment_intent,
             amount: payment_intent.amount,
-            payment_method: toss_data['method'],
-            toss_transaction_id: toss_data['transactionKey'],
-            status: 'completed'
+            payment_method: toss_data["method"],
+            toss_transaction_id: toss_data["transactionKey"],
+            status: "completed"
           )
         end
 
         Common::Result.success({
           order_id: payment_intent.order_id,
-          status: 'completed',
+          status: "completed",
           amount: payment_intent.amount
         })
       rescue StandardError => e
@@ -242,28 +242,28 @@ module PaymentProcessing
         Common::Result.failure("Payment processing failed")
       end
 
-      def process_token_purchase(payment_intent)
-        # Calculate tokens based on amount (e.g., 1000 won = 10 tokens)
-        tokens_purchased = (payment_intent.amount / 100).to_i
-        
-        payment_intent.user.increment!(:tokens, tokens_purchased)
-        
+      def process_credits_purchase(payment_intent)
+        # Calculate credits based on amount (e.g., 1000 won = 10 credits)
+        credits_purchased = (payment_intent.amount / 100).to_i
+
+        payment_intent.user.increment!(:credits, credits_purchased)
+
         Rails.logger.info(
-          "Added #{tokens_purchased} tokens to user #{payment_intent.user.id}"
+          "Added #{credits_purchased} credits to user #{payment_intent.user.id}"
         )
       end
 
       def process_subscription_payment(payment_intent)
         # Update or create subscription
-        subscription = payment_intent.user.subscription || 
+        subscription = payment_intent.user.subscription ||
                      payment_intent.user.build_subscription
 
         # Determine subscription tier based on amount
         tier = determine_subscription_tier(payment_intent.amount)
-        
+
         subscription.update!(
           tier: tier,
-          status: 'active',
+          status: "active",
           current_period_start: Time.current,
           current_period_end: 1.month.from_now
         )
@@ -276,17 +276,17 @@ module PaymentProcessing
       def determine_subscription_tier(amount)
         case amount
         when 0..9_900
-          'basic'
+          "basic"
         when 9_900..29_900
-          'pro'
+          "pro"
         else
-          'enterprise'
+          "enterprise"
         end
       end
 
       def handle_payment_paid(payment_data)
-        order_id = payment_data['orderId']
-        
+        order_id = payment_data["orderId"]
+
         payment_intent = PaymentIntent.find_by(order_id: order_id)
         return Common::Result.failure("Payment intent not found") unless payment_intent
 
@@ -294,26 +294,26 @@ module PaymentProcessing
       end
 
       def handle_payment_failed(payment_data)
-        order_id = payment_data['orderId']
-        
+        order_id = payment_data["orderId"]
+
         payment_intent = PaymentIntent.find_by(order_id: order_id)
         return Common::Result.failure("Payment intent not found") unless payment_intent
 
         payment_intent.update!(
-          status: 'failed',
-          error_message: payment_data['failure']['message']
+          status: "failed",
+          error_message: payment_data["failure"]["message"]
         )
 
         Common::Result.success("Payment failure processed")
       end
 
       def handle_payment_canceled(payment_data)
-        order_id = payment_data['orderId']
-        
+        order_id = payment_data["orderId"]
+
         payment_intent = PaymentIntent.find_by(order_id: order_id)
         return Common::Result.failure("Payment intent not found") unless payment_intent
 
-        payment_intent.update!(status: 'canceled')
+        payment_intent.update!(status: "canceled")
 
         Common::Result.success("Payment cancellation processed")
       end

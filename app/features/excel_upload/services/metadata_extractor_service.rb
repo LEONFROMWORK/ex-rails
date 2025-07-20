@@ -11,11 +11,11 @@ module ExcelUpload
 
       def extract
         case excel_file.file_format
-        when '.xlsx', '.xlsm'
+        when ".xlsx", ".xlsm"
           extract_xlsx_metadata
-        when '.xls'
+        when ".xls"
           extract_xls_metadata
-        when '.csv'
+        when ".csv"
           extract_csv_metadata
         else
           Common::Result.failure("Unsupported file format: #{excel_file.file_format}")
@@ -28,8 +28,8 @@ module ExcelUpload
       private
 
       def extract_xlsx_metadata
-        require 'roo'
-        
+        require "roo"
+
         # For now, we'll use a mock implementation
         # In production, you'd download from S3 and process
         metadata = {
@@ -46,7 +46,7 @@ module ExcelUpload
           total_rows: 100,
           max_columns: 10,
           file_version: "Excel 2016",
-          has_vba: excel_file.file_format == '.xlsm',
+          has_vba: excel_file.file_format == ".xlsm",
           created_date: Time.current,
           modified_date: Time.current
         }
@@ -58,7 +58,7 @@ module ExcelUpload
         # Similar implementation for XLS files
         metadata = {
           sheet_count: 1,
-          sheets: [{ name: "Sheet1", rows: 50, columns: 5 }],
+          sheets: [ { name: "Sheet1", rows: 50, columns: 5 } ],
           total_rows: 50,
           max_columns: 5,
           file_version: "Excel 97-2003",
@@ -72,7 +72,7 @@ module ExcelUpload
         # CSV metadata extraction
         metadata = {
           sheet_count: 1,
-          sheets: [{ name: "CSV Data", rows: 100, columns: 5 }],
+          sheets: [ { name: "CSV Data", rows: 100, columns: 5 } ],
           total_rows: 100,
           max_columns: 5,
           delimiter: ",",

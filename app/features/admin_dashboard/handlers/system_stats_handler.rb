@@ -3,7 +3,7 @@
 module AdminDashboard
   module Handlers
     class SystemStatsHandler < Common::BaseHandler
-      def initialize(user:, time_range: 'today')
+      def initialize(user:, time_range: "today")
         @user = user
         @time_range = time_range
       end
@@ -20,9 +20,9 @@ module AdminDashboard
 
         begin
           stats = calculate_system_stats
-          
+
           Rails.logger.info("System stats generated for admin user #{@user.id}")
-          
+
           Common::Result.success(stats)
         rescue StandardError => e
           Rails.logger.error("Failed to generate system stats: #{e.message}")
@@ -62,7 +62,7 @@ module AdminDashboard
           user_distribution: {
             by_tier: User.group(:tier).count,
             by_role: User.group(:role).count,
-            token_distribution: calculate_token_distribution
+            credits_distribution: calculate_credits_distribution
           },
           performance_metrics: {
             avg_analysis_time: calculate_avg_analysis_time(time_filter),
@@ -74,11 +74,11 @@ module AdminDashboard
 
       def get_time_filter
         case @time_range
-        when 'today'
+        when "today"
           Time.current.beginning_of_day..Time.current.end_of_day
-        when 'week'
+        when "week"
           1.week.ago..Time.current
-        when 'month'
+        when "month"
           1.month.ago..Time.current
         else
           Time.current.beginning_of_day..Time.current.end_of_day
@@ -86,13 +86,13 @@ module AdminDashboard
       end
 
       def get_ai_provider_status
-        providers = ['openai', 'anthropic', 'google']
-        
+        providers = [ "openai", "anthropic", "google" ]
+
         providers.map do |provider|
           begin
             provider_instance = "Infrastructure::AiProviders::#{provider.camelize}Provider".constantize.new
             status = provider_instance.health_check
-            
+
             {
               name: provider,
               status: status[:status],
@@ -101,7 +101,7 @@ module AdminDashboard
           rescue StandardError => e
             {
               name: provider,
-              status: 'error',
+              status: "error",
               error: e.message
             }
           end
@@ -123,18 +123,18 @@ module AdminDashboard
         # Consider analyses with high error counts as "failed"
         failed_analyses = Analysis.where(created_at: time_filter)
                                 .joins(:excel_file)
-                                .where(excel_files: { status: 'failed' })
+                                .where(excel_files: { status: "failed" })
                                 .count
 
         (failed_analyses.to_f / total_analyses * 100).round(2)
       end
 
-      def calculate_token_distribution
+      def calculate_credits_distribution
         {
-          total_tokens: User.sum(:tokens),
-          avg_tokens_per_user: User.average(:tokens).to_f.round(2),
-          users_with_tokens: User.where('tokens > 0').count,
-          users_without_tokens: User.where(tokens: 0).count
+          total_credits: User.sum(:credits),
+          avg_credits_per_user: User.average(:credits).to_f.round(2),
+          users_with_credits: User.where("credits > 0").count,
+          users_without_credits: User.where(credits: 0).count
         }
       end
 
@@ -164,10 +164,10 @@ module AdminDashboard
         # This would analyze the detected_errors JSON column
         # For now, return mock data
         [
-          { type: 'formula_error', count: 45 },
-          { type: 'data_validation', count: 32 },
-          { type: 'circular_reference', count: 18 },
-          { type: 'format_inconsistency', count: 12 }
+          { type: "formula_error", count: 45 },
+          { type: "data_validation", count: 32 },
+          { type: "circular_reference", count: 18 },
+          { type: "format_inconsistency", count: 12 }
         ]
       end
     end

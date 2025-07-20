@@ -16,19 +16,19 @@ class CreateAiUsageRecords < ActiveRecord::Migration[8.0]
       t.decimal :latency_ms, precision: 10, scale: 2, null: true
       t.string :request_id, null: true
       t.string :session_id, null: true
-      
+
       t.timestamps
     end
-    
-    add_index :ai_usage_records, :user_id
-    add_index :ai_usage_records, :model_id
-    add_index :ai_usage_records, :provider
-    add_index :ai_usage_records, :request_type
-    add_index :ai_usage_records, :created_at
-    add_index :ai_usage_records, [:user_id, :created_at]
-    add_index :ai_usage_records, [:provider, :created_at]
-    add_index :ai_usage_records, [:model_id, :created_at]
-    add_index :ai_usage_records, :session_id
-    add_index :ai_usage_records, :request_id
+
+    add_index :ai_usage_records, :user_id, if_not_exists: true
+    add_index :ai_usage_records, :model_id, if_not_exists: true
+    add_index :ai_usage_records, :provider, if_not_exists: true
+    add_index :ai_usage_records, :request_type, if_not_exists: true
+    add_index :ai_usage_records, :created_at, if_not_exists: true
+    add_index :ai_usage_records, [ :user_id, :created_at ], if_not_exists: true
+    add_index :ai_usage_records, [ :provider, :created_at ], if_not_exists: true
+    add_index :ai_usage_records, [ :model_id, :created_at ], if_not_exists: true
+    add_index :ai_usage_records, :session_id, if_not_exists: true
+    add_index :ai_usage_records, :request_id, if_not_exists: true
   end
 end

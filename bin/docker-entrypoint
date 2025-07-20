@@ -1,14 +1,47 @@
 #!/bin/bash -e
 
+echo "=== ExcelApp Rails Production Entrypoint ==="
+
 # Enable jemalloc for reduced memory usage and latency.
 if [ -z "${LD_PRELOAD+x}" ]; then
     LD_PRELOAD=$(find /usr/lib -name libjemalloc.so.2 -print -quit)
     export LD_PRELOAD
+    echo "jemalloc enabled: $LD_PRELOAD"
 fi
 
-# If running the rails server then create or migrate existing database
+# 환경 변수 검증
+if [ -z "$RAILS_MASTER_KEY" ]; then
+  echo "ERROR: RAILS_MASTER_KEY environment variable is not set"
+  exit 1
+fi
+
+if [ -z "$DATABASE_URL" ]; then
+  echo "ERROR: DATABASE_URL environment variable is not set"  
+  exit 1
+fi
+
+# 데이터베이스 연결 대기 및 준비
 if [ "${@: -2:1}" == "./bin/rails" ] && [ "${@: -1:1}" == "server" ]; then
+  echo "Preparing database for Rails server..."
+  
+  # 데이터베이스 연결 대기
+  echo "Waiting for database connection..."
+  for i in {1..30}; do
+    if ./bin/rails runner "ActiveRecord::Base.connection.execute('SELECT 1')" > /dev/null 2>&1; then
+      echo "Database connection established"
+      break
+    fi
+    echo "Waiting for database... (attempt $i/30)"
+    sleep 2
+  done
+  
+  # 데이터베이스 준비
   ./bin/rails db:prepare
+  
+  # 임시 파일 정리
+  ./bin/rails tmp:clear
+  
+  echo "=== ExcelApp Rails Production Ready ==="
 fi
 
 exec "${@}"

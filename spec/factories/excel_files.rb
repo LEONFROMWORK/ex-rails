@@ -8,11 +8,11 @@ FactoryBot.define do
     file_size { 1024 }
     content_hash { SecureRandom.hex(32) }
     status { :uploaded }
-    
+
     trait :analyzed do
       status { :analyzed }
     end
-    
+
     trait :failed do
       status { :failed }
       error_message { "Processing failed" }

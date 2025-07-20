@@ -1,84 +1,129 @@
-<% content_for :title, "ExcelApp - AI Excel Analysis" %>
+<%
+# SEO 메타태그 설정
+if user_signed_in?
+  seo_meta_tags(
+    title: "대시보드 - #{current_user.name} | ExcelApp Rails",
+    description: "AI 기반 엑셀 분석 대시보드. 업로드된 파일 관리, 분석 결과 확인, 크레딧 사용량 추적.",
+    keywords: "엑셀 대시보드, AI 분석, 파일 관리, 크레딧 사용량",
+    canonical: root_path
+  )
+else
+  seo_meta_tags(
+    title: "ExcelApp Rails - AI 기반 엑셀 파일 분석 및 최적화 플랫폼",
+    description: "AI 기술을 활용한 엑셀 파일 분석, VBA 코드 검토, 데이터 인사이트 제공. 무료로 시작하는 스마트한 엑셀 관리 솔루션.",
+    keywords: "엑셀 분석, AI 엑셀, VBA 분석, 엑셀 템플릿, 스프레드시트 분석, 엑셀 오류 검사, 데이터 분석",
+    canonical: root_path,
+    type: 'website'
+  )
 
-<div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
+  # 구조화된 데이터 추가
+  structured_data(:organization, {
+    social_links: [
+      "https://github.com/excelapp-rails",
+      "https://twitter.com/excelapp_rails"
+    ]
+  })
+  
+  structured_data(:website)
+  
+  structured_data(:software_application, {
+    rating: {
+      '@type': 'AggregateRating',
+      'ratingValue': '4.8',
+      'ratingCount': '250'
+    }
+  })
+end
+%>
+
+<div class="min-h-screen bg-gradient-to-br from-background to-muted" itemscope itemtype="https://schema.org/WebPage">
   <div class="container mx-auto px-4 py-8">
     <% if user_signed_in? %>
       <!-- Authenticated User Dashboard -->
       <div class="space-y-8">
         <!-- Header -->
         <div class="text-center">
-          <h1 class="text-4xl font-bold text-gray-900 dark:text-white mb-2">Welcome back, <%= current_user.name %>!</h1>
-          <p class="text-xl text-gray-600 dark:text-gray-300">Your AI-powered Excel analysis dashboard</p>
+          <h1 class="text-4xl font-bold text-foreground mb-2"><%= t('home.dashboard.welcome_back', name: current_user.name) %></h1>
+          <p class="text-xl text-muted-foreground"><%= t('home.dashboard.subtitle') %></p>
         </div>
 
         <!-- Quick Stats -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 border border-gray-200 dark:border-gray-700">
-            <div class="flex items-center">
-              <div class="bg-blue-100 dark:bg-blue-900/50 rounded-full p-3">
-                <svg class="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <%= render_card do %>
+            <div class="p-6">
+              <div class="flex items-center">
+                <div class="bg-primary/10 rounded-full p-3">
+                  <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                 </svg>
               </div>
-              <div class="ml-4">
-                <p class="text-2xl font-bold text-gray-900 dark:text-white"><%= current_user.excel_files.count %></p>
-                <p class="text-gray-600 dark:text-gray-300">Files Analyzed</p>
+                <div class="ml-4">
+                  <p class="text-2xl font-bold text-foreground"><%= current_user.excel_files.count %></p>
+                  <p class="text-muted-foreground"><%= t('home.dashboard.files_analyzed') %></p>
+                </div>
               </div>
             </div>
-          </div>
+          <% end %>
 
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 border border-gray-200 dark:border-gray-700">
-            <div class="flex items-center">
-              <div class="bg-green-100 dark:bg-green-900/50 rounded-full p-3">
-                <svg class="w-6 h-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <%= render_card do %>
+            <div class="p-6">
+              <div class="flex items-center">
+                <div class="bg-success/10 rounded-full p-3">
+                  <svg class="w-6 h-6 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
                 </svg>
               </div>
-              <div class="ml-4">
-                <p class="text-2xl font-bold text-gray-900 dark:text-white"><%= current_user.tokens %></p>
-                <p class="text-gray-600 dark:text-gray-300">Tokens Available</p>
+                <div class="ml-4">
+                  <p class="text-2xl font-bold text-foreground"><%= current_user.credits %></p>
+                  <p class="text-muted-foreground"><%= t('home.dashboard.credits_available') %></p>
+                </div>
               </div>
             </div>
-          </div>
+          <% end %>
 
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 border border-gray-200 dark:border-gray-700">
-            <div class="flex items-center">
-              <div class="bg-purple-100 dark:bg-purple-900/50 rounded-full p-3">
-                <svg class="w-6 h-6 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <%= render_card do %>
+            <div class="p-6">
+              <div class="flex items-center">
+                <div class="bg-purple-500/10 rounded-full p-3">
+                  <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
                 </svg>
               </div>
-              <div class="ml-4">
-                <p class="text-2xl font-bold text-gray-900 dark:text-white"><%= current_user.analyses.count %></p>
-                <p class="text-gray-600 dark:text-gray-300">AI Analyses</p>
+                <div class="ml-4">
+                  <p class="text-2xl font-bold text-foreground"><%= current_user.analyses.count %></p>
+                  <p class="text-muted-foreground"><%= t('home.dashboard.ai_analyses') %></p>
+                </div>
               </div>
             </div>
-          </div>
+          <% end %>
         </div>
 
         <!-- File Upload Section -->
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 border border-gray-200 dark:border-gray-700">
-          <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Upload New File</h2>
-          <%= render Excel::FileUploadComponent.new(user: current_user) %>
-        </div>
+        <%= render_card do %>
+          <div class="p-6">
+            <h2 class="text-2xl font-bold text-foreground mb-4"><%= t('home.dashboard.upload_new_file') %></h2>
+            <%= render Excel::FileUploadComponent.new(user: current_user) %>
+          </div>
+        <% end %>
 
         <!-- Recent Files -->
         <% if @user_files&.any? %>
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 border border-gray-200 dark:border-gray-700">
-            <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Recent Files</h2>
+          <%= render_card do %>
+            <div class="p-6">
+              <h2 class="text-2xl font-bold text-foreground mb-4"><%= t('home.dashboard.recent_files') %></h2>
             <div class="space-y-4">
               <% @user_files.each do |file| %>
-                <div class="border border-gray-200 dark:border-gray-600 rounded-lg p-4 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                <div class="border border-border rounded-lg p-4 hover:bg-accent/50 transition-colors">
                   <div class="flex items-center justify-between">
                     <div class="flex items-center space-x-4">
-                      <div class="bg-gray-100 dark:bg-gray-700 rounded-full p-2">
-                        <svg class="w-5 h-5 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <div class="bg-muted rounded-full p-2">
+                        <svg class="w-5 h-5 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                         </svg>
                       </div>
                       <div>
-                        <p class="font-medium text-gray-900 dark:text-white"><%= file.original_name %></p>
-                        <p class="text-sm text-gray-500 dark:text-gray-400"><%= file.human_file_size %> • <%= time_ago_in_words(file.created_at) %> ago</p>
+                        <p class="font-medium text-foreground"><%= file.original_name %></p>
+                        <p class="text-sm text-muted-foreground"><%= file.human_file_size %> • <%= t('datetime.ago', time: time_ago_in_words(file.created_at)) %></p>
                       </div>
                     </div>
                     <div class="flex items-center space-x-4">
@@ -95,9 +140,9 @@
                         <%= file.status.humanize %>
                       <% end %>
                       <% if file.analyzed? %>
-                        <a href="/files/<%= file.id %>" class="text-blue-600 hover:text-blue-800">View Results</a>
+                        <a href="/files/<%= file.id %>" class="text-primary hover:text-primary/80"><%= t('home.dashboard.view_results') %></a>
                       <% elsif file.processing? %>
-                        <button onclick="showProgress('<%= file.id %>')" class="text-yellow-600 hover:text-yellow-800">View Progress</button>
+                        <button onclick="showProgress('<%= file.id %>')" class="text-yellow-600 hover:text-yellow-700"><%= t('home.dashboard.view_progress') %></button>
                       <% end %>
                     </div>
                   </div>
@@ -110,71 +155,79 @@
                   <% end %>
                 </div>
               <% end %>
+              </div>
             </div>
-          </div>
+          <% end %>
         <% end %>
 
         <!-- WebSocket Connection Test -->
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 border border-gray-200 dark:border-gray-700">
-          <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">WebSocket Connection Test</h2>
+        <%= render_card do %>
+          <div class="p-6">
+            <h2 class="text-2xl font-bold text-foreground mb-4"><%= t('home.dashboard.websocket_test') %></h2>
           <div class="space-y-4">
             <div class="flex items-center space-x-4">
               <div id="connection-status" class="w-3 h-3 bg-red-500 rounded-full"></div>
-              <span id="connection-text">Disconnected</span>
+              <span id="connection-text"><%= t('home.dashboard.disconnected') %></span>
             </div>
             <%= render Ui::ButtonComponent.new(onclick: "testWebSocket()") do %>
-              Test Connection
+              <%= t('home.dashboard.test_connection') %>
             <% end %>
-            <div id="websocket-log" class="bg-gray-100 dark:bg-gray-700 rounded-md p-4 text-sm font-mono h-32 overflow-y-auto text-gray-900 dark:text-gray-100"></div>
+            <div id="websocket-log" class="bg-muted rounded-md p-4 text-sm font-mono h-32 overflow-y-auto text-foreground"></div>
           </div>
-        </div>
+        <% end %>
       </div>
     <% else %>
       <!-- Guest Landing Page -->
       <div class="text-center space-y-8">
         <div class="space-y-4">
-          <h1 class="text-5xl font-bold text-gray-900 dark:text-white">ExcelApp</h1>
-          <p class="text-xl text-gray-600 dark:text-gray-300">AI-powered Excel error detection and optimization</p>
+          <h1 class="text-5xl font-bold text-foreground"><%= t('home.landing.title') %></h1>
+          <p class="text-xl text-muted-foreground"><%= t('home.landing.subtitle') %></p>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 border border-gray-200 dark:border-gray-700">
-            <div class="bg-blue-100 dark:bg-blue-900/50 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-              <svg class="w-8 h-8 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <%= render_card do %>
+            <div class="p-6">
+              <div class="bg-primary/10 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                <svg class="w-8 h-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
               </svg>
             </div>
-            <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Smart Detection</h3>
-            <p class="text-gray-600 dark:text-gray-300">AI automatically detects formula errors, data validation issues, and optimization opportunities</p>
-          </div>
+              <h3 class="text-xl font-bold text-foreground mb-2"><%= t('home.landing.smart_detection') %></h3>
+              <p class="text-muted-foreground"><%= t('home.landing.smart_detection_desc') %></p>
+            </div>
+          <% end %>
 
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 border border-gray-200 dark:border-gray-700">
-            <div class="bg-green-100 dark:bg-green-900/50 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-              <svg class="w-8 h-8 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <%= render_card do %>
+            <div class="p-6">
+              <div class="bg-success/10 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                <svg class="w-8 h-8 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
               </svg>
             </div>
-            <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Real-time Analysis</h3>
-            <p class="text-gray-600 dark:text-gray-300">Get instant feedback and progress updates as AI analyzes your Excel files</p>
-          </div>
+              <h3 class="text-xl font-bold text-foreground mb-2"><%= t('home.landing.real_time_analysis') %></h3>
+              <p class="text-muted-foreground"><%= t('home.landing.real_time_analysis_desc') %></p>
+            </div>
+          <% end %>
 
-          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 border border-gray-200 dark:border-gray-700">
-            <div class="bg-purple-100 dark:bg-purple-900/50 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-              <svg class="w-8 h-8 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <%= render_card do %>
+            <div class="p-6">
+              <div class="bg-purple-500/10 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                <svg class="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
               </svg>
             </div>
-            <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Cost Efficient</h3>
-            <p class="text-gray-600 dark:text-gray-300">2-tier AI system optimizes costs while maintaining high accuracy</p>
-          </div>
+              <h3 class="text-xl font-bold text-foreground mb-2"><%= t('home.landing.cost_efficient') %></h3>
+              <p class="text-muted-foreground"><%= t('home.landing.cost_efficient_desc') %></p>
+            </div>
+          <% end %>
         </div>
 
         <div class="space-y-4">
           <%= render Ui::ButtonComponent.new(size: :lg, class: "px-8 py-3 text-lg") do %>
-            <%= link_to "Get Started", signup_path, class: "text-inherit no-underline" %>
+            <%= link_to t('home.landing.get_started'), auth_register_path, class: "text-inherit no-underline" %>
           <% end %>
-          <div class="text-gray-600 dark:text-gray-300">
-            Already have an account? <a href="/login" class="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300">Sign in</a>
+          <div class="text-muted-foreground">
+            <%= t('home.landing.already_have_account') %> <%= link_to t('home.landing.sign_in'), auth_login_path, class: "text-primary hover:text-primary/80" %>
           </div>
         </div>
       </div>
@@ -215,13 +268,13 @@ function testWebSocket() {
     connected() {
       addToLog('✓ Connected to WebSocket');
       statusDot.className = 'w-3 h-3 bg-green-500 rounded-full';
-      statusText.textContent = 'Connected';
+      statusText.textContent = '<%= t('home.dashboard.connected') %>';
     },
 
     disconnected() {
       addToLog('✗ Disconnected from WebSocket');
       statusDot.className = 'w-3 h-3 bg-red-500 rounded-full';
-      statusText.textContent = 'Disconnected';
+      statusText.textContent = '<%= t('home.dashboard.disconnected') %>';
     },
 
     received(data) {
@@ -231,7 +284,7 @@ function testWebSocket() {
     rejected() {
       addToLog('✗ Connection rejected');
       statusDot.className = 'w-3 h-3 bg-red-500 rounded-full';
-      statusText.textContent = 'Rejected';
+      statusText.textContent = '<%= t('home.dashboard.rejected') %>';
     }
   });
   

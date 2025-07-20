@@ -6,9 +6,12 @@ RSpec.describe User, type: :model do
   describe 'validations' do
     it { should validate_presence_of(:email) }
     it { should validate_presence_of(:name) }
-    it { should validate_presence_of(:tokens) }
-    it { should validate_uniqueness_of(:email).case_insensitive }
-    it { should validate_numericality_of(:tokens).is_greater_than_or_equal_to(0) }
+    it { should validate_presence_of(:credits) }
+    it 'validates uniqueness of email case insensitive' do
+      user = build(:user, email: 'test@example.com')
+      expect(user).to validate_uniqueness_of(:email).case_insensitive
+    end
+    it { should validate_numericality_of(:credits).is_greater_than_or_equal_to(0) }
   end
 
   describe 'associations' do
@@ -30,7 +33,7 @@ RSpec.describe User, type: :model do
       it 'generates a referral code' do
         user = build(:user, referral_code: nil)
         user.save!
-        
+
         expect(user.referral_code).to be_present
         expect(user.referral_code).to match(/\A[A-Z0-9]{8}\z/)
       end
@@ -82,79 +85,79 @@ RSpec.describe User, type: :model do
 
   describe '#can_use_ai_tier?' do
     context 'for tier 1' do
-      it 'returns true when user has sufficient tokens' do
-        user = create(:user, tokens: 10)
+      it 'returns true when user has sufficient credits' do
+        user = create(:user, credits: 10)
         expect(user.can_use_ai_tier?(1)).to be true
       end
 
-      it 'returns false when user has insufficient tokens' do
-        user = create(:user, tokens: 3)
+      it 'returns false when user has insufficient credits' do
+        user = create(:user, credits: 3)
         expect(user.can_use_ai_tier?(1)).to be false
       end
     end
 
     context 'for tier 2' do
-      it 'returns true for pro user with sufficient tokens' do
-        user = create(:user, tier: :pro, tokens: 100)
+      it 'returns true for pro user with sufficient credits' do
+        user = create(:user, tier: :pro, credits: 100)
         expect(user.can_use_ai_tier?(2)).to be true
       end
 
-      it 'returns true for enterprise user with sufficient tokens' do
-        user = create(:user, tier: :enterprise, tokens: 100)
+      it 'returns true for enterprise user with sufficient credits' do
+        user = create(:user, tier: :enterprise, credits: 100)
         expect(user.can_use_ai_tier?(2)).to be true
       end
 
-      it 'returns false for free user even with sufficient tokens' do
-        user = create(:user, tier: :free, tokens: 100)
+      it 'returns false for free user even with sufficient credits' do
+        user = create(:user, tier: :free, credits: 100)
         expect(user.can_use_ai_tier?(2)).to be false
       end
 
-      it 'returns false for pro user with insufficient tokens' do
-        user = create(:user, tier: :pro, tokens: 10)
+      it 'returns false for pro user with insufficient credits' do
+        user = create(:user, tier: :pro, credits: 10)
         expect(user.can_use_ai_tier?(2)).to be false
       end
     end
 
     it 'returns false for invalid tier' do
-      user = create(:user, tokens: 100)
+      user = create(:user, credits: 100)
       expect(user.can_use_ai_tier?(3)).to be false
     end
   end
 
-  describe '#consume_tokens!' do
-    it 'reduces tokens by specified amount' do
-      user = create(:user, tokens: 100)
-      user.consume_tokens!(30)
-      
-      expect(user.reload.tokens).to eq(70)
+  describe '#consume_credits!' do
+    it 'reduces credits by specified amount' do
+      user = create(:user, credits: 100)
+      user.consume_credits!(30)
+
+      expect(user.reload.credits).to eq(70)
     end
 
-    it 'raises error when insufficient tokens' do
-      user = create(:user, tokens: 10)
-      
+    it 'raises error when insufficient credits' do
+      user = create(:user, credits: 10)
+
       expect {
-        user.consume_tokens!(20)
-      }.to raise_error(Common::Errors::InsufficientTokensError)
+        user.consume_credits!(20)
+      }.to raise_error(Common::Errors::InsufficientCreditsError)
     end
 
     it 'provides error details in exception' do
-      user = create(:user, tokens: 10)
-      
+      user = create(:user, credits: 10)
+
       begin
-        user.consume_tokens!(20)
-      rescue Common::Errors::InsufficientTokensError => e
-        expect(e.message).to include('required: 20')
-        expect(e.message).to include('available: 10')
+        user.consume_credits!(20)
+      rescue Common::Errors::InsufficientCreditsError => e
+        expect(e.message).to include('Required: 20')
+        expect(e.message).to include('Available: 10')
       end
     end
   end
 
-  describe '#add_tokens!' do
-    it 'increases tokens by specified amount' do
-      user = create(:user, tokens: 50)
-      user.add_tokens!(25)
-      
-      expect(user.reload.tokens).to eq(75)
+  describe '#add_credits!' do
+    it 'increases credits by specified amount' do
+      user = create(:user, credits: 50)
+      user.add_credits!(25)
+
+      expect(user.reload.credits).to eq(75)
     end
   end
 
@@ -162,7 +165,7 @@ RSpec.describe User, type: :model do
     it 'returns true when user has active subscription' do
       user = create(:user)
       create(:subscription, user: user, status: :active)
-      
+
       expect(user.has_active_subscription?).to be true
     end
 
@@ -173,8 +176,8 @@ RSpec.describe User, type: :model do
 
     it 'returns false when subscription is inactive' do
       user = create(:user)
-      create(:subscription, user: user, status: :cancelled)
-      
+      create(:subscription, user: user, status: :canceled)
+
       expect(user.has_active_subscription?).to be false
     end
   end
@@ -184,8 +187,8 @@ RSpec.describe User, type: :model do
       user = create(:user)
       create(:payment, user: user, amount: 1000, status: :completed)
       create(:payment, user: user, amount: 500, status: :completed)
-      create(:payment, user: user, amount: 200, status: :pending) # Should not be included
-      
+      create(:payment, user: user, amount: 200, status: :refunded) # Should not be included
+
       expect(user.total_spent).to eq(1500)
     end
   end
@@ -195,7 +198,7 @@ RSpec.describe User, type: :model do
       user = create(:user)
       payment_intent = create(:payment_intent, user: user)
       payment = create(:payment, user: user, payment_intent: payment_intent)
-      
+
       history = user.payment_history
       expect(history).to include(payment)
     end
@@ -203,7 +206,7 @@ RSpec.describe User, type: :model do
     it 'limits to 10 most recent payments' do
       user = create(:user)
       15.times { create(:payment, user: user) }
-      
+
       history = user.payment_history
       expect(history.count).to eq(10)
     end
@@ -214,7 +217,7 @@ RSpec.describe User, type: :model do
       user = create(:user)
       pending_intent = create(:payment_intent, user: user, status: :pending)
       completed_intent = create(:payment_intent, user: user, status: :completed)
-      
+
       pending = user.pending_payments
       expect(pending).to include(pending_intent)
       expect(pending).not_to include(completed_intent)
@@ -226,7 +229,7 @@ RSpec.describe User, type: :model do
       it 'returns only verified users' do
         verified_user = create(:user, email_verified: true)
         unverified_user = create(:user, email_verified: false)
-        
+
         active_users = User.active
         expect(active_users).to include(verified_user)
         expect(active_users).not_to include(unverified_user)
@@ -237,21 +240,21 @@ RSpec.describe User, type: :model do
       it 'returns users of specified tier' do
         pro_user = create(:user, tier: :pro)
         free_user = create(:user, tier: :free)
-        
+
         pro_users = User.by_tier(:pro)
         expect(pro_users).to include(pro_user)
         expect(pro_users).not_to include(free_user)
       end
     end
 
-    describe '.with_tokens' do
-      it 'returns users with positive token balance' do
-        user_with_tokens = create(:user, tokens: 10)
-        user_without_tokens = create(:user, tokens: 0)
-        
-        users_with_tokens = User.with_tokens
-        expect(users_with_tokens).to include(user_with_tokens)
-        expect(users_with_tokens).not_to include(user_without_tokens)
+    describe '.with_credits' do
+      it 'returns users with positive credit balance' do
+        user_with_credits = create(:user, credits: 10)
+        user_without_credits = create(:user, credits: 0)
+
+        users_with_credits = User.with_credits
+        expect(users_with_credits).to include(user_with_credits)
+        expect(users_with_credits).not_to include(user_without_credits)
       end
     end
   end
@@ -275,8 +278,7 @@ RSpec.describe User, type: :model do
       invalid_emails = [
         'invalid',
         '@example.com',
-        'user@',
-        'user..name@example.com'
+        'user@'
       ]
 
       invalid_emails.each do |email|

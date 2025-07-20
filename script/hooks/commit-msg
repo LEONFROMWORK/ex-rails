@@ -1,0 +1,119 @@
+#!/bin/bash
+# Commit message linting hook for ExcelApp-Rails
+# Validates commit message format according to conventional commits
+
+set -e
+
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
+NC='\033[0m' # No Color
+
+print_error() {
+    echo -e "${RED}❌ $1${NC}"
+}
+
+print_success() {
+    echo -e "${GREEN}✅ $1${NC}"
+}
+
+# Get the commit message
+commit_msg_file="$1"
+commit_msg=$(cat "$commit_msg_file")
+
+# Skip validation for merge commits
+if echo "$commit_msg" | grep -qE "^Merge (branch|pull request)"; then
+    print_success "Merge commit detected, skipping validation"
+    exit 0
+fi
+
+# Skip validation for revert commits
+if echo "$commit_msg" | grep -qE "^Revert "; then
+    print_success "Revert commit detected, skipping validation"
+    exit 0
+fi
+
+# Define the conventional commit pattern
+# Format: type(scope): description
+# 
+# Types: feat, fix, docs, style, refactor, test, chore, perf, ci, build
+# Scope: optional, in parentheses
+# Description: brief description of changes
+conventional_pattern="^(feat|fix|docs|style|refactor|test|chore|perf|ci|build)(\(.+\))?: .{1,72}"
+
+# Check if commit message follows conventional format
+if ! echo "$commit_msg" | grep -qE "$conventional_pattern"; then
+    print_error "Invalid commit message format!"
+    echo ""
+    echo "Your commit message:"
+    echo "  $commit_msg"
+    echo ""
+    echo "Expected format:"
+    echo "  type(scope): description"
+    echo ""
+    echo "Types:"
+    echo "  feat:     A new feature"
+    echo "  fix:      A bug fix"
+    echo "  docs:     Documentation only changes"
+    echo "  style:    Changes that do not affect the meaning of the code"
+    echo "  refactor: A code change that neither fixes a bug nor adds a feature"
+    echo "  test:     Adding missing tests or correcting existing tests"
+    echo "  chore:    Changes to the build process or auxiliary tools"
+    echo "  perf:     A code change that improves performance"
+    echo "  ci:       Changes to CI configuration files and scripts"
+    echo "  build:    Changes that affect the build system or external dependencies"
+    echo ""
+    echo "Examples:"
+    echo "  feat(auth): add OAuth2 authentication"
+    echo "  fix(excel): resolve formula parsing error"
+    echo "  docs: update API documentation"
+    echo "  test(analysis): add unit tests for file processor"
+    echo ""
+    echo "Scope is optional but recommended. Keep description under 72 characters."
+    exit 1
+fi
+
+# Check for imperative mood (common convention)
+first_word=$(echo "$commit_msg" | sed -E 's/^[a-z]+(\(.+\))?: ([a-z]+).*/\2/')
+if echo "$first_word" | grep -qE "(added|fixed|updated|changed|removed|created)"; then
+    print_error "Use imperative mood in commit messages!"
+    echo ""
+    echo "Instead of: 'added', 'fixed', 'updated', 'changed', 'removed', 'created'"
+    echo "Use:        'add', 'fix', 'update', 'change', 'remove', 'create'"
+    echo ""
+    echo "Your message: $commit_msg"
+    exit 1
+fi
+
+# Check for minimum length
+if [ ${#commit_msg} -lt 10 ]; then
+    print_error "Commit message too short (minimum 10 characters)"
+    echo "Your message: $commit_msg"
+    exit 1
+fi
+
+# Check for maximum length of first line
+first_line=$(echo "$commit_msg" | head -n1)
+if [ ${#first_line} -gt 72 ]; then
+    print_error "First line of commit message too long (maximum 72 characters)"
+    echo "Your message length: ${#first_line}"
+    echo "Your message: $first_line"
+    exit 1
+fi
+
+# Check for proper capitalization
+if echo "$commit_msg" | grep -qE "^[a-z]+(\(.+\))?: [A-Z]"; then
+    print_error "Description should start with lowercase letter"
+    echo "Your message: $commit_msg"
+    exit 1
+fi
+
+# Check for ending punctuation
+if echo "$first_line" | grep -qE "\.$"; then
+    print_error "First line should not end with a period"
+    echo "Your message: $commit_msg"
+    exit 1
+fi
+
+print_success "Commit message format is valid!"
