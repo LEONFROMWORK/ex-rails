@@ -1,0 +1,58 @@
+# Railway 환경 변수 설정 가이드
+
+## 필수 환경 변수
+
+### Rails 기본 설정
+SECRET_KEY_BASE=bd28abcc8ebb9b1f04c4e2d2b402462df272b3cd63164f472229bf0dd7979fa8443e34bb8ee0cb13da6fe26b9ae309fa41ef71d0e6af74b3ba3e7d1aee8127d7
+
+### 도메인 설정 (Railway 도메인으로 대체)
+RAILS_HOST=your-project-name.railway.app
+
+### 관리자 설정
+ADMIN_EMAILS=your-email@example.com
+
+### 기능 플래그
+PAYMENT_ENABLED=false
+SUBSCRIPTION_REQUIRED=false
+
+## 추가 서비스 (Railway Dashboard에서 추가)
+
+### PostgreSQL
+- Add Plugin → PostgreSQL 선택
+- DATABASE_URL이 자동으로 설정됨
+
+### Redis  
+- Add Plugin → Redis 선택
+- REDIS_URL이 자동으로 설정됨
+
+## OAuth 설정 (선택사항)
+
+### Google OAuth
+GOOGLE_CLIENT_ID=your_google_client_id
+GOOGLE_CLIENT_SECRET=your_google_client_secret
+
+### Kakao OAuth
+KAKAO_CLIENT_ID=your_kakao_client_id
+KAKAO_CLIENT_SECRET=your_kakao_client_secret
+
+## AI 서비스 (선택사항)
+OPENAI_API_KEY=sk-...
+ANTHROPIC_API_KEY=sk-ant-...
+GOOGLE_AI_API_KEY=AIza...
+OPENROUTER_API_KEY=sk-or-...
+
+## 배포 후 확인사항
+
+1. 헬스체크 엔드포인트: https://your-domain.railway.app/up
+2. 로그인 페이지: https://your-domain.railway.app/auth/login
+3. 관리자 대시보드: https://your-domain.railway.app/admin
+
+## OAuth 리다이렉트 URI 설정
+
+배포 완료 후 각 OAuth 제공업체에서 리다이렉트 URI 설정:
+
+### Google Cloud Console
+- 승인된 리디렉션 URI: https://your-domain.railway.app/auth/google_oauth2/callback
+
+### Kakao Developers
+- Redirect URI: https://your-domain.railway.app/auth/kakao/callback

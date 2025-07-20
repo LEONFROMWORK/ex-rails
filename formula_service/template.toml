@@ -1,0 +1,24 @@
+[template]
+name = "Formula Engine Service - HyperFormula API"
+description = "Node.js service providing Excel formula analysis and calculation using HyperFormula library"
+tags = ["nodejs", "excel", "formula", "hyperformula", "api"]
+repository = "https://github.com/LEONFROMWORK/ex-rails"
+rootDirectory = "formula_service"
+
+[build]
+builder = "nixpacks"
+buildCommand = "npm install"
+
+[deploy]
+startCommand = "npm start"
+healthcheckPath = "/health"
+healthcheckTimeout = 30
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 3
+
+[env]
+NODE_ENV = { default = "production" }
+PORT = { default = "3002" }
+MAX_SESSIONS = { default = "100" }
+SESSION_TIMEOUT_MS = { default = "600000" }
+CLEANUP_INTERVAL_MS = { default = "300000" }

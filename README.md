@@ -2,6 +2,12 @@
 
 AI 기반 엑셀 오류 자동 감지 및 수정 SaaS 플랫폼
 
+## 🚀 빠른 배포
+
+[![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/template/github/LEONFROMWORK/ex-rails)
+
+[배포 가이드](./DEPLOY_BUTTON.md) | [설정 가이드](./RAILWAY_ENV_SETUP.txt)
+
 ## 🚀 주요 기능
 
 ### 1. Excel 파일 분석

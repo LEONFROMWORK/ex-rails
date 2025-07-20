@@ -1,0 +1,67 @@
+[template]
+name = "ExcelApp Rails - AI-Powered Excel Analysis Platform"
+description = "Full-stack Rails application with AI integration, Excel analysis, and modern UI. Features OAuth login, multi-provider AI support, and HyperFormula integration."
+tags = ["rails", "ai", "excel", "postgresql", "redis", "oauth", "korean"]
+repository = "https://github.com/LEONFROMWORK/ex-rails"
+
+[build]
+builder = "nixpacks"
+buildCommand = "bundle install && npm install && bundle exec rails assets:precompile"
+
+[deploy]
+startCommand = "bundle exec rails db:migrate && bundle exec rails server -b 0.0.0.0 -p ${PORT:-3000}"
+healthcheckPath = "/up"
+healthcheckTimeout = 300
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 3
+
+[env]
+RAILS_ENV = { default = "production" }
+RAILS_SERVE_STATIC_FILES = { default = "true" }
+RAILS_LOG_TO_STDOUT = { default = "true" }
+WEB_CONCURRENCY = { default = "2" }
+RAILS_MAX_THREADS = { default = "5" }
+NODE_OPTIONS = { default = "--max-old-space-size=512" }
+PAYMENT_ENABLED = { default = "false" }
+SUBSCRIPTION_REQUIRED = { default = "false" }
+SECRET_KEY_BASE = { generate = true }
+
+[env.RAILS_HOST]
+description = "Your Railway domain (will be set after deployment)"
+default = "localhost:3000"
+
+[env.ADMIN_EMAILS]
+description = "Admin email addresses (comma-separated)"
+required = true
+
+[env.GOOGLE_CLIENT_ID]
+description = "Google OAuth Client ID (optional)"
+required = false
+
+[env.GOOGLE_CLIENT_SECRET]
+description = "Google OAuth Client Secret (optional)"  
+required = false
+
+[env.KAKAO_CLIENT_ID]
+description = "Kakao OAuth Client ID (optional)"
+required = false
+
+[env.KAKAO_CLIENT_SECRET]
+description = "Kakao OAuth Client Secret (optional)"
+required = false
+
+[env.OPENAI_API_KEY]
+description = "OpenAI API Key (optional)"
+required = false
+
+[env.ANTHROPIC_API_KEY]
+description = "Anthropic API Key (optional)"
+required = false
+
+[services.postgresql]
+template = "postgresql"
+description = "PostgreSQL database for user data and analysis results"
+
+[services.redis]
+template = "redis"
+description = "Redis for caching and background job processing"
