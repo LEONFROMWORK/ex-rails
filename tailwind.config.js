@@ -5,13 +5,15 @@ module.exports = {
   ...shadcnConfig,
   content: [
     './app/views/**/*.html.erb',
-    './app/helpers/**/*.rb', 
     './app/assets/stylesheets/**/*.css',
     './app/javascript/**/*.js',
     './app/javascript/**/*.vue',
     './app/javascript/**/*.ts',
-    './app/components/**/*.{rb,erb}',
+    './app/components/**/*.{erb}',
     './app/views/**/*.{erb,haml,html,slim}',
+    // Ruby 파일들을 제외하여 UTF-8 인코딩 문제 방지
+    // './app/helpers/**/*.rb', 
+    // './app/components/**/*.rb',
   ],
   theme: {
     ...shadcnConfig.theme,
