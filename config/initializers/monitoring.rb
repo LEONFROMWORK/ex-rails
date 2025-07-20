@@ -60,11 +60,11 @@ Rails.application.config.after_initialize do
     Rails.logger.info("AI auto-tuning job disabled during deployment")
     # AiAutoTuningJob.perform_later
 
-    # 초기 A/B 테스트 실험 설정
-    setup_initial_experiments
+    # 초기 A/B 테스트 실험 설정 (배포 시 임시 비활성화)
+    # setup_initial_experiments
   end
 
-  def setup_initial_experiments
+  def self.setup_initial_experiments
     ab_service = AiIntegration::Services::AbTestingService.instance
 
     # 품질 임계값 실험

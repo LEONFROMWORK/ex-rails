@@ -4,7 +4,7 @@ builder = "nixpacks"
 buildCommand = "bundle install && echo 'Assets precompile skipped for Railway deployment'"
 
 [deploy]
-startCommand = "./bin/railway-start"
+startCommand = "bundle exec rails server -b 0.0.0.0 -p $PORT"
 healthcheckPath = "/up"
 healthcheckTimeout = 300
 restartPolicyType = "ON_FAILURE"
@@ -17,6 +17,8 @@ RAILS_LOG_TO_STDOUT = "true"
 WEB_CONCURRENCY = "2"
 RAILS_MAX_THREADS = "5"
 NODE_OPTIONS = "--max-old-space-size=512"
+SECRET_KEY_BASE_DUMMY = "1"
+SKIP_EAGER_LOAD = "true"
 
 # Required environment variables (set in Railway dashboard):
 # - RAILS_MASTER_KEY
