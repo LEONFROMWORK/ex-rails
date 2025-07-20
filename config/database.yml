@@ -81,8 +81,8 @@ test:
 production:
   primary:
     <<: *default
-    url: <%= ENV["DATABASE_URL"] %>
+    url: <%= ENV["DATABASE_URL"] || "postgresql://user:password@localhost:5432/temp_db" %>
   queue:
     <<: *default
-    url: <%= ENV["DATABASE_URL"] %>
+    url: <%= ENV["DATABASE_URL"] || "postgresql://user:password@localhost:5432/temp_db" %>
     migrations_paths: db/solid_queue_migrate

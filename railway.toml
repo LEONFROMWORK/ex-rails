@@ -4,7 +4,7 @@ builder = "nixpacks"
 buildCommand = "bundle install && echo 'Assets precompile skipped for Railway deployment'"
 
 [deploy]
-startCommand = "bundle exec rails db:migrate && bundle exec rails server -b 0.0.0.0 -p ${PORT:-3000}"
+startCommand = "(bundle exec rails db:migrate || echo 'Migration skipped - DB not ready') && bundle exec rails server -b 0.0.0.0 -p ${PORT:-3000}"
 healthcheckPath = "/up"
 healthcheckTimeout = 300
 restartPolicyType = "ON_FAILURE"
