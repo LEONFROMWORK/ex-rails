@@ -1,11 +1,21 @@
 [phases.setup]
-nixpkgs = ["ruby_3_3", "postgresql", "openssl"]
+nixpkgs = ["ruby", "postgresql", "nodejs", "yarn"]
+aptPkgs = ["libpq-dev", "build-essential", "libvips-dev"]
 
 [phases.install]
-cmds = ["bundle install"]
+cmds = [
+    "gem install bundler",
+    "bundle config set --local deployment false",
+    "bundle config set --local without 'development test'",
+    "bundle install",
+    "npm install"
+]
 
 [phases.build]
 cmds = ["bundle exec rails assets:precompile"]
 
 [start]
 cmd = "bundle exec rails db:migrate && bundle exec rails server -b 0.0.0.0 -p ${PORT:-3000}"
+
+[variables]
+RUBY_VERSION = "3.4.4"
