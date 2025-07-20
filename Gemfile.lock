@@ -742,7 +742,7 @@ DEPENDENCIES
   xlsxtream (~> 3.1)
 
 RUBY VERSION
-   ruby 3.4.4p34
+   ruby 3.3.5p100
 
 BUNDLED WITH
    2.6.9
