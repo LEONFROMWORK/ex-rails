@@ -1,5 +1,7 @@
 [build]
 builder = "nixpacks"
+# assets precompile 건너뛰기 위한 설정
+buildCommand = "bundle install && echo 'Assets precompile skipped for Railway deployment'"
 
 [deploy]
 startCommand = "bundle exec rails db:migrate && bundle exec rails server -b 0.0.0.0 -p ${PORT:-3000}"
